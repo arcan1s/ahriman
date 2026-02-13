@@ -19,7 +19,7 @@ def test_archive_lookup(executor: Executor, package_ahriman: Package, package_py
     """
     must existing packages which match the version
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("pathlib.Path.iterdir", return_value=[
         Path("1.pkg.tar.zst"),
         Path("2.pkg.tar.zst"),
@@ -40,7 +40,7 @@ def test_archive_lookup_version_mismatch(executor: Executor, package_ahriman: Pa
     """
     must return nothing if no packages found with the same version
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("pathlib.Path.iterdir", return_value=[
         Path("1.pkg.tar.zst"),
     ])
@@ -55,13 +55,24 @@ def test_archive_lookup_architecture_mismatch(executor: Executor, package_ahrima
     must return nothing if architecture doesn't match
     """
     package_ahriman.packages[package_ahriman.base].architecture = "x86_64"
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.repository.executor.Executor.architecture", return_value="i686")
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
     mocker.patch("pathlib.Path.iterdir", return_value=[
         Path("1.pkg.tar.zst"),
     ])
     mocker.patch("ahriman.models.package.Package.from_archive", return_value=package_ahriman)
 
+    assert list(executor._archive_lookup(package_ahriman)) == []
+
+
+def test_archive_lookup_no_archive_directory(
+        executor: Executor,
+        package_ahriman: Package,
+        mocker: MockerFixture) -> None:
+    """
+    must return nothing if no archive directory found
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
     assert list(executor._archive_lookup(package_ahriman)) == []
 
 

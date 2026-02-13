@@ -32,7 +32,6 @@ def test_fix_symlinks(repository_paths: RepositoryPaths, package_ahriman: Packag
     """
     must replace symlinks during migration
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
     mocker.patch("ahriman.application.handlers.tree_migrate.walk", side_effect=[
         [
             repository_paths.archive_for(package_ahriman.base) / "file",

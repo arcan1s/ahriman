@@ -21,15 +21,19 @@ import contextlib
 import os
 import shutil
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from pwd import getpwuid
+from typing import ParamSpec
 
 from ahriman.core.log import LazyLogging
 from ahriman.core.utils import owner
 from ahriman.models.repository_id import RepositoryId
+
+
+Params = ParamSpec("Params")
 
 
 @dataclass(frozen=True)
@@ -228,12 +232,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             Path: path to archive directory for package base
         """
-        directory = self.archive / "packages" / package_base[0] / package_base
-        if not directory.is_dir():  # create if not exists
-            with self.preserve_owner():
-                directory.mkdir(mode=0o755, parents=True)
-
-        return directory
+        return self.archive / "packages" / package_base[0] / package_base
 
     def cache_for(self, package_base: str) -> Path:
         """
@@ -246,6 +245,33 @@ class RepositoryPaths(LazyLogging):
             Path: full path to directory for specified package base cache
         """
         return self.cache / package_base
+
+    def ensure_exists(self, directory: Callable[Params, Path] | Path, *args: Params.args,
+                      **kwargs: Params.kwargs) -> Path:
+        """
+        get path based on ``directory`` callable provided and ensure it exists
+
+        Args:
+            directory(Callable[Params, Path] | Path): either directory extractor or path to directory to check
+            args(Params.args): positional arguments for directory call
+            kwargs(Params.kwargs): keyword arguments for directory call
+
+        Returns:
+            Path: original path based on extractor provided. Directory will always exist
+
+        Examples:
+            This method calls directory accessor and then checks if there is a directory and - otherwise - creates it::
+
+                >>> paths.ensure_exists(paths.archive_for, package_base)
+        """
+        if callable(directory):
+            directory = directory(*args, **kwargs)
+
+        if not directory.is_dir():
+            with self.preserve_owner():
+                directory.mkdir(mode=0o755, parents=True)
+
+        return directory
 
     @contextlib.contextmanager
     def preserve_owner(self) -> Iterator[None]:
@@ -303,13 +329,12 @@ class RepositoryPaths(LazyLogging):
         if self.repository_id.is_empty:
             return  # do not even try to create tree in case if no repository id set
 
-        with self.preserve_owner():
-            for directory in (
-                    self.archive,
-                    self.cache,
-                    self.chroot,
-                    self.packages,
-                    self.pacman,
-                    self.repository,
-            ):
-                directory.mkdir(mode=0o755, parents=True, exist_ok=True)
+        for directory in (
+            self.archive,
+            self.cache,
+            self.chroot,
+            self.packages,
+            self.pacman,
+            self.repository,
+        ):
+            self.ensure_exists(directory)

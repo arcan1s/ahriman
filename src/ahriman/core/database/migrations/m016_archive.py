@@ -79,8 +79,8 @@ def move_packages(repository_paths: RepositoryPaths, pacman: Pacman) -> None:
             artifacts.append(signature)
 
         for source in artifacts:
+            target = repository_paths.ensure_exists(repository_paths.archive_for, package.base) / source.name
             # move package to the archive directory
-            target = repository_paths.archive_for(package.base) / source.name
             atomic_move(source, target)
             # create symlink to the archive
             symlink_relative(source, target)

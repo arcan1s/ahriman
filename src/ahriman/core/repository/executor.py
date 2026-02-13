@@ -52,6 +52,8 @@ class Executor(PackageInfo, Cleaner):
             Path: list of built packages and signatures if available, empty list otherwise
         """
         archive = self.paths.archive_for(package.base)
+        if not archive.is_dir():
+            return
 
         # find all packages which have same version
         same_version = [
@@ -169,7 +171,7 @@ class Executor(PackageInfo, Cleaner):
         files = self.sign.process_sign_package(full_path, packager_key)
 
         for src in files:
-            dst = self.paths.archive_for(package_base) / src.name
+            dst = self.paths.ensure_exists(self.paths.archive_for, package_base) / src.name
             atomic_move(src, dst)  # move package to archive directory
             if not (symlink := self.paths.repository / dst.name).exists():
                 symlink_relative(symlink, dst)  # create link to archive
