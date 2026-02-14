@@ -97,8 +97,9 @@ class ArchiveTree(LazyLogging):
             parents = [repository] + list(repository.parents[:-1])
             for parent in parents:
                 path = root / parent
-                if not list(path.iterdir()):
-                    path.rmdir()
+                if list(path.iterdir()):
+                    continue  # directory is not empty
+                path.rmdir()
 
     def repository_for(self, date: datetime.date | None = None) -> Path:
         """

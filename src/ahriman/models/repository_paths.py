@@ -26,14 +26,10 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from pwd import getpwuid
-from typing import ParamSpec
 
 from ahriman.core.log import LazyLogging
 from ahriman.core.utils import owner
 from ahriman.models.repository_id import RepositoryId
-
-
-Params = ParamSpec("Params")
 
 
 @dataclass(frozen=True)
