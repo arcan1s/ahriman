@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # pylint: disable=too-many-lines
+import contextlib
 import datetime
 import io
 import itertools
@@ -47,6 +48,7 @@ __all__ = [
     "dataclass_view",
     "enum_values",
     "extract_user",
+    "filelock",
     "filter_json",
     "full_version",
     "list_flatmap",
@@ -87,7 +89,7 @@ def atomic_move(src: Path, dst: Path) -> None:
 
             >>> atomic_move(src, dst)
     """
-    with FileLock(dst.with_name(f".{dst.name}.lock")):
+    with filelock(dst):
         shutil.move(src, dst)
 
 
@@ -260,6 +262,25 @@ def extract_user() -> str | None:
         cleared before application start
     """
     return os.getenv("SUDO_USER") or os.getenv("DOAS_USER") or os.getenv("USER")
+
+
+@contextlib.contextmanager
+def filelock(path: Path) -> Iterator[FileLock]:
+    """
+    wrapper around :class:`filelock.FileLock`, which also removes locks afterward
+
+    Args:
+        path(Path): path to lock on. The lock file will be created as ``.{path.name}.lock``
+
+    Yields:
+        FileLock: acquired file lock instance
+    """
+    lock_path = path.with_name(f".{path.name}.lock")
+    try:
+        with FileLock(lock_path) as lock:
+            yield lock
+    finally:
+        lock_path.unlink(missing_ok=True)
 
 
 def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:

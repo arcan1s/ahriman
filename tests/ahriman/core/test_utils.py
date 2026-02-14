@@ -20,11 +20,11 @@ def test_atomic_move(mocker: MockerFixture) -> None:
     """
     must move file with locking
     """
-    filelock_mock = mocker.patch("ahriman.core.utils.FileLock")
+    filelock_mock = mocker.patch("ahriman.core.utils.filelock")
     move_mock = mocker.patch("shutil.move")
 
     atomic_move(Path("source"), Path("destination"))
-    filelock_mock.assert_called_once_with(Path(".destination.lock"))
+    filelock_mock.assert_called_once_with(Path("destination"))
     move_mock.assert_called_once_with(Path("source"), Path("destination"))
 
 
@@ -245,6 +245,30 @@ def test_extract_user() -> None:
 
     del os.environ["SUDO_USER"]
     assert extract_user() == "doas"
+
+
+def test_filelock(tmp_path: Path) -> None:
+    """
+    must acquire lock and remove lock file after
+    """
+    local = tmp_path / "local"
+    lock = local.with_name(f".{local.name}.lock")
+
+    with filelock(local):
+        assert lock.exists()
+    assert not lock.exists()
+
+
+def test_filelock_cleanup_on_missing(tmp_path: Path) -> None:
+    """
+    must not fail if lock file is already removed
+    """
+    local = tmp_path / "local"
+    lock = local.with_name(f".{local.name}.lock")
+
+    with filelock(local):
+        lock.unlink(missing_ok=True)
+    assert not lock.exists()
 
 
 def test_filter_json(package_ahriman: Package) -> None:

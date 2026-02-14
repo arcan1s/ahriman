@@ -20,7 +20,6 @@
 import shutil
 
 from collections.abc import Iterable
-from filelock import FileLock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -28,7 +27,7 @@ from ahriman.core.build_tools.package_archive import PackageArchive
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
-from ahriman.core.utils import atomic_move, list_flatmap, package_like, safe_filename, symlink_relative
+from ahriman.core.utils import atomic_move, filelock, list_flatmap, package_like, safe_filename, symlink_relative
 from ahriman.models.changes import Changes
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -112,7 +111,7 @@ class Executor(PackageInfo, Cleaner):
             self.logger.info("using prebuilt packages for %s-%s", loaded_package.base, loaded_package.version)
             built = []
             for artifact in prebuilt:
-                with FileLock(artifact.with_name(f".{artifact.name}.lock")):
+                with filelock(artifact):
                     shutil.copy(artifact, path)
                 built.append(path / artifact.name)
         else:
