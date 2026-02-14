@@ -17,7 +17,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.tree_migrate.TreeMigrate.tree_move")
-    symlinks_mock = mocker.patch("ahriman.application.handlers.tree_migrate.TreeMigrate.fix_symlinks")
+    symlinks_mock = mocker.patch("ahriman.application.handlers.tree_migrate.TreeMigrate.symlinks_fix")
     _, repository_id = configuration.check_loaded()
     old_paths = configuration.repository_paths
     new_paths = RepositoryPaths(old_paths.root, old_paths.repository_id, _force_current_tree=True)
@@ -28,7 +28,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     symlinks_mock.assert_called_once_with(new_paths)
 
 
-def test_fix_symlinks(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_symlinks_fix(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must replace symlinks during migration
     """
@@ -46,7 +46,7 @@ def test_fix_symlinks(repository_paths: RepositoryPaths, package_ahriman: Packag
     unlink_mock = mocker.patch("pathlib.Path.unlink")
     symlink_mock = mocker.patch("pathlib.Path.symlink_to")
 
-    TreeMigrate.fix_symlinks(repository_paths)
+    TreeMigrate.symlinks_fix(repository_paths)
     unlink_mock.assert_called_once_with()
     symlink_mock.assert_called_once_with(
         Path("..") /

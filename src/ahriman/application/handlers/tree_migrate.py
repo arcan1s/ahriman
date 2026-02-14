@@ -50,7 +50,7 @@ class TreeMigrate(Handler):
         target_tree.tree_create()
         # perform migration
         TreeMigrate.tree_move(current_tree, target_tree)
-        TreeMigrate.fix_symlinks(target_tree)
+        TreeMigrate.symlinks_fix(target_tree)
 
     @staticmethod
     def _set_service_tree_migrate_parser(root: SubParserAction) -> argparse.ArgumentParser:
@@ -69,7 +69,7 @@ class TreeMigrate(Handler):
         return parser
 
     @staticmethod
-    def fix_symlinks(paths: RepositoryPaths) -> None:
+    def symlinks_fix(paths: RepositoryPaths) -> None:
         """
         fix package archive symlinks
 
