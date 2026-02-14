@@ -145,63 +145,11 @@ def test_repositories_extract(args: argparse.Namespace, configuration: Configura
     args.configuration = configuration.path
     args.repository = "repo"
     mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
-    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
+    extract_mock = mocker.patch("ahriman.core.repository.Explorer.repositories_extract",
+                                return_value=[RepositoryId("arch", "repo")])
 
     assert Handler.repositories_extract(args) == [RepositoryId("arch", "repo")]
-    known_architectures_mock.assert_not_called()
-    known_repositories_mock.assert_not_called()
-
-
-def test_repositories_extract_repository(args: argparse.Namespace, configuration: Configuration,
-                                         mocker: MockerFixture) -> None:
-    """
-    must generate list of available repositories based on flags and tree
-    """
-    args.architecture = "arch"
-    args.configuration = configuration.path
-    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
-    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
-                                           return_value={"repo"})
-
-    assert Handler.repositories_extract(args) == [RepositoryId("arch", "repo")]
-    known_architectures_mock.assert_not_called()
-    known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)
-
-
-def test_repositories_extract_repository_legacy(args: argparse.Namespace, configuration: Configuration,
-                                                mocker: MockerFixture) -> None:
-    """
-    must generate list of available repositories based on flags and tree (legacy mode)
-    """
-    args.architecture = "arch"
-    args.configuration = configuration.path
-    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
-    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
-                                           return_value=set())
-
-    assert Handler.repositories_extract(args) == [RepositoryId("arch", "aur")]
-    known_architectures_mock.assert_not_called()
-    known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)
-
-
-def test_repositories_extract_architecture(args: argparse.Namespace, configuration: Configuration,
-                                           mocker: MockerFixture) -> None:
-    """
-    must read repository name from config
-    """
-    args.configuration = configuration.path
-    args.repository = "repo"
-    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures",
-                                            return_value={"arch"})
-    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
-
-    assert Handler.repositories_extract(args) == [RepositoryId("arch", "repo")]
-    known_architectures_mock.assert_called_once_with(configuration.repository_paths.root, "repo")
-    known_repositories_mock.assert_not_called()
+    extract_mock.assert_called_once_with(pytest.helpers.anyvar(Configuration, True), args.repository, args.architecture)
 
 
 def test_repositories_extract_empty(args: argparse.Namespace, configuration: Configuration,
@@ -212,8 +160,7 @@ def test_repositories_extract_empty(args: argparse.Namespace, configuration: Con
     args.command = "config"
     args.configuration = configuration.path
     mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures", return_value=set())
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories", return_value=set())
+    mocker.patch("ahriman.core.repository.Explorer.repositories_extract", return_value=[])
 
     with pytest.raises(MissingArchitectureError):
         Handler.repositories_extract(args)
@@ -227,12 +174,11 @@ def test_repositories_extract_systemd(args: argparse.Namespace, configuration: C
     args.configuration = configuration.path
     args.repository_id = "i686/some/repo/name"
     mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
-    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
+    extract_mock = mocker.patch("ahriman.core.repository.Explorer.repositories_extract",
+                                return_value=[RepositoryId("i686", "some-repo-name")])
 
     assert Handler.repositories_extract(args) == [RepositoryId("i686", "some-repo-name")]
-    known_architectures_mock.assert_not_called()
-    known_repositories_mock.assert_not_called()
+    extract_mock.assert_called_once_with(pytest.helpers.anyvar(Configuration, True), "some-repo-name", "i686")
 
 
 def test_repositories_extract_systemd_with_dash(args: argparse.Namespace, configuration: Configuration,
@@ -243,12 +189,11 @@ def test_repositories_extract_systemd_with_dash(args: argparse.Namespace, config
     args.configuration = configuration.path
     args.repository_id = "i686-some-repo-name"
     mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
-    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
+    extract_mock = mocker.patch("ahriman.core.repository.Explorer.repositories_extract",
+                                return_value=[RepositoryId("i686", "some-repo-name")])
 
     assert Handler.repositories_extract(args) == [RepositoryId("i686", "some-repo-name")]
-    known_architectures_mock.assert_not_called()
-    known_repositories_mock.assert_not_called()
+    extract_mock.assert_called_once_with(pytest.helpers.anyvar(Configuration, True), "some-repo-name", "i686")
 
 
 def test_repositories_extract_systemd_legacy(args: argparse.Namespace, configuration: Configuration,
@@ -259,10 +204,8 @@ def test_repositories_extract_systemd_legacy(args: argparse.Namespace, configura
     args.configuration = configuration.path
     args.repository_id = "i686"
     mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
-    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
-    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
-                                           return_value=set())
+    extract_mock = mocker.patch("ahriman.core.repository.Explorer.repositories_extract",
+                                return_value=[RepositoryId("i686", "aur")])
 
     assert Handler.repositories_extract(args) == [RepositoryId("i686", "aur")]
-    known_architectures_mock.assert_not_called()
-    known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)
+    extract_mock.assert_called_once_with(pytest.helpers.anyvar(Configuration, True), None, "i686")

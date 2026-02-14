@@ -23,7 +23,7 @@ def test_migrate_data(connection: Connection, configuration: Configuration, mock
         repository_id,
         replace(repository_id, architecture="i686"),
     ]
-    mocker.patch("ahriman.application.handlers.handler.Handler.repositories_extract", return_value=repositories)
+    mocker.patch("ahriman.core.repository.Explorer.repositories_extract", return_value=repositories)
     migration_mock = mocker.patch("ahriman.core.database.migrations.m016_archive.move_packages")
 
     migrate_data(connection, configuration)

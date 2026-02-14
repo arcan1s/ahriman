@@ -17,14 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import argparse
-
 from dataclasses import replace
 from sqlite3 import Connection
 
-from ahriman.application.handlers.handler import Handler
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Explorer
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.utils import atomic_move, package_like, symlink_relative
 from ahriman.models.package import Package
@@ -45,10 +43,7 @@ def migrate_data(connection: Connection, configuration: Configuration) -> None:
     """
     del connection
 
-    config_path, _ = configuration.check_loaded()
-    args = argparse.Namespace(configuration=config_path, architecture=None, repository=None, repository_id=None)
-
-    for repository_id in Handler.repositories_extract(args):
+    for repository_id in Explorer.repositories_extract(configuration):
         paths = replace(configuration.repository_paths, repository_id=repository_id)
         pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Disabled)
 

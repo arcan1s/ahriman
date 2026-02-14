@@ -20,7 +20,7 @@
 import argparse
 import logging
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from multiprocessing import Pool
 from typing import ClassVar, TypeVar
 
@@ -28,9 +28,9 @@ from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
 from ahriman.core.log.log_loader import LogLoader
+from ahriman.core.repository import Explorer
 from ahriman.core.types import ExplicitBool
 from ahriman.models.repository_id import RepositoryId
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 # this workaround is for several things
@@ -169,11 +169,6 @@ class Handler:
         Raises:
             MissingArchitectureError: if no architecture set and automatic detection is not allowed or failed
         """
-        configuration = Configuration()
-        configuration.load(args.configuration)
-        # pylint, wtf???
-        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
-
         # preparse systemd repository-id argument
         # we are using unescaped values, so / is not allowed here, because it is impossible to separate if from dashes
         if args.repository_id is not None:
@@ -184,27 +179,10 @@ class Handler:
             if repository_parts:
                 args.repository = "-".join(repository_parts)  # replace slash with dash
 
-        # extract repository names first
-        if (from_args := args.repository) is not None:
-            repositories: Iterable[str] = [from_args]
-        elif from_filesystem := RepositoryPaths.known_repositories(root):
-            repositories = from_filesystem
-        else:  # try to read configuration now
-            repositories = [configuration.get("repository", "name")]
+        configuration = Configuration()
+        configuration.load(args.configuration)
+        repositories = Explorer.repositories_extract(configuration, args.repository, args.architecture)
 
-        # extract architecture names
-        if (architecture := args.architecture) is not None:
-            parsed = set(
-                RepositoryId(architecture, repository)
-                for repository in repositories
-            )
-        else:  # try to read from file system
-            parsed = set(
-                RepositoryId(architecture, repository)
-                for repository in repositories
-                for architecture in RepositoryPaths.known_architectures(root, repository)
-            )
-
-        if not parsed:
+        if not repositories:
             raise MissingArchitectureError(args.command)
-        return sorted(parsed)
+        return sorted(repositories)
