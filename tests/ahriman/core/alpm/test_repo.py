@@ -35,17 +35,6 @@ def test_repo_add(repo: Repo, mocker: MockerFixture) -> None:
     assert "--remove" in check_output_mock.call_args[0]
 
 
-def test_repo_add_no_remove(repo: Repo, mocker: MockerFixture) -> None:
-    """
-    must call repo-add without remove flag
-    """
-    check_output_mock = mocker.patch("ahriman.core.alpm.repo.check_output")
-
-    repo.add(Path("path"), remove=False)
-    check_output_mock.assert_called_once()  # it will be checked later
-    assert "--remove" not in check_output_mock.call_args[0]
-
-
 def test_repo_init(repo: Repo, mocker: MockerFixture) -> None:
     """
     must call repo-add with empty package list on repo initializing

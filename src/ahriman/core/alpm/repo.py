@@ -59,22 +59,15 @@ class Repo(LazyLogging):
         """
         return self.root / f"{self.name}.db.tar.gz"
 
-    def add(self, path: Path, *, remove: bool = True) -> None:
+    def add(self, path: Path) -> None:
         """
         add new package to repository
 
         Args:
             path(Path): path to archive to add
-            remove(bool, optional): whether to remove old packages or not (Default value = True)
         """
-        command = ["repo-add", *self.sign_args]
-        if remove:
-            command.extend(["--remove"])
-        command.extend([str(self.repo_path), str(path)])
-
-        # add to repository
         check_output(
-            *command,
+            "repo-add", *self.sign_args, "--remove", str(self.repo_path), str(path),
             exception=BuildError.from_process(path.name),
             cwd=self.root,
             logger=self.logger,
