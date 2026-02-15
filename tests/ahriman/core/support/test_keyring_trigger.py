@@ -7,13 +7,6 @@ from ahriman.core.sign.gpg import GPG
 from ahriman.core.support import KeyringTrigger
 
 
-def test_requires_repository() -> None:
-    """
-    must require repository identifier to be set to start
-    """
-    assert KeyringTrigger.REQUIRES_REPOSITORY
-
-
 def test_configuration_sections(configuration: Configuration) -> None:
     """
     must correctly parse target list

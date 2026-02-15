@@ -66,7 +66,7 @@ async def test_delete_partially(client: TestClient, package_ahriman: Package) ->
     assert json
 
 
-async def test_delete_exception(client: TestClient, package_ahriman: Package) -> None:
+async def test_delete_exception(client: TestClient) -> None:
     """
     must raise exception on invalid payload
     """

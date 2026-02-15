@@ -97,6 +97,13 @@ libalpm and AUR related configuration. Group name can refer to architecture, e.g
 * ``sync_files_database`` - download files database from mirror, boolean, required.
 * ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands). If set to ``no``, databases must be synchronized manually.
 
+``archive`` group
+-----------------
+
+Describes settings for packages archives management extensions.
+
+* ``keep_built_packages`` - keep this amount of built packages with different versions, integer, required. ``0`` (or negative number) will effectively disable archives removal.
+
 ``auth`` group
 --------------
 

@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # pylint: disable=too-many-lines
+import contextlib
 import datetime
 import io
 import itertools
@@ -25,11 +26,13 @@ import logging
 import os
 import re
 import selectors
+import shutil
 import subprocess
 
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import asdict
 from enum import Enum
+from filelock import FileLock
 from pathlib import Path
 from pwd import getpwuid
 from typing import Any, IO, TypeVar
@@ -39,11 +42,13 @@ from ahriman.core.types import Comparable
 
 
 __all__ = [
+    "atomic_move",
     "check_output",
     "check_user",
     "dataclass_view",
     "enum_values",
     "extract_user",
+    "filelock",
     "filter_json",
     "full_version",
     "list_flatmap",
@@ -58,6 +63,7 @@ __all__ = [
     "safe_filename",
     "srcinfo_property",
     "srcinfo_property_list",
+    "symlink_relative",
     "trim_package",
     "utcnow",
     "walk",
@@ -66,6 +72,25 @@ __all__ = [
 
 R = TypeVar("R", bound=Comparable)
 T = TypeVar("T")
+
+
+def atomic_move(src: Path, dst: Path) -> None:
+    """
+    move file from ``source`` location to ``destination``. This method uses lock and :func:`shutil.move` to ensure that
+    file will be copied (if not rename) atomically. This method blocks execution until lock is available
+
+    Args:
+        src(Path): path to the source file
+        dst(Path): path to the destination
+
+    Examples:
+        This method is a drop-in replacement for :func:`shutil.move` (except it doesn't allow to override copy method)
+        which first locking destination file. To use it simply call method with arguments::
+
+            >>> atomic_move(src, dst)
+    """
+    with filelock(dst):
+        shutil.move(src, dst)
 
 
 # pylint: disable=too-many-locals
@@ -239,6 +264,25 @@ def extract_user() -> str | None:
     return os.getenv("SUDO_USER") or os.getenv("DOAS_USER") or os.getenv("USER")
 
 
+@contextlib.contextmanager
+def filelock(path: Path) -> Iterator[FileLock]:
+    """
+    wrapper around :class:`filelock.FileLock`, which also removes locks afterward
+
+    Args:
+        path(Path): path to lock on. The lock file will be created as ``.{path.name}.lock``
+
+    Yields:
+        FileLock: acquired file lock instance
+    """
+    lock_path = path.with_name(f".{path.name}.lock")
+    try:
+        with FileLock(lock_path) as lock:
+            yield lock
+    finally:
+        lock_path.unlink(missing_ok=True)
+
+
 def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:
     """
     filter json object by fields used for json-to-object conversion
@@ -279,7 +323,7 @@ def full_version(epoch: str | int | None, pkgver: str, pkgrel: str) -> str:
     return f"{prefix}{pkgver}-{pkgrel}"
 
 
-def list_flatmap(source: Iterable[T], extractor: Callable[[T], list[R]]) -> list[R]:
+def list_flatmap(source: Iterable[T], extractor: Callable[[T], Iterable[R]]) -> list[R]:
     """
     extract elements from list of lists, flatten them and apply ``extractor``
 
@@ -508,6 +552,17 @@ def srcinfo_property_list(key: str, srcinfo: Mapping[str, Any], package_srcinfo:
     if architecture is not None:
         values.extend(srcinfo_property(f"{key}_{architecture}", srcinfo, package_srcinfo, default=[]))
     return values
+
+
+def symlink_relative(symlink: Path, source: Path) -> None:
+    """
+    create symlink with relative path to the target directory
+
+    Args:
+        symlink(Path): path to symlink to create
+        source(Path): source file to be symlinked
+    """
+    symlink.symlink_to(source.relative_to(symlink.parent, walk_up=True))
 
 
 def trim_package(package_name: str) -> str:

@@ -21,6 +21,7 @@ import argparse
 
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
+from ahriman.core.utils import symlink_relative, walk
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -49,6 +50,7 @@ class TreeMigrate(Handler):
         target_tree.tree_create()
         # perform migration
         TreeMigrate.tree_move(current_tree, target_tree)
+        TreeMigrate.symlinks_fix(target_tree)
 
     @staticmethod
     def _set_service_tree_migrate_parser(root: SubParserAction) -> argparse.ArgumentParser:
@@ -65,6 +67,22 @@ class TreeMigrate(Handler):
                                  description="migrate repository tree between versions")
         parser.set_defaults(lock=None, quiet=True, report=False)
         return parser
+
+    @staticmethod
+    def symlinks_fix(paths: RepositoryPaths) -> None:
+        """
+        fix package archive symlinks
+
+        Args:
+            paths(RepositoryPaths): new repository paths
+        """
+        archives = {path.name: path for path in walk(paths.archive)}
+        for symlink in walk(paths.repository):
+            if symlink.exists():  # no need to check for symlinks as we have just walked through the tree
+                continue
+            if (source_archive := archives.get(symlink.name)) is not None:
+                symlink.unlink()
+                symlink_relative(symlink, source_archive)
 
     @staticmethod
     def tree_move(from_tree: RepositoryPaths, to_tree: RepositoryPaths) -> None:

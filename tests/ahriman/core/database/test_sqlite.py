@@ -16,7 +16,7 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
     init_mock.assert_called_once_with()
 
 
-def test_init(database: SQLite, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_init(database: SQLite, mocker: MockerFixture) -> None:
     """
     must run migrations on init
     """

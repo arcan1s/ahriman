@@ -40,6 +40,8 @@ docutils==0.21.2
     #   sphinx
     #   sphinx-argparse
     #   sphinx-rtd-theme
+filelock==3.24.0
+    # via ahriman (pyproject.toml)
 frozenlist==1.6.0
     # via
     #   aiohttp

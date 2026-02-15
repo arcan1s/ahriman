@@ -31,20 +31,21 @@ class Repo(LazyLogging):
 
     Attributes:
         name(str): repository name
-        paths(RepositoryPaths): repository paths instance
+        root(Path): repository root
         sign_args(list[str]): additional args which have to be used to sign repository archive
         uid(int): uid of the repository owner user
     """
 
-    def __init__(self, name: str, paths: RepositoryPaths, sign_args: list[str]) -> None:
+    def __init__(self, name: str, paths: RepositoryPaths, sign_args: list[str], root: Path | None = None) -> None:
         """
         Args:
             name(str): repository name
             paths(RepositoryPaths): repository paths instance
             sign_args(list[str]): additional args which have to be used to sign repository archive
+            root(Path | None, optional): repository root. If none set, the default will be used (Default value = None)
         """
         self.name = name
-        self.paths = paths
+        self.root = root or paths.repository
         self.uid, _ = paths.root_owner
         self.sign_args = sign_args
 
@@ -56,7 +57,7 @@ class Repo(LazyLogging):
         Returns:
             Path: path to repository database
         """
-        return self.paths.repository / f"{self.name}.db.tar.gz"
+        return self.root / f"{self.name}.db.tar.gz"
 
     def add(self, path: Path) -> None:
         """
@@ -66,35 +67,37 @@ class Repo(LazyLogging):
             path(Path): path to archive to add
         """
         check_output(
-            "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
+            "repo-add", *self.sign_args, "--remove", str(self.repo_path), str(path),
             exception=BuildError.from_process(path.name),
-            cwd=self.paths.repository,
+            cwd=self.root,
             logger=self.logger,
-            user=self.uid)
+            user=self.uid,
+        )
 
     def init(self) -> None:
         """
         create empty repository database. It just calls add with empty arguments
         """
         check_output("repo-add", *self.sign_args, str(self.repo_path),
-                     cwd=self.paths.repository, logger=self.logger, user=self.uid)
+                     cwd=self.root, logger=self.logger, user=self.uid)
 
-    def remove(self, package: str, filename: Path) -> None:
+    def remove(self, package_name: str, filename: Path) -> None:
         """
         remove package from repository
 
         Args:
-            package(str): package name to remove
+            package_name(str): package name to remove
             filename(Path): package filename to remove
         """
         # remove package and signature (if any) from filesystem
-        for full_path in self.paths.repository.glob(f"{filename}*"):
+        for full_path in self.root.glob(f"{filename.name}*"):
             full_path.unlink()
 
         # remove package from registry
         check_output(
-            "repo-remove", *self.sign_args, str(self.repo_path), package,
-            exception=BuildError.from_process(package),
-            cwd=self.paths.repository,
+            "repo-remove", *self.sign_args, str(self.repo_path), package_name,
+            exception=BuildError.from_process(package_name),
+            cwd=self.root,
             logger=self.logger,
-            user=self.uid)
+            user=self.uid,
+        )

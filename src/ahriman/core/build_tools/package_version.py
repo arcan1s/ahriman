@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from pyalpm import vercmp  # type: ignore[import-not-found]
-
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -113,5 +111,4 @@ class PackageVersion(LazyLogging):
         else:
             remote_version = remote.version
 
-        result: int = vercmp(self.package.version, remote_version)
-        return result < 0
+        return self.package.vercmp(remote_version) < 0

@@ -8,7 +8,7 @@ pkgdesc="ArcH linux ReposItory MANager"
 arch=('any')
 url="https://ahriman.readthedocs.io/"
 license=('GPL-3.0-or-later')
-depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-bcrypt' 'python-inflection' 'python-pyelftools' 'python-requests')
+depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-bcrypt' 'python-filelock' 'python-inflection' 'python-pyelftools' 'python-requests')
 makedepends=('python-build' 'python-flit' 'python-installer' 'python-wheel')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgbase-$pkgver.tar.gz"
         "$pkgbase.sysusers"

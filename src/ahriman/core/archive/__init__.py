@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2026 ahriman team.
+# Copyright (c) 2021-2025 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -17,5 +17,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.housekeeping.archive_rotation_trigger import ArchiveRotationTrigger
-from ahriman.core.housekeeping.logs_rotation_trigger import LogsRotationTrigger
+from ahriman.core.archive.archive_trigger import ArchiveTrigger

@@ -2,7 +2,6 @@ import logging
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest.mock import call as MockCall
 
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.build_tools.task import Task

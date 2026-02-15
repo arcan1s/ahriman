@@ -16,6 +16,18 @@ from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+def test_atomic_move(mocker: MockerFixture) -> None:
+    """
+    must move file with locking
+    """
+    filelock_mock = mocker.patch("ahriman.core.utils.filelock")
+    move_mock = mocker.patch("shutil.move")
+
+    atomic_move(Path("source"), Path("destination"))
+    filelock_mock.assert_called_once_with(Path("destination"))
+    move_mock.assert_called_once_with(Path("source"), Path("destination"))
+
+
 def test_check_output(mocker: MockerFixture) -> None:
     """
     must run command and log result
@@ -233,6 +245,30 @@ def test_extract_user() -> None:
 
     del os.environ["SUDO_USER"]
     assert extract_user() == "doas"
+
+
+def test_filelock(tmp_path: Path) -> None:
+    """
+    must acquire lock and remove lock file after
+    """
+    local = tmp_path / "local"
+    lock = local.with_name(f".{local.name}.lock")
+
+    with filelock(local):
+        assert lock.exists()
+    assert not lock.exists()
+
+
+def test_filelock_cleanup_on_missing(tmp_path: Path) -> None:
+    """
+    must not fail if lock file is already removed
+    """
+    local = tmp_path / "local"
+    lock = local.with_name(f".{local.name}.lock")
+
+    with filelock(local):
+        lock.unlink(missing_ok=True)
+    assert not lock.exists()
 
 
 def test_filter_json(package_ahriman: Package) -> None:
@@ -468,6 +504,23 @@ def test_srcinfo_property_list() -> None:
         "root", "overrides"
     ]
     assert srcinfo_property_list("key", {"key_x86_64": ["overrides"]}, {}, architecture="x86_64") == ["overrides"]
+
+
+def test_symlink_relative(mocker: MockerFixture) -> None:
+    """
+    must create symlinks with relative paths
+    """
+    symlink_mock = mocker.patch("pathlib.Path.symlink_to")
+
+    symlink_relative(Path("a"), Path("b"))
+    symlink_relative(Path("root/a"), Path("root/c"))
+    symlink_relative(Path("root/sub/a"), Path("root/c"))
+
+    symlink_mock.assert_has_calls([
+        MockCall(Path("b")),
+        MockCall(Path("c")),
+        MockCall(Path("../c")),
+    ])
 
 
 def test_trim_package() -> None:

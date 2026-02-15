@@ -7,13 +7,6 @@ from ahriman.core.status import Client
 from ahriman.models.result import Result
 
 
-def test_requires_repository() -> None:
-    """
-    must require repository identifier to be set to start
-    """
-    assert LogsRotationTrigger.REQUIRES_REPOSITORY
-
-
 def test_configuration_sections(configuration: Configuration) -> None:
     """
     must correctly parse target list
@@ -21,7 +14,7 @@ def test_configuration_sections(configuration: Configuration) -> None:
     assert LogsRotationTrigger.configuration_sections(configuration) == ["logs-rotation"]
 
 
-def test_rotate(logs_rotation_trigger: LogsRotationTrigger, mocker: MockerFixture) -> None:
+def test_on_result(logs_rotation_trigger: LogsRotationTrigger, mocker: MockerFixture) -> None:
     """
     must rotate logs
     """

@@ -86,6 +86,16 @@ class RepositoryPaths(LazyLogging):
         return Path(self.repository_id.name) / self.repository_id.architecture
 
     @property
+    def archive(self) -> Path:
+        """
+        archive directory root
+
+        Returns:
+            Path: archive directory root
+        """
+        return self.root / "archive"
+
+    @property
     def build_root(self) -> Path:
         """
         same as :attr:`chroot`, but exactly build chroot
@@ -208,6 +218,18 @@ class RepositoryPaths(LazyLogging):
 
         return set(walk(instance))
 
+    def archive_for(self, package_base: str) -> Path:
+        """
+        get path to archive specified search criteria
+
+        Args:
+            package_base(str): package base name
+
+        Returns:
+            Path: path to archive directory for package base
+        """
+        return self.archive / "packages" / package_base[0] / package_base
+
     def cache_for(self, package_base: str) -> Path:
         """
         get path to cached PKGBUILD and package sources for the package base
@@ -219,6 +241,27 @@ class RepositoryPaths(LazyLogging):
             Path: full path to directory for specified package base cache
         """
         return self.cache / package_base
+
+    def ensure_exists(self, directory: Path) -> Path:
+        """
+        get path based on ``directory`` callable provided and ensure it exists
+
+        Args:
+            directory(Path): path to directory to check
+
+        Returns:
+            Path: original path based on extractor provided. Directory will always exist
+
+        Examples:
+            This method calls directory accessor and then checks if there is a directory and - otherwise - creates it::
+
+                >>> paths.ensure_exists(paths.archive_for(package_base))
+        """
+        if not directory.is_dir():
+            with self.preserve_owner():
+                directory.mkdir(mode=0o755, parents=True)
+
+        return directory
 
     @contextlib.contextmanager
     def preserve_owner(self) -> Iterator[None]:
@@ -265,6 +308,7 @@ class RepositoryPaths(LazyLogging):
         """
         for directory in (
                 self.cache_for(package_base),
+                self.archive_for(package_base),
         ):
             shutil.rmtree(directory, ignore_errors=True)
 
@@ -275,12 +319,12 @@ class RepositoryPaths(LazyLogging):
         if self.repository_id.is_empty:
             return  # do not even try to create tree in case if no repository id set
 
-        with self.preserve_owner():
-            for directory in (
-                    self.cache,
-                    self.chroot,
-                    self.packages,
-                    self.pacman,
-                    self.repository,
-            ):
-                directory.mkdir(mode=0o755, parents=True, exist_ok=True)
+        for directory in (
+            self.archive,
+            self.cache,
+            self.chroot,
+            self.packages,
+            self.pacman,
+            self.repository,
+        ):
+            self.ensure_exists(directory)
