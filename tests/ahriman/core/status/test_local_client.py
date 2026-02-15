@@ -35,7 +35,7 @@ def test_event_get(local_client: LocalClient, package_ahriman: Package, mocker: 
                                        local_client.repository_id)
 
 
-def test_logs_rotate(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_logs_rotate(local_client: LocalClient, mocker: MockerFixture) -> None:
     """
     must rotate logs
     """

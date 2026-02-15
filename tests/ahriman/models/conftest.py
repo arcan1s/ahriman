@@ -4,16 +4,12 @@ from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 
 from ahriman import __version__
-from ahriman.core.alpm.remote import AUR
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.filesystem_package import FilesystemPackage
 from ahriman.models.internal_status import InternalStatus
-from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
-from ahriman.models.package_source import PackageSource
 from ahriman.models.pkgbuild import Pkgbuild
-from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_stats import RepositoryStats
 
 

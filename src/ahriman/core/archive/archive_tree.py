@@ -50,7 +50,8 @@ class ArchiveTree(LazyLogging):
         self.repository_id = repository_path.repository_id
         self.sign_args = sign_args
 
-    def _package_symlinks_create(self, package_description: PackageDescription, root: Path, archive: Path) -> bool:
+    @staticmethod
+    def _package_symlinks_create(package_description: PackageDescription, root: Path, archive: Path) -> bool:
         """
         process symlinks creation for single package
 
