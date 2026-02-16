@@ -97,13 +97,6 @@ libalpm and AUR related configuration. Group name can refer to architecture, e.g
 * ``sync_files_database`` - download files database from mirror, boolean, required.
 * ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands). If set to ``no``, databases must be synchronized manually.
 
-``archive`` group
------------------
-
-Describes settings for packages archives management extensions.
-
-* ``keep_built_packages`` - keep this amount of built packages with different versions, integer, required. ``0`` (or negative number) will effectively disable archives removal.
-
 ``auth`` group
 --------------
 
@@ -189,6 +182,13 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
 * ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, integer, optional.
 
+``archive`` group
+-----------------
+
+Describes settings for packages archives management extensions.
+
+* ``keep_built_packages`` - keep this amount of built packages with different versions, integer, required. ``0`` will effectively disable archives removal.
+
 ``keyring`` group
 -----------------
 
@@ -208,12 +208,12 @@ Keyring generator plugin
 * ``revoked`` - list of revoked packagers keys, space separated list of strings, optional.
 * ``trusted`` - list of master keys, space separated list of strings, optional, if not set, the ``key`` option from ``sign`` group will be used.
 
-``housekeeping`` group
-----------------------
+``logs-rotation`` group
+-----------------------
 
 This section describes settings for the ``ahriman.core.housekeeping.LogsRotationTrigger`` plugin.
 
-* ``keep_last_logs`` - amount of build logs to be kept for each package, integer, optional ,default ``0``. Logs will be cleared at the end of each process.
+* ``keep_last_logs`` - amount of build logs to be kept for each package, integer, required. Logs will be cleared at the end of each process.
 
 ``mirrorlist`` group
 --------------------

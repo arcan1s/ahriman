@@ -1,7 +1,7 @@
 Triggers
 ========
 
-The package provides ability to write custom extensions which will be run on (the most) actions, e.g. after updates. By default ahriman provides three types of extensions - reporting, files uploading and PKGBUILD synchronization. Each extension must derive from the ``ahriman.core.triggers.Trigger`` class and should implement at least one of the abstract methods:
+The package provides ability to write custom extensions which will be run on (the most) actions, e.g. after updates. By default ahriman provides several types of extensions - reporting, files uploading, PKGBUILD synchronization, repository archiving, housekeeping and distributed builds support. Each extension must derive from the ``ahriman.core.triggers.Trigger`` class and should implement at least one of the abstract methods:
 
 * ``on_result`` - trigger action which will be called after build process, the build result and the list of repository packages will be supplied as arguments.
 * ``on_start`` - trigger action which will be called right before the start of the application process.
@@ -13,6 +13,11 @@ Built-in triggers
 -----------------
 
 For the configuration details and settings explanation kindly refer to the :doc:`documentation <configuration>`.
+
+``ahriman.core.archive.ArchiveTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This trigger provides date-based snapshots of the repository. It organizes packages into a daily directory tree (``repos/YYYY/MM/DD``) with its own pacman database. On each run it creates symlinks from the daily snapshot to the actual package archives and maintains the database accordingly. It also takes care of cleaning up broken symlinks and empty directories for packages which have been removed.
 
 ``ahriman.core.distributed.WorkerLoaderTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -35,6 +40,16 @@ In order to update those packages you would need to clone your repository separa
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This trigger will be called right after build process (``on_result``). It will pick PKGBUILDs for the updated packages, pull them (together with any other files) and commit and push changes to remote repository. No real use cases, but the most of user repositories do it.
+
+``ahriman.core.housekeeping.ArchiveRotationTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This trigger removes old package versions from the archive directory. It implements ``on_result`` and, after each build, compares available versions for updated packages and removes the older ones, keeping only the last N versions as configured by ``keep_built_packages`` option.
+
+``ahriman.core.housekeeping.LogsRotationTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Simple trigger to rotate build logs. It implements ``on_result`` and removes old log records after each build process, keeping only the last N records as configured by ``keep_last_logs`` option.
 
 ``ahriman.core.report.ReportTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

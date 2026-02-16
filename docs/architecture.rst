@@ -120,6 +120,20 @@ Having default root as ``/var/lib/ahriman`` (differs from container though), the
 
    /var/lib/ahriman/
    ├── ahriman.db
+   ├── archive
+   │   ├── packages
+   │   │   └── a
+   │   │       └── ahriman
+   │   │           └── ahriman-2.0.0-1-any.pkg.tar.zst
+   │   └── repos
+   │       └── 2026
+   │           └── 01
+   │               └── 01
+   │                   └── aur
+   │                       └── x86_64
+   │                           ├── ahriman-2.0.0-1-any.pkg.tar.zst -> ../../../../../../packages/a/ahriman/ahriman-2.0.0-1-any.pkg.tar.zst
+   │                           ├── aur.db -> aur.db.tar.gz
+   │                           └── aur.db.tar.gz
    ├── cache
    ├── chroot
    │   └── aur
@@ -139,6 +153,7 @@ Having default root as ``/var/lib/ahriman`` (differs from container though), the
    └── repository
        └── aur
            └── x86_64
+               ├── ahriman-2.0.0-1-any.pkg.tar.zst -> ../../../archive/packages/a/ahriman/ahriman-2.0.0-1-any.pkg.tar.zst
                ├── aur.db -> aur.db.tar.gz
                ├── aur.db.tar.gz
                ├── aur.files -> aur.files.tar.gz
@@ -146,11 +161,18 @@ Having default root as ``/var/lib/ahriman`` (differs from container though), the
 
 There are multiple subdirectories, some of them are commons for any repository, but some of them are not.
 
+* ``archive`` is the package archive directory. It is common for all repositories and architectures and contains two subdirectories:
+
+  * ``archive/packages/{first_letter}/{package_base}`` stores the actual built package files and their signatures.
+  * ``archive/repos/{YYYY}/{MM}/{DD}/{repository}/{architecture}`` contains daily repository snapshots. Each snapshot is a repository database with symlinks pointing to the corresponding packages in the ``archive/packages`` tree.
+
+  The archive also allows the build process to skip rebuilding a package if a matching version already exists.
+
 * ``cache`` is a directory with locally stored PKGBUILD's and VCS packages. It is common for all repositories and architectures.
 * ``chroot/{repository}`` is a chroot directory for ``devtools``. It is specific for each repository, but shared for different architectures inside (the ``devtools`` handles architectures automatically).
 * ``packages/{repository}/{architecture}`` is a directory with prebuilt packages. When a package is built, first it will be uploaded to this directory and later will be handled by update process. It is architecture and repository specific.
 * ``pacman/{repository}/{architecture}`` is the repository and architecture specific caches for pacman's databases.
-* ``repository/{repository}/{architecture}`` is a repository packages directory.
+* ``repository/{repository}/{architecture}`` is a repository packages directory. Package files in this directory are symlinks to the archive.
 
 Normally you should avoid direct interaction with the application tree. For tree migration process refer to the :doc:`migration notes <migrations/index>`.
 
