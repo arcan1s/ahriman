@@ -155,7 +155,7 @@ class Package(LazyLogging):
             bool: ``True`` in case if package base looks like VCS package and ``False`` otherwise
         """
         return self.base.endswith("-bzr") \
-            or self.base.endswith("-csv") \
+            or self.base.endswith("-cvs") \
             or self.base.endswith("-darcs") \
             or self.base.endswith("-git") \
             or self.base.endswith("-hg") \
