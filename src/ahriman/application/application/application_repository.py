@@ -22,6 +22,7 @@ from collections.abc import Iterable
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.application.application.workers import Updater
 from ahriman.core.build_tools.sources import Sources
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
@@ -116,7 +117,7 @@ class ApplicationRepository(ApplicationProperties):
             for single in probe.packages:
                 try:
                     _ = Package.from_aur(single, None)
-                except Exception:
+                except UnknownPackageError:
                     packages.append(single)
             return packages
 
