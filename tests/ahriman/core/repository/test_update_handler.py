@@ -357,4 +357,8 @@ def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahr
     """
     mocker.patch("ahriman.core.database.SQLite.build_queue_get", side_effect=Exception)
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+
     assert update_handler.updates_manual() == []
+
+    from ahriman.core.repository.cleaner import Cleaner
+    Cleaner.clear_queue.assert_not_called()
