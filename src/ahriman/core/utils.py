@@ -329,10 +329,10 @@ def list_flatmap(source: Iterable[T], extractor: Callable[[T], Iterable[R]]) -> 
 
     Args:
         source(Iterable[T]): source list
-        extractor(Callable[[T], list[R]): property extractor
+        extractor(Callable[[T], Iterable[R]]): property extractor
 
     Returns:
-        list[T]: combined list of unique entries in properties list
+        list[R]: combined list of unique entries in properties list
     """
     def generator() -> Iterator[R]:
         for inner in source:
