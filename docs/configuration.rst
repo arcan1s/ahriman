@@ -250,6 +250,7 @@ Available options are:
 Remote pull trigger
 ^^^^^^^^^^^^^^^^^^^
 
+* ``type`` - type of the pull, string, optional, must be set to ``gitremote`` if exists.
 * ``pull_url`` - URL of the remote repository from which PKGBUILDs can be pulled before build process, string, required.
 * ``pull_branch`` - branch of the remote repository from which PKGBUILDs can be pulled before build process, string, optional, default is ``master``.
 
@@ -270,6 +271,7 @@ Available options are:
 Remote push trigger
 ^^^^^^^^^^^^^^^^^^^
 
+* ``type`` - type of the push, string, optional, must be set to ``gitremote`` if exists.
 * ``commit_email`` - git commit email, string, optional, default is ``ahriman@localhost``.
 * ``commit_user`` - git commit user, string, optional, default is ``ahriman``.
 * ``push_url`` - URL of the remote repository to which PKGBUILDs should be pushed after build process, string, required.
