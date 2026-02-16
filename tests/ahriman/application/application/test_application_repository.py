@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.application.application.application_repository import ApplicationRepository
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
@@ -135,7 +136,7 @@ def test_unknown_no_aur(application_repository: ApplicationRepository, package_a
     must return empty list in case if there is locally stored PKGBUILD
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception)
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=UnknownPackageError(package_ahriman.base))
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=False)
@@ -149,7 +150,7 @@ def test_unknown_no_aur_no_local(application_repository: ApplicationRepository, 
     must return list of packages missing in aur and in local storage
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception)
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=UnknownPackageError(package_ahriman.base))
     mocker.patch("pathlib.Path.is_dir", return_value=False)
 
     packages = application_repository.unknown()
