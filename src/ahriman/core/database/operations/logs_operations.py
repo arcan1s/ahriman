@@ -141,14 +141,15 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 delete from logs
-                where (package_base, version, repository, process_id) not in (
-                  select package_base, version, repository, process_id from logs
-                  where (package_base, version, repository, created) in (
-                    select package_base, version, repository, max(created) from logs
-                    where repository = :repository
-                    group by package_base, version, repository
+                where repository = :repository
+                  and (package_base, version, repository, process_id) not in (
+                    select package_base, version, repository, process_id from logs
+                    where (package_base, version, repository, created) in (
+                      select package_base, version, repository, max(created) from logs
+                      where repository = :repository
+                      group by package_base, version, repository
+                    )
                   )
-                )
                 """,
                 {
                     "repository": repository_id.id,
