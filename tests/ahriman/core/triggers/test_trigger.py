@@ -70,7 +70,6 @@ def test_configuration_schema_variables() -> None:
     must return empty schema
     """
     assert Trigger.CONFIGURATION_SCHEMA == {}
-    assert Trigger.CONFIGURATION_SCHEMA_FALLBACK is None
 
 
 def test_configuration_sections(configuration: Configuration) -> None:

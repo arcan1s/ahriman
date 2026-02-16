@@ -52,6 +52,10 @@ class RemotePushTrigger(Trigger):
         "gitremote": {
             "type": "dict",
             "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["gitremote"],
+                },
                 "commit_email": {
                     "type": "string",
                     "empty": False,
@@ -72,7 +76,6 @@ class RemotePushTrigger(Trigger):
             },
         },
     }
-    CONFIGURATION_SCHEMA_FALLBACK = "gitremote"
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
@@ -111,7 +114,6 @@ class RemotePushTrigger(Trigger):
         reporter = ctx.get(Client)
 
         for target in self.targets:
-            section, _ = self.configuration.gettype(
-                target, self.repository_id, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
+            section, _ = self.configuration.gettype(target, self.repository_id, fallback="gitremote")
             runner = RemotePush(reporter, self.configuration, section)
             runner.run(result)
