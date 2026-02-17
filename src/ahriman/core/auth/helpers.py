@@ -22,6 +22,11 @@ try:
 except ImportError:
     aiohttp_security = None  # type: ignore[assignment]
 
+try:
+    import aiohttp_session
+except ImportError:
+    aiohttp_session = None  # type: ignore[assignment]
+
 from typing import Any
 
 
@@ -50,7 +55,7 @@ async def check_authorized(*args: Any, **kwargs: Any) -> Any:
 
     Args:
         *args(Any): argument list as provided by check_authorized function
-        **kwargs(Any): named argument list as provided by authorized_userid function
+        **kwargs(Any): named argument list as provided by check_authorized function
 
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
@@ -66,7 +71,7 @@ async def forget(*args: Any, **kwargs: Any) -> Any:
 
     Args:
         *args(Any): argument list as provided by forget function
-        **kwargs(Any): named argument list as provided by authorized_userid function
+        **kwargs(Any): named argument list as provided by forget function
 
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
@@ -76,13 +81,29 @@ async def forget(*args: Any, **kwargs: Any) -> Any:
     return None
 
 
+async def get_session(*args: Any, **kwargs: Any) -> Any:
+    """
+    handle aiohttp session methods
+
+    Args:
+        *args(Any): argument list as provided by get_session function
+        **kwargs(Any): named argument list as provided by get_session function
+
+    Returns:
+        Any: empty dictionary in case if no aiohttp_session module found and function call otherwise
+    """
+    if aiohttp_session is not None:
+        return await aiohttp_session.get_session(*args, **kwargs)
+    return {}
+
+
 async def remember(*args: Any, **kwargs: Any) -> Any:
     """
     handle disabled auth
 
     Args:
         *args(Any): argument list as provided by remember function
-        **kwargs(Any): named argument list as provided by authorized_userid function
+        **kwargs(Any): named argument list as provided by remember function
 
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise

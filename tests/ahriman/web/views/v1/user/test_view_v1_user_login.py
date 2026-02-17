@@ -54,7 +54,7 @@ async def test_get_redirect_to_oauth(client_with_oauth_auth: TestClient) -> None
     assert not request_schema.validate(payload)
     response = await client_with_oauth_auth.get("/api/v1/login", params=payload, allow_redirects=False)
     assert response.ok
-    oauth.get_oauth_url.assert_called_once_with()
+    oauth.get_oauth_url.assert_called_once_with(pytest.helpers.anyvar(str))
 
 
 async def test_get_redirect_to_oauth_empty_code(client_with_oauth_auth: TestClient) -> None:
@@ -69,13 +69,15 @@ async def test_get_redirect_to_oauth_empty_code(client_with_oauth_auth: TestClie
     assert not request_schema.validate(payload)
     response = await client_with_oauth_auth.get("/api/v1/login", params=payload, allow_redirects=False)
     assert response.ok
-    oauth.get_oauth_url.assert_called_once_with()
+    oauth.get_oauth_url.assert_called_once_with(pytest.helpers.anyvar(str))
 
 
 async def test_get(client_with_oauth_auth: TestClient, mocker: MockerFixture) -> None:
     """
     must log in user correctly from OAuth
     """
+    session = {"state": "state"}
+    mocker.patch("ahriman.web.views.v1.user.login.get_session", return_value=session)
     oauth = client_with_oauth_auth.app[AuthKey]
     oauth.get_oauth_username.return_value = "user"
     oauth.known_username.return_value = True
@@ -84,12 +86,12 @@ async def test_get(client_with_oauth_auth: TestClient, mocker: MockerFixture) ->
     remember_mock = mocker.patch("ahriman.web.views.v1.user.login.remember")
     request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
-    payload = {"code": "code"}
+    payload = {"code": "code", "state": "state"}
     assert not request_schema.validate(payload)
     response = await client_with_oauth_auth.get("/api/v1/login", params=payload)
 
     assert response.ok
-    oauth.get_oauth_username.assert_called_once_with("code")
+    oauth.get_oauth_username.assert_called_once_with("code", "state", session)
     oauth.known_username.assert_called_once_with("user")
     remember_mock.assert_called_once_with(
         pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))

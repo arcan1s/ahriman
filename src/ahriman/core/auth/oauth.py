@@ -19,6 +19,8 @@
 #
 import aioauth_client
 
+from typing import Any
+
 from ahriman.core.auth.mapping import Mapping
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -53,7 +55,7 @@ class OAuth(Mapping):
         self.client_secret = configuration.get("auth", "client_secret")
         # in order to use OAuth feature the service must be publicity available
         # thus we expect that address is set
-        self.redirect_uri = f"""{configuration.get("web", "address")}/api/v1/login"""
+        self.redirect_uri = f"{configuration.get("web", "address")}/api/v1/login"
         self.provider = self.get_provider(configuration.get("auth", "oauth_provider"))
         # it is list, but we will have to convert to string it anyway
         self.scopes = configuration.get("auth", "oauth_scopes")
@@ -102,27 +104,35 @@ class OAuth(Mapping):
         """
         return self.provider(client_id=self.client_id, client_secret=self.client_secret)
 
-    def get_oauth_url(self) -> str:
+    def get_oauth_url(self, state: str) -> str:
         """
         get authorization URI for the specified settings
+
+        Args:
+            state(str): CSRF token to pass to OAuth2 provider
 
         Returns:
             str: authorization URI as a string
         """
         client = self.get_client()
-        uri: str = client.get_authorize_url(scope=self.scopes, redirect_uri=self.redirect_uri)
+        uri: str = client.get_authorize_url(scope=self.scopes, redirect_uri=self.redirect_uri, state=state)
         return uri
 
-    async def get_oauth_username(self, code: str) -> str | None:
+    async def get_oauth_username(self, code: str, state: str | None, session: dict[str, Any]) -> str | None:
         """
         extract OAuth username from remote
 
         Args:
             code(str): authorization code provided by external service
+            state(str | None): CSRF token returned by external service
+            session(dict[str, Any]): current session instance
 
         Returns:
             str | None: username as is in OAuth provider
         """
+        if state is None or state != session.get("state"):
+            return None
+
         try:
             client = self.get_client()
             access_token, _ = await client.get_access_token(code, redirect_uri=self.redirect_uri)

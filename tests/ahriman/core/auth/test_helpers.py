@@ -13,6 +13,13 @@ def test_import_aiohttp_security() -> None:
     assert helpers.aiohttp_security
 
 
+def test_import_aiohttp_session() -> None:
+    """
+    must import aiohttp_session correctly
+    """
+    assert helpers.aiohttp_session
+
+
 async def test_authorized_userid_dummy(mocker: MockerFixture) -> None:
     """
     must not call authorized_userid from library if not enabled
@@ -55,6 +62,23 @@ async def test_forget_dummy(mocker: MockerFixture) -> None:
     await helpers.forget()
 
 
+async def test_get_session_dummy(mocker: MockerFixture) -> None:
+    """
+    must return empty dict if no aiohttp_session module found
+    """
+    mocker.patch.object(helpers, "aiohttp_session", None)
+    assert await helpers.get_session() == {}
+
+
+async def test_get_session_library(mocker: MockerFixture) -> None:
+    """
+    must call get_session from library if enabled
+    """
+    get_session_mock = mocker.patch("aiohttp_session.get_session")
+    await helpers.get_session()
+    get_session_mock.assert_called_once_with()
+
+
 async def test_forget_library(mocker: MockerFixture) -> None:
     """
     must call forget from library if enabled
@@ -88,3 +112,12 @@ def test_import_aiohttp_security_missing(mocker: MockerFixture) -> None:
     mocker.patch.dict(sys.modules, {"aiohttp_security": None})
     importlib.reload(helpers)
     assert helpers.aiohttp_security is None
+
+
+def test_import_aiohttp_session_missing(mocker: MockerFixture) -> None:
+    """
+    must set missing flag if no aiohttp_session module found
+    """
+    mocker.patch.dict(sys.modules, {"aiohttp_session": None})
+    importlib.reload(helpers)
+    assert helpers.aiohttp_session is None
