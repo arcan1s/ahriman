@@ -28,3 +28,6 @@ class OAuth2Schema(Schema):
     code = fields.String(metadata={
         "description": "OAuth2 authorization code. In case if not set, the redirect to provider will be initiated",
     })
+    state = fields.String(metadata={
+        "description": "CSRF token returned by OAuth2 provider",
+    })

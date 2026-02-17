@@ -57,8 +57,8 @@ def test_get_oauth_url(oauth: OAuth, mocker: MockerFixture) -> None:
     must generate valid OAuth authorization URL
     """
     authorize_url_mock = mocker.patch("aioauth_client.GoogleClient.get_authorize_url")
-    oauth.get_oauth_url()
-    authorize_url_mock.assert_called_once_with(scope=oauth.scopes, redirect_uri=oauth.redirect_uri)
+    oauth.get_oauth_url(state="state")
+    authorize_url_mock.assert_called_once_with(scope=oauth.scopes, redirect_uri=oauth.redirect_uri, state="state")
 
 
 async def test_get_oauth_username(oauth: OAuth, mocker: MockerFixture) -> None:
@@ -69,10 +69,9 @@ async def test_get_oauth_username(oauth: OAuth, mocker: MockerFixture) -> None:
     user_info_mock = mocker.patch("aioauth_client.GoogleClient.user_info",
                                   return_value=(aioauth_client.User(email="email"), ""))
 
-    email = await oauth.get_oauth_username("code")
+    assert await oauth.get_oauth_username("code", state="state", session={"state": "state"}) == "email"
     access_token_mock.assert_called_once_with("code", redirect_uri=oauth.redirect_uri)
     user_info_mock.assert_called_once_with()
-    assert email == "email"
 
 
 async def test_get_oauth_username_empty_email(oauth: OAuth, mocker: MockerFixture) -> None:
@@ -82,8 +81,7 @@ async def test_get_oauth_username_empty_email(oauth: OAuth, mocker: MockerFixtur
     mocker.patch("aioauth_client.GoogleClient.get_access_token", return_value=("token", ""))
     mocker.patch("aioauth_client.GoogleClient.user_info", return_value=(aioauth_client.User(username="username"), ""))
 
-    username = await oauth.get_oauth_username("code")
-    assert username == "username"
+    assert await oauth.get_oauth_username("code", state="state", session={"state": "state"}) == "username"
 
 
 async def test_get_oauth_username_exception_1(oauth: OAuth, mocker: MockerFixture) -> None:
@@ -93,8 +91,7 @@ async def test_get_oauth_username_exception_1(oauth: OAuth, mocker: MockerFixtur
     mocker.patch("aioauth_client.GoogleClient.get_access_token", side_effect=Exception)
     user_info_mock = mocker.patch("aioauth_client.GoogleClient.user_info")
 
-    email = await oauth.get_oauth_username("code")
-    assert email is None
+    assert await oauth.get_oauth_username("code", state="state", session={"state": "state"}) is None
     user_info_mock.assert_not_called()
 
 
@@ -105,5 +102,19 @@ async def test_get_oauth_username_exception_2(oauth: OAuth, mocker: MockerFixtur
     mocker.patch("aioauth_client.GoogleClient.get_access_token", return_value=("token", ""))
     mocker.patch("aioauth_client.GoogleClient.user_info", side_effect=Exception)
 
-    email = await oauth.get_oauth_username("code")
-    assert email is None
+    username = await oauth.get_oauth_username("code", state="state", session={"state": "state"})
+    assert username is None
+
+
+async def test_get_oauth_username_csrf_missing(oauth: OAuth) -> None:
+    """
+    must return None if CSRF state is missing
+    """
+    assert await oauth.get_oauth_username("code", state=None, session={"state": "state"}) is None
+
+
+async def test_get_oauth_username_csrf_mismatch(oauth: OAuth) -> None:
+    """
+    must return None if CSRF state does not match session
+    """
+    assert await oauth.get_oauth_username("code", state="wrong", session={"state": "state"}) is None
