@@ -47,7 +47,7 @@ class Restore(Handler):
             report(bool): force enable or disable reporting
         """
         with tarfile.open(args.path) as archive:
-            archive.extractall(path=args.output)  # nosec
+            archive.extractall(path=args.output, filter="data")
 
     @staticmethod
     def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:

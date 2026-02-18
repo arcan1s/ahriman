@@ -81,11 +81,13 @@ class Backup(Handler):
         Returns:
             set[Path]: map of the filesystem paths
         """
-        paths = set(configuration.include.glob("*.ini"))
-
+        # configuration files
         root, _ = configuration.check_loaded()
-        paths.add(root)  # the configuration itself
-        paths.add(SQLite.database_path(configuration))  # database
+        paths = set(configuration.includes)
+        paths.add(root)
+
+        # database
+        paths.add(SQLite.database_path(configuration))
 
         # local caches
         repository_paths = configuration.repository_paths

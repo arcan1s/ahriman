@@ -34,7 +34,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
 
     _, repository_id = configuration.check_loaded()
     Restore.run(args, repository_id, configuration, report=False)
-    extract_mock.extractall.assert_called_once_with(path=args.output)
+    extract_mock.extractall.assert_called_once_with(path=args.output, filter="data")
 
 
 def test_disallow_multi_architecture_run() -> None:
