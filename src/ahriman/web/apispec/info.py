@@ -72,7 +72,7 @@ def _security() -> list[dict[str, Any]]:
     return [{
         "token": {
             "type": "apiKey",  # as per specification we are using api key
-            "name": "API_SESSION",
+            "name": "AHRIMAN",
             "in": "cookie",
         }
     }]

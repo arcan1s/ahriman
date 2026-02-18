@@ -25,6 +25,6 @@ class AuthSchema(Schema):
     request cookie authorization schema
     """
 
-    API_SESSION = fields.String(required=True, metadata={
+    AHRIMAN = fields.String(required=True, metadata={
         "description": "API session key as returned from authorization",
     })

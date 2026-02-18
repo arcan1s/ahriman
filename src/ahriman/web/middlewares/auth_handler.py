@@ -149,11 +149,17 @@ def setup_auth(application: Application, configuration: Configuration, validator
         Application: configured web application
     """
     secret_key = _cookie_secret_key(configuration)
-    storage = EncryptedCookieStorage(secret_key, cookie_name="API_SESSION", max_age=validator.max_age)
+    storage = EncryptedCookieStorage(
+        secret_key,
+        cookie_name="AHRIMAN",
+        max_age=validator.max_age,
+        httponly=True,
+        samesite="Strict",
+    )
     setup_session(application, storage)
 
     authorization_policy = _AuthorizationPolicy(validator)
-    identity_policy = aiohttp_security.SessionIdentityPolicy()
+    identity_policy = aiohttp_security.SessionIdentityPolicy("SESSION")
 
     aiohttp_security.setup(application, identity_policy, authorization_policy)
     application.middlewares.append(_auth_handler(validator.allow_read_only))

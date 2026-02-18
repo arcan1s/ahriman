@@ -27,7 +27,7 @@ def _client(client: TestClient, mocker: MockerFixture) -> TestClient:
                     "parameters": [
                         {
                             "in": "cookie",
-                            "name": "API_SESSION",
+                            "name": "AHRIMAN",
                             "schema": {
                                 "type": "string",
                             },
@@ -39,7 +39,7 @@ def _client(client: TestClient, mocker: MockerFixture) -> TestClient:
                     "parameters": [
                         {
                             "in": "cookie",
-                            "name": "API_SESSION",
+                            "name": "AHRIMAN",
                             "schema": {
                                 "type": "string",
                             },
@@ -60,7 +60,7 @@ def _client(client: TestClient, mocker: MockerFixture) -> TestClient:
             {
                 "token": {
                     "type": "apiKey",
-                    "name": "API_SESSION",
+                    "name": "AHRIMAN",
                     "in": "cookie",
                 },
             },

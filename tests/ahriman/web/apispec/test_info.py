@@ -23,7 +23,7 @@ def test_security() -> None:
     must generate security definitions for swagger
     """
     token = next(iter(_security()))["token"]
-    assert token == {"type": "apiKey", "name": "API_SESSION", "in": "cookie"}
+    assert token == {"type": "apiKey", "name": "AHRIMAN", "in": "cookie"}
 
 
 def test_servers(application: Application) -> None:

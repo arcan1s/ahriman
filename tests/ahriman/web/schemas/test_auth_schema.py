@@ -6,4 +6,4 @@ def test_schema() -> None:
     must return valid schema
     """
     schema = AuthSchema()
-    assert not schema.validate({"API_SESSION": "key"})
+    assert not schema.validate({"AHRIMAN": "key"})
