@@ -87,7 +87,7 @@
                         };
                     });
 
-                updateTable(table, payload);
+                updateTable(table, payload, row => row.timestamp);
                 table.bootstrapTable("hideLoading");
             },
             onFailure,

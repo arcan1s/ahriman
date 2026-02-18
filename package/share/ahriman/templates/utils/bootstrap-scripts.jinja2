@@ -195,16 +195,19 @@
         return intervalId;
     }
 
-    function updateTable(table, rows) {
+    function updateTable(table, rows, rowChangedKey) {
         // instead of using load method here, we just update rows manually to avoid table reinitialization
         const currentData = table.bootstrapTable("getData").reduce((accumulator, row) => {
-            accumulator[row.id] = row["0"];
+            accumulator[row.id] = {state: row["0"], key: rowChangedKey(row)};
             return accumulator;
         }, {});
-        // insert or update rows
+        // insert or update rows, skipping ones whose status hasn't changed
         rows.forEach(row => {
             if (Object.hasOwn(currentData, row.id)) {
-                row["0"] = currentData[row.id]; // copy checkbox state
+                if (rowChangedKey(row) === currentData[row.id].key) {
+                    return;
+                }
+                row["0"] = currentData[row.id].state; // copy checkbox state
                 table.bootstrapTable("updateByUniqueId", {
                     id: row.id,
                     row: row,
