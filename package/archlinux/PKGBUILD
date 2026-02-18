@@ -2,7 +2,7 @@
 
 pkgbase='ahriman'
 pkgname=('ahriman' 'ahriman-core' 'ahriman-triggers' 'ahriman-web')
-pkgver=2.19.0
+pkgver=2.20.0rc1
 pkgrel=1
 pkgdesc="ArcH linux ReposItory MANager"
 arch=('any')
