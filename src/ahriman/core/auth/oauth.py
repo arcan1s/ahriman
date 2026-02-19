@@ -86,7 +86,7 @@ class OAuth(Mapping):
         Raises:
             OptionError: in case if invalid OAuth provider name supplied
         """
-        provider: type[aioauth_client.OAuth2Client] = getattr(aioauth_client, name)
+        provider: type = getattr(aioauth_client, name, type(None))
         try:
             is_oauth2_client = issubclass(provider, aioauth_client.OAuth2Client)
         except TypeError:  # what if it is random string?
