@@ -1,3 +1,5 @@
+import smtplib
+
 import pytest
 
 from pytest_mock import MockerFixture
@@ -6,6 +8,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.report.email import Email
 from ahriman.models.package import Package
 from ahriman.models.result import Result
+from ahriman.models.smtp_ssl_settings import SmtpSSLSettings
 
 
 def test_template(configuration: Configuration) -> None:
@@ -37,17 +40,36 @@ def test_template_full(configuration: Configuration) -> None:
     assert Email(repository_id, configuration, "email").template_full == root.parent / template
 
 
+def test_smtp_session(email: Email) -> None:
+    """
+    must build normal SMTP session if SSL is disabled
+    """
+    email.ssl = SmtpSSLSettings.Disabled
+    assert email._smtp_session == smtplib.SMTP
+
+    email.ssl = SmtpSSLSettings.STARTTLS
+    assert email._smtp_session == smtplib.SMTP
+
+
+def test_smtp_session_ssl(email: Email) -> None:
+    """
+    must build SMTP_SSL session if SSL is enabled
+    """
+    email.ssl = SmtpSSLSettings.SSL
+    assert email._smtp_session == smtplib.SMTP_SSL
+
+
 def test_send(email: Email, mocker: MockerFixture) -> None:
     """
     must send an email with attachment
     """
     smtp_mock = mocker.patch("smtplib.SMTP")
+    smtp_mock.return_value.__enter__.return_value = smtp_mock.return_value
 
     email._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.starttls.assert_not_called()
     smtp_mock.return_value.login.assert_not_called()
     smtp_mock.return_value.sendmail.assert_called_once_with(email.sender, email.receivers, pytest.helpers.anyvar(int))
-    smtp_mock.return_value.quit.assert_called_once_with()
 
 
 def test_send_auth(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -57,6 +79,7 @@ def test_send_auth(configuration: Configuration, mocker: MockerFixture) -> None:
     configuration.set_option("email", "user", "username")
     configuration.set_option("email", "password", "password")
     smtp_mock = mocker.patch("smtplib.SMTP")
+    smtp_mock.return_value.__enter__.return_value = smtp_mock.return_value
     _, repository_id = configuration.check_loaded()
 
     email = Email(repository_id, configuration, "email")
@@ -70,6 +93,7 @@ def test_send_auth_no_password(configuration: Configuration, mocker: MockerFixtu
     """
     configuration.set_option("email", "user", "username")
     smtp_mock = mocker.patch("smtplib.SMTP")
+    smtp_mock.return_value.__enter__.return_value = smtp_mock.return_value
     _, repository_id = configuration.check_loaded()
 
     email = Email(repository_id, configuration, "email")
@@ -83,6 +107,7 @@ def test_send_auth_no_user(configuration: Configuration, mocker: MockerFixture) 
     """
     configuration.set_option("email", "password", "password")
     smtp_mock = mocker.patch("smtplib.SMTP")
+    smtp_mock.return_value.__enter__.return_value = smtp_mock.return_value
     _, repository_id = configuration.check_loaded()
 
     email = Email(repository_id, configuration, "email")
@@ -96,6 +121,7 @@ def test_send_ssl_tls(configuration: Configuration, mocker: MockerFixture) -> No
     """
     configuration.set_option("email", "ssl", "ssl")
     smtp_mock = mocker.patch("smtplib.SMTP_SSL")
+    smtp_mock.return_value.__enter__.return_value = smtp_mock.return_value
     _, repository_id = configuration.check_loaded()
 
     email = Email(repository_id, configuration, "email")
@@ -103,7 +129,6 @@ def test_send_ssl_tls(configuration: Configuration, mocker: MockerFixture) -> No
     smtp_mock.return_value.starttls.assert_not_called()
     smtp_mock.return_value.login.assert_not_called()
     smtp_mock.return_value.sendmail.assert_called_once_with(email.sender, email.receivers, pytest.helpers.anyvar(int))
-    smtp_mock.return_value.quit.assert_called_once_with()
 
 
 def test_send_starttls(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -112,6 +137,7 @@ def test_send_starttls(configuration: Configuration, mocker: MockerFixture) -> N
     """
     configuration.set_option("email", "ssl", "starttls")
     smtp_mock = mocker.patch("smtplib.SMTP")
+    smtp_mock.return_value.__enter__.return_value = smtp_mock.return_value
     _, repository_id = configuration.check_loaded()
 
     email = Email(repository_id, configuration, "email")

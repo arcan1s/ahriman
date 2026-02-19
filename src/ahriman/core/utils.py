@@ -164,6 +164,11 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
         if key in ("PATH",)  # whitelisted variables only
     } | environment
 
+    result: dict[str, list[str]] = {
+        "stdout": [],
+        "stderr": [],
+    }
+
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           user=user, env=full_environment, text=True, encoding="utf8", errors="backslashreplace",
                           bufsize=1) as process:
@@ -172,30 +177,27 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
             input_channel.write(input_data)
             input_channel.close()
 
-        selector = selectors.DefaultSelector()
-        selector.register(get_io(process, "stdout"), selectors.EVENT_READ, data="stdout")
-        selector.register(get_io(process, "stderr"), selectors.EVENT_READ, data="stderr")
+        with selectors.DefaultSelector() as selector:
+            selector.register(get_io(process, "stdout"), selectors.EVENT_READ, data="stdout")
+            selector.register(get_io(process, "stderr"), selectors.EVENT_READ, data="stderr")
 
-        result: dict[str, list[str]] = {
-            "stdout": [],
-            "stderr": [],
-        }
-        while selector.get_map():  # while there are unread selectors, keep reading
-            for key_data, output in poll(selector):
-                result[key_data].append(output)
-
-        stdout = "\n".join(result["stdout"]).rstrip("\n")  # remove newline at the end of any
-        stderr = "\n".join(result["stderr"]).rstrip("\n")
+            while selector.get_map():  # while there are unread selectors, keep reading
+                for key_data, output in poll(selector):
+                    result[key_data].append(output)
 
         status_code = process.wait()
-        if status_code != 0:
-            if isinstance(exception, Exception):
-                raise exception
-            if callable(exception):
-                raise exception(status_code, list(args), stdout, stderr)
-            raise CalledProcessError(status_code, list(args), stderr)
 
-        return stdout
+    stdout = "\n".join(result["stdout"]).rstrip("\n")  # remove newline at the end of any
+    stderr = "\n".join(result["stderr"]).rstrip("\n")
+
+    if status_code != 0:
+        if isinstance(exception, Exception):
+            raise exception
+        if callable(exception):
+            raise exception(status_code, list(args), stdout, stderr)
+        raise CalledProcessError(status_code, list(args), stderr)
+
+    return stdout
 
 
 def check_user(root: Path, *, unsafe: bool) -> None:

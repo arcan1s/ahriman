@@ -74,6 +74,18 @@ class Email(Report, JinjaTemplate):
         self.ssl = SmtpSSLSettings.from_option(configuration.get(section, "ssl", fallback="disabled"))
         self.user = configuration.get(section, "user", fallback=None)
 
+    @property
+    def _smtp_session(self) -> type[smtplib.SMTP]:
+        """
+        build SMTP session based on configuration settings
+
+        Returns:
+            type[smtplib.SMTP]: SMTP or SMTP_SSL session depending on whether SSL is enabled or not
+        """
+        if self.ssl == SmtpSSLSettings.SSL:
+            return smtplib.SMTP_SSL
+        return smtplib.SMTP
+
     def _send(self, text: str, attachment: dict[str, str]) -> None:
         """
         send email callback
@@ -93,16 +105,13 @@ class Email(Report, JinjaTemplate):
             attach.add_header("Content-Disposition", "attachment", filename=filename)
             message.attach(attach)
 
-        if self.ssl != SmtpSSLSettings.SSL:
-            session = smtplib.SMTP(self.host, self.port)
+        with self._smtp_session(self.host, self.port) as session:
             if self.ssl == SmtpSSLSettings.STARTTLS:
                 session.starttls()
-        else:
-            session = smtplib.SMTP_SSL(self.host, self.port)
-        if self.user is not None and self.password is not None:
-            session.login(self.user, self.password)
-        session.sendmail(self.sender, self.receivers, message.as_string())
-        session.quit()
+
+            if self.user is not None and self.password is not None:
+                session.login(self.user, self.password)
+            session.sendmail(self.sender, self.receivers, message.as_string())
 
     def generate(self, packages: list[Package], result: Result) -> None:
         """
