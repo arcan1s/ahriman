@@ -154,7 +154,7 @@ def setup_auth(application: Application, configuration: Configuration, validator
         cookie_name="AHRIMAN",
         max_age=validator.max_age,
         httponly=True,
-        samesite="Strict",
+        samesite="Lax",
     )
     setup_session(application, storage)
 
