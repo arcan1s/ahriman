@@ -21,7 +21,9 @@ import requests
 import sys
 
 from functools import cached_property
+from requests.adapters import BaseAdapter, HTTPAdapter
 from typing import Any, IO, Literal
+from urllib3.util.retry import Retry
 
 from ahriman import __version__
 from ahriman.core.configuration import Configuration
@@ -38,9 +40,13 @@ class SyncHttpClient(LazyLogging):
 
     Attributes:
         auth(tuple[str, str] | None): HTTP basic auth object if set
+        retry(Retry): retry policy of the HTTP client. Disabled by default
         suppress_errors(bool): suppress logging of request errors
         timeout(int | None): HTTP request timeout in seconds
     """
+
+    retry: Retry = Retry()
+    timeout: int | None = None
 
     def __init__(self, configuration: Configuration | None = None, section: str | None = None, *,
                  suppress_errors: bool = False) -> None:
@@ -50,17 +56,20 @@ class SyncHttpClient(LazyLogging):
             section(str | None, optional): settings section name (Default value = None)
             suppress_errors(bool, optional): suppress logging of request errors (Default value = False)
         """
-        if configuration is None:
-            configuration = Configuration()  # dummy configuration
-        if section is None:
-            section = configuration.default_section
+        configuration = configuration or Configuration()  # dummy configuration
+        section = section or configuration.default_section
 
         username = configuration.get(section, "username", fallback=None)
         password = configuration.get(section, "password", fallback=None)
         self.auth = (username, password) if username and password else None
 
-        self.timeout: int | None = configuration.getint(section, "timeout", fallback=30)
         self.suppress_errors = suppress_errors
+
+        self.timeout = configuration.getint(section, "timeout", fallback=30)
+        self.retry = SyncHttpClient.retry_policy(
+            max_retries=configuration.getint(section, "max_retries", fallback=0),
+            retry_backoff=configuration.getfloat(section, "retry_backoff", fallback=0.0),
+        )
 
     @cached_property
     def session(self) -> requests.Session:
@@ -71,10 +80,16 @@ class SyncHttpClient(LazyLogging):
             request.Session: created session object
         """
         session = requests.Session()
+
+        for protocol, adapter in self.adapters().items():
+            session.mount(protocol, adapter)
+
         python_version = ".".join(map(str, sys.version_info[:3]))  # just major.minor.patch
         session.headers["User-Agent"] = f"ahriman/{__version__} " \
             f"{requests.utils.default_user_agent()} " \
             f"python/{python_version}"
+
+        self.on_session_creation(session)
 
         return session
 
@@ -91,6 +106,39 @@ class SyncHttpClient(LazyLogging):
         """
         result: str = exception.response.text if exception.response is not None else ""
         return result
+
+    @staticmethod
+    def retry_policy(max_retries: int = 0, retry_backoff: float = 0.0) -> Retry:
+        """
+        build retry policy for class
+
+        Args:
+            max_retries(int, optional): maximum amount of retries allowed (Default value = 0)
+            retry_backoff(float, optional): retry exponential backoff (Default value = 0.0)
+
+        Returns:
+            Retry: built retry policy
+        """
+        return Retry(
+            total=max_retries,
+            connect=max_retries,
+            read=max_retries,
+            status=max_retries,
+            status_forcelist=[429, 500, 502, 503, 504],
+            backoff_factor=retry_backoff,
+        )
+
+    def adapters(self) -> dict[str, BaseAdapter]:
+        """
+        get registered adapters
+
+        Returns:
+            dict[str, BaseAdapter]: map of protocol and adapter used for this protocol
+        """
+        return {
+            "http://": HTTPAdapter(max_retries=self.retry),
+            "https://": HTTPAdapter(max_retries=self.retry),
+        }
 
     def make_request(self, method: Literal["DELETE", "GET", "HEAD", "POST", "PUT"], url: str, *,
                      headers: dict[str, str] | None = None,
@@ -139,3 +187,11 @@ class SyncHttpClient(LazyLogging):
             if not suppress_errors:
                 self.logger.exception("could not perform http request")
             raise
+
+    def on_session_creation(self, session: requests.Session) -> None:
+        """
+        method which will be called on session creation
+
+        Args:
+            session(requests.Session): created requests session
+        """

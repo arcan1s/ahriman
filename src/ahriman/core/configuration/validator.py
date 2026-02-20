@@ -76,6 +76,19 @@ class Validator(RootValidator):
         converted: bool = self.configuration._convert_to_boolean(value)  # type: ignore[attr-defined]
         return converted
 
+    def _normalize_coerce_float(self, value: str) -> float:
+        """
+        extract float from string value
+
+        Args:
+            value(str): converting value
+
+        Returns:
+            float: value converted to float according to configuration rules
+        """
+        del self
+        return float(value)
+
     def _normalize_coerce_integer(self, value: str) -> int:
         """
         extract integer from string value

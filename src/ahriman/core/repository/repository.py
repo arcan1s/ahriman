@@ -21,6 +21,7 @@ from typing import Self
 
 from ahriman.core import _Context, context
 from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.remote import AUR
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository.executor import Executor
@@ -73,8 +74,25 @@ class Repository(Executor, UpdateHandler):
         """
         instance = cls(repository_id, configuration, database,
                        report=report, refresh_pacman_database=refresh_pacman_database)
+
+        instance._set_globals(configuration)
         instance._set_context()
+
         return instance
+
+    @staticmethod
+    def _set_globals(configuration: Configuration) -> None:
+        """
+        set global settings based on configuration via class attributes
+
+        Args:
+            configuration(Configuration): configuration instance
+        """
+        AUR.timeout = configuration.getint("aur", "timeout", fallback=30)
+        AUR.retry = AUR.retry_policy(
+            max_retries=configuration.getint("aur", "max_retries", fallback=0),
+            retry_backoff=configuration.getfloat("aur", "retry_backoff", fallback=0.0),
+        )
 
     def _set_context(self) -> None:
         """

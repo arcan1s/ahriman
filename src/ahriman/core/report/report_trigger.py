@@ -302,6 +302,16 @@ class ReportTrigger(Trigger):
                     "empty": False,
                     "is_url": [],
                 },
+                "max_retries": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "min": 0,
+                },
+                "retry_backoff": {
+                    "type": "float",
+                    "coerce": "float",
+                    "min": 0,
+                },
                 "rss_url": {
                     "type": "string",
                     "empty": False,

@@ -97,6 +97,15 @@ libalpm and AUR related configuration. Group name can refer to architecture, e.g
 * ``sync_files_database`` - download files database from mirror, boolean, required.
 * ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands). If set to ``no``, databases must be synchronized manually.
 
+``aur`` group
+-------------
+
+Archlinux User Repository related configuration.
+
+* ``max_retries`` - maximum amount of retries of HTTP requests, integer, optional, default ``0``.
+* ``retry_backoff`` - retry exponential backoff, float, optional, default ``0.0``.
+* ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
+
 ``auth`` group
 --------------
 
@@ -158,7 +167,9 @@ Reporting to web service related settings. In most cases there is fallback to we
 
 * ``enabled`` - enable reporting to web service, boolean, optional, default ``yes`` for backward compatibility.
 * ``address`` - remote web service address with protocol, string, optional. In case of websocket, the ``http+unix`` scheme and URL encoded address (e.g. ``%2Fvar%2Flib%2Fahriman`` for ``/var/lib/ahriman``) must be used, e.g. ``http+unix://%2Fvar%2Flib%2Fahriman%2Fsocket``. In case if none set, it will be guessed from ``web`` section.
+* ``max_retries`` - maximum amount of retries of HTTP requests, integer, optional, default ``0``.
 * ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
+* ``retry_backoff`` - retry exponential backoff, float, optional, default ``0.0``.
 * ``suppress_http_log_errors`` - suppress HTTP log errors, boolean, optional, default ``no``. If set to ``yes``, any HTTP log errors (e.g. if web server is not available, but HTTP logging is enabled) will be suppressed.
 * ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
@@ -367,6 +378,8 @@ Section name must be either ``telegram`` (plus optional architecture name, e.g. 
 * ``chat_id`` - telegram chat id, either string with ``@`` or integer value, required.
 * ``homepage`` - link to homepage, string, optional.
 * ``link_path`` - prefix for HTML links, string, required.
+* ``max_retries`` - maximum amount of retries of HTTP requests, integer, optional, default ``0``.
+* ``retry_backoff`` - retry exponential backoff, float, optional, default ``0.0``.
 * ``rss_url`` - link to RSS feed, string, optional.
 * ``template`` - Jinja2 template name, string, required.
 * ``template_type`` - ``parse_mode`` to be passed to telegram API, one of ``MarkdownV2``, ``HTML``, ``Markdown``, string, optional, default ``HTML``.
@@ -392,6 +405,7 @@ Type will be read from several sources:
 This feature requires GitHub key creation (see below). Section name must be either ``github`` (plus optional architecture name, e.g. ``github:x86_64``) or random name with ``type`` set.
 
 * ``type`` - type of the upload, string, optional, must be set to ``github`` if exists.
+* ``max_retries`` - maximum amount of retries of HTTP requests, integer, optional, default ``0``.
 * ``owner`` - GitHub repository owner, string, required.
 * ``password`` - created GitHub API key. In order to create it do the following:
 
@@ -401,6 +415,7 @@ This feature requires GitHub key creation (see below). Section name must be eith
   #. Generate new token. Required scope is ``public_repo`` (or ``repo`` for private repository support).
 
 * ``repository`` - GitHub repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
+* ``retry_backoff`` - retry exponential backoff, float, optional, default ``0.0``.
 * ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 * ``use_full_release_name`` - if set to ``yes``, the release will contain both repository name and architecture, and only architecture otherwise, boolean, optional, default ``no`` (legacy behavior).
 * ``username`` - GitHub authorization user, string, required. Basically the same as ``owner``.
@@ -411,6 +426,8 @@ This feature requires GitHub key creation (see below). Section name must be eith
 Section name must be either ``remote-service`` (plus optional architecture name, e.g. ``remote-service:x86_64``) or random name with ``type`` set.
 
 * ``type`` - type of the report, string, optional, must be set to ``remote-service`` if exists.
+* ``max_retries`` - maximum amount of retries of HTTP requests, integer, optional, default ``0``.
+* ``retry_backoff`` - retry exponential backoff, float, optional, default ``0.0``.
 * ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 
 ``rsync`` type

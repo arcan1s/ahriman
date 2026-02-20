@@ -97,6 +97,26 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
         },
     },
+    "aur": {
+        "type": "dict",
+        "schema": {
+            "max_retries": {
+                "type": "integer",
+                "coerce": "integer",
+                "min": 0,
+            },
+            "retry_backoff": {
+                "type": "float",
+                "coerce": "float",
+                "min": 0,
+            },
+            "timeout": {
+                "type": "integer",
+                "coerce": "integer",
+                "min": 0,
+            },
+        },
+    },
     "auth": {
         "type": "dict",
         "schema": {
@@ -296,9 +316,19 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "empty": False,
                 "is_url": [],
             },
+            "max_retries": {
+                "type": "integer",
+                "coerce": "integer",
+                "min": 0,
+            },
             "password": {
                 "type": "string",
                 "empty": False,
+            },
+            "retry_backoff": {
+                "type": "float",
+                "coerce": "float",
+                "min": 0,
             },
             "suppress_http_log_errors": {
                 "type": "boolean",

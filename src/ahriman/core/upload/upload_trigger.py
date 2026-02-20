@@ -54,6 +54,11 @@ class UploadTrigger(Trigger):
                     "type": "string",
                     "allowed": ["github"],
                 },
+                "max_retries": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "min": 0,
+                },
                 "owner": {
                     "type": "string",
                     "required": True,
@@ -67,6 +72,11 @@ class UploadTrigger(Trigger):
                     "type": "string",
                     "required": True,
                     "empty": False,
+                },
+                "retry_backoff": {
+                    "type": "float",
+                    "coerce": "float",
+                    "min": 0,
                 },
                 "timeout": {
                     "type": "integer",
@@ -89,6 +99,16 @@ class UploadTrigger(Trigger):
                 "type": {
                     "type": "string",
                     "allowed": ["ahriman", "remote-service"],
+                },
+                "max_retries": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "min": 0,
+                },
+                "retry_backoff": {
+                    "type": "float",
+                    "coerce": "float",
+                    "min": 0,
                 },
                 "timeout": {
                     "type": "integer",

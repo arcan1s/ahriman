@@ -4,6 +4,7 @@ import requests
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock, call as MockCall
 
+from ahriman.core.alpm.remote import AUR
 from ahriman.core.configuration import Configuration
 from ahriman.core.http import SyncHttpClient
 
@@ -33,12 +34,29 @@ def test_init_auth_empty() -> None:
     assert SyncHttpClient().auth is None
 
 
-def test_session() -> None:
+def test_session(mocker: MockerFixture) -> None:
     """
     must generate valid session
     """
+    on_session_creation_mock = mocker.patch("ahriman.core.http.sync_http_client.SyncHttpClient.on_session_creation")
+
     session = SyncHttpClient().session
     assert "User-Agent" in session.headers
+    on_session_creation_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+
+
+def test_retry_policy() -> None:
+    """
+    must set retry policy
+    """
+    SyncHttpClient.retry = SyncHttpClient.retry_policy(1, 2.0)
+    AUR.retry = AUR.retry_policy(3, 4.0)
+
+    assert SyncHttpClient.retry.connect == 1
+    assert SyncHttpClient.retry.backoff_factor == 2.0
+
+    assert AUR.retry.connect == 3
+    assert AUR.retry.backoff_factor == 4.0
 
 
 def test_exception_response_text() -> None:
@@ -58,6 +76,18 @@ def test_exception_response_text_empty() -> None:
     """
     exception = requests.exceptions.HTTPError(response=None)
     assert SyncHttpClient.exception_response_text(exception) == ""
+
+
+def test_adapters() -> None:
+    """
+    must create adapters with retry policy
+    """
+    client = SyncHttpClient()
+    adapters = client.adapters()
+
+    assert "http://" in adapters
+    assert "https://" in adapters
+    assert all(adapter.max_retries == client.retry for adapter in adapters.values())
 
 
 def test_make_request(mocker: MockerFixture) -> None:
@@ -158,3 +188,11 @@ def test_make_request_session() -> None:
     session_mock.request.assert_called_once_with(
         "GET", "url", params=None, data=None, headers=None, files=None, json=None,
         stream=None, auth=None, timeout=client.timeout)
+
+
+def test_on_session_creation() -> None:
+    """
+    must do nothing on start
+    """
+    client = SyncHttpClient()
+    client.on_session_creation(client.session)

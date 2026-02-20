@@ -33,6 +33,14 @@ def test_normalize_coerce_boolean(validator: Validator, mocker: MockerFixture) -
     convert_mock.assert_called_once_with("1")
 
 
+def test_normalize_coerce_float(validator: Validator) -> None:
+    """
+    must convert string value to float by using configuration converters
+    """
+    assert validator._normalize_coerce_float("1.5") == 1.5
+    assert validator._normalize_coerce_float("0.0") == 0.0
+
+
 def test_normalize_coerce_integer(validator: Validator) -> None:
     """
     must convert string value to integer by using configuration converters

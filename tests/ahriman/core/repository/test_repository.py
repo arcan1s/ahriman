@@ -2,6 +2,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.remote import AUR
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
@@ -13,11 +14,25 @@ def test_load(configuration: Configuration, database: SQLite, mocker: MockerFixt
     """
     must correctly load instance
     """
+    globals_mock = mocker.patch("ahriman.core.repository.Repository._set_globals")
     context_mock = mocker.patch("ahriman.core.repository.Repository._set_context")
     _, repository_id = configuration.check_loaded()
 
     Repository.load(repository_id, configuration, database, report=False)
+    globals_mock.assert_called_once_with(configuration)
     context_mock.assert_called_once_with()
+
+
+def test_set_globals(configuration: Configuration) -> None:
+    """
+    must correctly set globals
+    """
+    configuration.set_option("aur", "timeout", "42")
+    configuration.set_option("aur", "max_retries", "10")
+
+    Repository._set_globals(configuration)
+    assert AUR.timeout == 42
+    assert AUR.retry.connect == 10
 
 
 def test_set_context(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:

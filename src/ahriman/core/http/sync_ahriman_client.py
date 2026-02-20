@@ -20,10 +20,9 @@
 import contextlib
 import requests
 
-from functools import cached_property
+from requests.adapters import BaseAdapter
 from urllib.parse import urlparse
 
-from ahriman import __version__
 from ahriman.core.http.sync_http_client import SyncHttpClient
 
 
@@ -37,32 +36,36 @@ class SyncAhrimanClient(SyncHttpClient):
 
     address: str
 
-    @cached_property
-    def session(self) -> requests.Session:
+    def _login_url(self) -> str:
         """
-        get or create session
+        get url for the login api
 
         Returns:
-            request.Session: created session object
+            str: full url for web service to log in
         """
-        if urlparse(self.address).scheme == "http+unix":
-            import requests_unixsocket
-            session: requests.Session = requests_unixsocket.Session()  # type: ignore[no-untyped-call]
-            session.headers["User-Agent"] = f"ahriman/{__version__}"
-            return session
+        return f"{self.address}/api/v1/login"
 
-        session = requests.Session()
-        session.headers["User-Agent"] = f"ahriman/{__version__}"
-        self._login(session)
-
-        return session
-
-    def _login(self, session: requests.Session) -> None:
+    def adapters(self) -> dict[str, BaseAdapter]:
         """
-        process login to the service
+        get registered adapters
+
+        Returns:
+            dict[str, BaseAdapter]: map of protocol and adapter used for this protocol
+        """
+        adapters = SyncHttpClient.adapters(self)
+
+        if (scheme := urlparse(self.address).scheme) == "http+unix":
+            from requests_unixsocket.adapters import UnixAdapter
+            adapters[f"{scheme}://"] = UnixAdapter()  # type: ignore[no-untyped-call]
+
+        return adapters
+
+    def on_session_creation(self, session: requests.Session) -> None:
+        """
+        method which will be called on session creation
 
         Args:
-            session(requests.Session): request session to login
+            session(requests.Session): created requests session
         """
         if self.auth is None:
             return  # no auth configured
@@ -74,12 +77,3 @@ class SyncAhrimanClient(SyncHttpClient):
         }
         with contextlib.suppress(Exception):
             self.make_request("POST", self._login_url(), json=payload, session=session)
-
-    def _login_url(self) -> str:
-        """
-        get url for the login api
-
-        Returns:
-            str: full url for web service to log in
-        """
-        return f"{self.address}/api/v1/login"
