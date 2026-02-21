@@ -251,7 +251,7 @@ class Setup(Handler):
 
         content = f"PACKAGER='{packager}'\n"
         if makeflags_jobs:
-            content += """MAKEFLAGS="-j$(nproc)"\n"""
+            content += "MAKEFLAGS=\"-j$(nproc)\"\n"
 
         uid, _ = paths.root_owner
         home_dir = Path(getpwuid(uid).pw_dir)

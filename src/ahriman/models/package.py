@@ -375,7 +375,7 @@ class Package(LazyLogging):
         Returns:
             str: print-friendly string
         """
-        details = "" if self.is_single_package else f""" ({" ".join(sorted(self.packages.keys()))})"""
+        details = "" if self.is_single_package else f" ({" ".join(sorted(self.packages.keys()))})"
         return f"{self.base}{details}"
 
     def vercmp(self, version: str) -> int:

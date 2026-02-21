@@ -147,7 +147,7 @@ class PkgbuildPatch:
         """
         if "$" in source:
             # copy from library method with double quotes instead
-            return f"""\"{source.replace("\"", "'\"'")}\""""
+            return f"\"{source.replace("\"", "'\"'")}\""
         # otherwise just return normal call
         return shlex.quote(source)
 
@@ -195,13 +195,13 @@ class PkgbuildPatch:
         """
         if isinstance(self.value, list):  # list like
             value = " ".join(map(self.quote, self.value))
-            return f"""{self.key}=({value})"""
+            return f"{self.key}=({value})"
         if self.is_plain_diff:  # no additional logic for plain diffs
             return self.value
         # we suppose that function values are only supported in string-like values
         if self.is_function:
             return f"{self.key} {self.value}"  # no quoting enabled here
-        return f"""{self.key}={self.quote(self.value)}"""
+        return f"{self.key}={self.quote(self.value)}"
 
     def substitute(self, variables: dict[str, str]) -> str | list[str]:
         """

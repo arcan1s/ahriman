@@ -69,8 +69,8 @@ class OAuth(Mapping):
         Returns:
             str: login control as html code to insert
         """
-        return f"""<a class="nav-link" href="/api/v1/login" title="login via OAuth2"><i class="bi bi-{
-            self.icon}"></i> login</a>"""
+        return f"<a class=\"nav-link\" href=\"/api/v1/login\" title=\"login via OAuth2\"><i class=\"bi bi-{
+            self.icon}\"></i> login</a>"
 
     @staticmethod
     def get_provider(name: str) -> type[aioauth_client.OAuth2Client]:
