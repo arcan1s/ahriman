@@ -88,11 +88,9 @@ class Repository(Executor, UpdateHandler):
         Args:
             configuration(Configuration): configuration instance
         """
-        AUR.timeout = configuration.getint("aur", "timeout", fallback=30)
-        AUR.retry = AUR.retry_policy(
-            max_retries=configuration.getint("aur", "max_retries", fallback=0),
-            retry_backoff=configuration.getfloat("aur", "retry_backoff", fallback=0.0),
-        )
+        AUR.DEFAULT_MAX_RETRIES = configuration.getint("aur", "max_retries", fallback=0)
+        AUR.DEFAULT_RETRY_BACKOFF = configuration.getfloat("aur", "retry_backoff", fallback=0.0)
+        AUR.DEFAULT_TIMEOUT = configuration.getint("aur", "timeout", fallback=30)
 
     def _set_context(self) -> None:
         """

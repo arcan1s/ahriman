@@ -49,14 +49,18 @@ def test_retry_policy() -> None:
     """
     must set retry policy
     """
-    SyncHttpClient.retry = SyncHttpClient.retry_policy(1, 2.0)
-    AUR.retry = AUR.retry_policy(3, 4.0)
+    SyncHttpClient.DEFAULT_MAX_RETRIES = 1
+    SyncHttpClient.DEFAULT_RETRY_BACKOFF = 2.0
+    AUR.DEFAULT_MAX_RETRIES = 3
+    AUR.DEFAULT_RETRY_BACKOFF = 4.0
 
-    assert SyncHttpClient.retry.connect == 1
-    assert SyncHttpClient.retry.backoff_factor == 2.0
+    client = SyncHttpClient()
+    assert client.retry.connect == 1
+    assert client.retry.backoff_factor == 2.0
 
-    assert AUR.retry.connect == 3
-    assert AUR.retry.backoff_factor == 4.0
+    aur = AUR()
+    assert aur.retry.connect == 3
+    assert aur.retry.backoff_factor == 4.0
 
 
 def test_exception_response_text() -> None:

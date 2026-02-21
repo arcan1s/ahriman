@@ -22,7 +22,7 @@ import sys
 
 from functools import cached_property
 from requests.adapters import BaseAdapter, HTTPAdapter
-from typing import Any, IO, Literal
+from typing import Any, ClassVar, IO, Literal
 from urllib3.util.retry import Retry
 
 from ahriman import __version__
@@ -39,14 +39,18 @@ class SyncHttpClient(LazyLogging):
     wrapper around requests library to reduce boilerplate
 
     Attributes:
+        DEFAULT_MAX_RETRIES(int): (class attribute) default maximum amount of retries
+        DEFAULT_RETRY_BACKOFF(float): (class attribute) default retry exponential backoff
+        DEFAULT_TIMEOUT(int | None): (class attribute) default HTTP request timeout in seconds
         auth(tuple[str, str] | None): HTTP basic auth object if set
-        retry(Retry): retry policy of the HTTP client. Disabled by default
+        retry(Retry): retry policy of the HTTP client
         suppress_errors(bool): suppress logging of request errors
         timeout(int | None): HTTP request timeout in seconds
     """
 
-    retry: Retry = Retry()
-    timeout: int | None = None
+    DEFAULT_MAX_RETRIES: ClassVar[int] = 0
+    DEFAULT_RETRY_BACKOFF: ClassVar[float] = 0.0
+    DEFAULT_TIMEOUT: ClassVar[int | None] = 30
 
     def __init__(self, configuration: Configuration | None = None, section: str | None = None, *,
                  suppress_errors: bool = False) -> None:
@@ -65,10 +69,10 @@ class SyncHttpClient(LazyLogging):
 
         self.suppress_errors = suppress_errors
 
-        self.timeout = configuration.getint(section, "timeout", fallback=30)
+        self.timeout = configuration.getint(section, "timeout", fallback=self.DEFAULT_TIMEOUT)
         self.retry = SyncHttpClient.retry_policy(
-            max_retries=configuration.getint(section, "max_retries", fallback=0),
-            retry_backoff=configuration.getfloat(section, "retry_backoff", fallback=0.0),
+            max_retries=configuration.getint(section, "max_retries", fallback=self.DEFAULT_MAX_RETRIES),
+            retry_backoff=configuration.getfloat(section, "retry_backoff", fallback=self.DEFAULT_RETRY_BACKOFF),
         )
 
     @cached_property

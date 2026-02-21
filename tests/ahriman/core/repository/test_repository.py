@@ -31,8 +31,9 @@ def test_set_globals(configuration: Configuration) -> None:
     configuration.set_option("aur", "max_retries", "10")
 
     Repository._set_globals(configuration)
-    assert AUR.timeout == 42
-    assert AUR.retry.connect == 10
+    aur = AUR()
+    assert aur.timeout == 42
+    assert aur.retry.connect == 10
 
 
 def test_set_context(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:
