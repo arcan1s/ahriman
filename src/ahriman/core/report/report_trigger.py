@@ -131,7 +131,6 @@ class ReportTrigger(Trigger):
                 "template_full": {
                     "type": "string",
                     "dependencies": ["templates"],
-                    "required": True,
                     "empty": False,
                 },
                 "templates": {
