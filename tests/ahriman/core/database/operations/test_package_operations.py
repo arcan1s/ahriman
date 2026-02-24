@@ -157,8 +157,7 @@ def test_package_update_get(database: SQLite, package_ahriman: Package) -> None:
     database.package_update(package_ahriman)
     database.status_update(package_ahriman.base, status)
     assert next((db_package, db_status)
-                for db_package, db_status in database.packages_get()
-                if db_package.base == package_ahriman.base) == (package_ahriman, status)
+                for db_package, db_status in database.packages_get()) == (package_ahriman, status)
 
 
 def test_package_update_remove_get(database: SQLite, package_ahriman: Package) -> None:
@@ -176,10 +175,10 @@ def test_package_update_update(database: SQLite, package_ahriman: Package) -> No
     """
     database.package_update(package_ahriman)
     package_ahriman.version = "1.0.0"
+
     database.package_update(package_ahriman)
     assert next(db_package.version
-                for db_package, _ in database.packages_get()
-                if db_package.base == package_ahriman.base) == package_ahriman.version
+                for db_package, _ in database.packages_get()) == package_ahriman.version
 
 
 def test_status_update(database: SQLite, package_ahriman: Package) -> None:
@@ -188,6 +187,19 @@ def test_status_update(database: SQLite, package_ahriman: Package) -> None:
     """
     status = BuildStatus()
 
-    database.package_update(package_ahriman, database._repository_id)
-    database.status_update(package_ahriman.base, status, database._repository_id)
-    assert database.packages_get(database._repository_id) == [(package_ahriman, status)]
+    database.package_update(package_ahriman)
+    database.status_update(package_ahriman.base, status)
+    assert database.packages_get() == [(package_ahriman, status)]
+
+
+def test_status_update_skip_same_status(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must preserve original timestamp when status is unchanged
+    """
+    status = BuildStatus(timestamp=42)
+    database.package_update(package_ahriman)
+
+    database.status_update(package_ahriman.base, status)
+    database.status_update(package_ahriman.base, BuildStatus())
+    assert next(db_status.timestamp
+                for _, db_status in database.packages_get()) == status.timestamp

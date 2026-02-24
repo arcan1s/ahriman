@@ -292,6 +292,7 @@ class PackageOperations(Operations):
                 (:package_base, :status, :last_updated, :repository)
                 on conflict (package_base, repository) do update set
                 status = :status, last_updated = :last_updated
+                where status != :status
                 """,
                 {
                     "package_base": package_base,
