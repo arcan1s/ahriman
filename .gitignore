@@ -99,3 +99,9 @@ status_cache.json
 *.db
 
 docs/html/
+
+# Frontend
+node_modules/
+package-lock.json
+package/share/ahriman/templates/static/index.js
+package/share/ahriman/templates/static/index.css

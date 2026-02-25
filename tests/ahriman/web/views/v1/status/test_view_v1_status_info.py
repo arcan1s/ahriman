@@ -35,6 +35,6 @@ async def test_get(client: TestClient, repository_id: RepositoryId) -> None:
     json = await response.json()
     assert not response_schema.validate(json)
 
-    assert json["repositories"] == [repository_id.view()]
+    assert json["repositories"] == [{"id": repository_id.id, **repository_id.view()}]
     assert not json["auth"]
     assert json["version"] == __version__

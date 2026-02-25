@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response
 from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
@@ -71,7 +71,7 @@ class PGPView(BaseView):
         except Exception:
             raise HTTPNotFound(reason=f"Key {key} is unknown")
 
-        return json_response({"key": key})
+        return self.json_response({"key": key})
 
     @apidocs(
         tags=["Actions"],
@@ -100,4 +100,4 @@ class PGPView(BaseView):
 
         process_id = self.spawner.key_import(key, data.get("server"))
 
-        return json_response({"process_id": process_id})
+        return self.json_response({"process_id": process_id})

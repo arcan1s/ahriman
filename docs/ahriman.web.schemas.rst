@@ -20,10 +20,26 @@ ahriman.web.schemas.aur\_package\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.auth\_info\_schema module
+---------------------------------------------
+
+.. automodule:: ahriman.web.schemas.auth_info_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.auth\_schema module
 ---------------------------------------
 
 .. automodule:: ahriman.web.schemas.auth_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.auto\_refresh\_interval\_schema module
+----------------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.auto_refresh_interval_schema
    :members:
    :no-undoc-members:
    :show-inheritance:
@@ -104,6 +120,14 @@ ahriman.web.schemas.info\_schema module
 ---------------------------------------
 
 .. automodule:: ahriman.web.schemas.info_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.info\_v2\_schema module
+-------------------------------------------
+
+.. automodule:: ahriman.web.schemas.info_v2_schema
    :members:
    :no-undoc-members:
    :show-inheritance:

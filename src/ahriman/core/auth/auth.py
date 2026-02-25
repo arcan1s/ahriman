@@ -60,6 +60,16 @@ class Auth(LazyLogging):
         """
         return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#login-modal" style="text-decoration: none"><i class="bi bi-box-arrow-in-right"></i> login</button>"""
 
+    @property
+    def is_external(self) -> bool:
+        """
+        check if the provider is external (e.g. OAuth)
+
+        Returns:
+            bool: ``True`` in case if external provider is used and ``False`` otherwise
+        """
+        return False
+
     @staticmethod
     def load(configuration: Configuration, database: SQLite) -> Auth:
         """

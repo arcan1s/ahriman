@@ -12,3 +12,6 @@ __pycache__/
 *.pyc
 *.pyd
 *.pyo
+
+node_modules/
+package-lock.json

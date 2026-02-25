@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response
 from typing import ClassVar
 
 from ahriman import __version__
@@ -75,7 +75,7 @@ class StatusView(StatusViewGuard, BaseView):
             version=__version__,
         )
 
-        return json_response(status.view())
+        return self.json_response(status.view())
 
     @apidocs(
         tags=["Status"],

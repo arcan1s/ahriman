@@ -118,7 +118,6 @@ Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` libr
 * ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 bytes URL-safe base64-encoded and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically invalidated during the service restart.
 * ``full_access_group`` - name of the secondary group (e.g. ``wheel``) to be used as admin group in the service, string, required in case if ``pam`` is used.
 * ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service in seconds, integer, optional, default is 7 days.
-* ``oauth_icon`` - OAuth2 login button icon, string, optional, default is ``google``. Must be valid `Bootstrap icon <https://icons.getbootstrap.com/>`__ name.
 * ``oauth_provider`` - OAuth2 provider class name as is in ``aioauth-client`` (e.g. ``GoogleClient``, ``GithubClient`` etc), string, required in case if ``oauth`` is used.
 * ``oauth_scopes`` - scopes list for OAuth2 provider, which will allow retrieving user email (which is used for checking user permissions), e.g. ``https://www.googleapis.com/auth/userinfo.email`` for ``GoogleClient`` or ``user:email`` for ``GithubClient``, space separated list of strings, required in case if ``oauth`` is used.
 * ``permit_root_login`` - allow login as root user, boolean, optional, default ``no``.
@@ -188,6 +187,7 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 * ``port`` - port to bind, integer, optional.
 * ``service_only`` - disable status routes (including logs), boolean, optional, default ``no``.
 * ``static_path`` - path to directory with static files, string, required.
+* ``template`` - Jinja2 template name for the index page, string, optional, default ``build-status.jinja2``.
 * ``templates`` - path to templates directories, space separated list of paths, required.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.

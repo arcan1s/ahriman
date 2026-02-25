@@ -161,10 +161,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "integer",
                 "min": 0,
             },
-            "oauth_icon": {
-                "type": "string",
-                "empty": False,
-            },
             "oauth_provider": {
                 "type": "string",
                 "empty": False,
@@ -397,6 +393,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "required": True,
                 "path_exists": True,
                 "path_type": "dir",
+            },
+            "template": {
+                "type": "string",
+                "empty": False,
             },
             "templates": {
                 "type": "list",

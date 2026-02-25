@@ -29,6 +29,10 @@ class RepositoryIdSchema(Schema):
         "description": "Repository architecture",
         "example": "x86_64",
     })
+    id = fields.String(metadata={
+        "description": "Unique repository identifier",
+        "example": "aur-x86_64",
+    })
     repository = fields.String(metadata={
         "description": "Repository name",
         "example": "aur",

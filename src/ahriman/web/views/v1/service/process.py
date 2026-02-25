@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPNotFound, Response
 from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
@@ -66,4 +66,4 @@ class ProcessView(BaseView):
             "is_alive": is_alive,
         }
 
-        return json_response(response)
+        return self.json_response(response)

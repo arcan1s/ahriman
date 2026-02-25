@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    ahriman.web.views.v2.packages
+   ahriman.web.views.v2.status
 
 Module contents
 ---------------

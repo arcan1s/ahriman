@@ -27,7 +27,7 @@ class InfoSchema(Schema):
     response service information schema
     """
 
-    auth = fields.Boolean(dump_default=False, required=True, metadata={
+    auth = fields.Boolean(required=True, metadata={
         "description": "Whether authentication is enabled or not",
     })
     repositories = fields.Nested(RepositoryIdSchema(many=True), required=True, metadata={

@@ -19,7 +19,7 @@
 #
 import itertools
 
-from aiohttp.web import Response, json_response
+from aiohttp.web import Response
 from dataclasses import replace
 from typing import ClassVar
 
@@ -31,8 +31,7 @@ from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
 class LogsView(StatusViewGuard, BaseView):
-    """        else:
-
+    """
     package logs web view
 
     Attributes:
@@ -80,4 +79,4 @@ class LogsView(StatusViewGuard, BaseView):
             ]
 
         response = [log_record.view() for log_record in logs]
-        return json_response(response)
+        return self.json_response(response)

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>ahriman</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        {% include "utils/style.jinja2" %}
+        {% include "user-style.jinja2" ignore missing %}
+    </head>
+
+    <body>
+
+        {% include "utils/bootstrap-scripts.jinja2" %}
+
+        <div class="container">
+            <nav class="navbar navbar-expand-lg">
+                <div class="navbar-brand"><a href="https://github.com/arcan1s/ahriman" title="logo"><img src="/static/logo.svg" width="30" height="30" alt=""></a></div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#repositories-navbar" aria-controls="repositories-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div id="repositories-navbar" class="collapse navbar-collapse">
+                    <ul id="repositories" class="nav nav-tabs">
+                        {% for repository in repositories %}
+                            <li class="nav-item">
+                                <a id="{{ repository.id }}-link" class="nav-link" href="#{{ repository.id }}" data-repository="{{ repository.repository }}" data-architecture="{{ repository.architecture }}">{{ repository.repository }} ({{ repository.architecture }})</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <div id="alert-placeholder" class="toast-container p3 top-0 start-50 translate-middle-x"></div>
+
+        <div class="container">
+            <div id="toolbar" class="dropdown">
+                <button id="dashboard-button" type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#dashboard-modal">
+                    <i class="bi bi-info-circle"></i>
+                </button>
+
+                {% if not auth.enabled or auth.username is not none %}
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-box"></i><span class="d-none d-sm-inline"> packages</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <button id="package-add-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-add-modal">
+                                <i class="bi bi-plus"></i> add
+                            </button>
+                        </li>
+                        <li>
+                            <button id="package-update-button" class="btn dropdown-item" onclick="packagesUpdate()">
+                                <i class="bi bi-play"></i> update
+                            </button>
+                        </li>
+                        <li>
+                            <button id="update-repositories-button" class="btn dropdown-item" onclick="refreshDatabases()">
+                                <i class="bi bi-arrow-down-circle"></i> update pacman databases
+                            </button>
+                        </li>
+                        <li>
+                            <button id="package-rebuild-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-rebuild-modal">
+                                <i class="bi bi-arrow-clockwise"></i> rebuild
+                            </button>
+                        </li>
+                        <li>
+                            <button id="package-remove-button" class="btn dropdown-item" onclick="packagesRemove()" disabled>
+                                <i class="bi bi-trash"></i> remove
+                            </button>
+                        </li>
+                    </ul>
+
+                    <button id="key-import-button" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal">
+                        <i class="bi bi-key"></i><span class="d-none d-sm-inline"> import key</span>
+                    </button>
+                {% endif %}
+
+                <button type="button" class="btn btn-secondary" onclick="reload()">
+                    <i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span>
+                </button>
+
+                {% if autorefresh_intervals %}
+                    <div class="btn-group">
+                        <input id="table-autoreload-button" type="checkbox" class="btn-check" autocomplete="off" onclick="toggleTableAutoReload()" checked>
+                        <label for="table-autoreload-button" class="btn btn-outline-secondary" title="toggle auto reload"><i class="bi bi-clock"></i></label>
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">select interval</span>
+                        </button>
+                        <ul id="table-autoreload-input" class="dropdown-menu">
+                            {% for interval in autorefresh_intervals %}
+                                <li><a class="dropdown-item {{ "active" if interval.is_active }}" onclick="toggleTableAutoReload({{ interval.interval }})" data-interval="{{ interval.interval }}">{{ interval.text }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+
+            <table id="packages"
+                   data-classes="table table-hover"
+                   data-cookie="true"
+                   data-cookie-id-table="ahriman-packages"
+                   data-cookie-storage="localStorage"
+                   data-export-options='{"fileName": "packages"}'
+                   data-filter-control="true"
+                   data-filter-control-visible="false"
+                   data-page-list="[10, 25, 50, 100, all]"
+                   data-page-size="10"
+                   data-pagination="true"
+                   data-resizable="true"
+                   data-search="true"
+                   data-show-columns="true"
+                   data-show-columns-search="true"
+                   data-show-columns-toggle-all="true"
+                   data-show-export="true"
+                   data-show-filter-control-switch="true"
+                   data-show-fullscreen="true"
+                   data-show-search-clear-button="true"
+                   data-sortable="true"
+                   data-sort-name="base"
+                   data-sort-order="asc"
+                   data-toolbar="#toolbar"
+                   data-unique-id="id">
+                <thead class="table-primary">
+                    <tr>
+                        <th data-checkbox="true"></th>
+                        <th data-sortable="true" data-switchable="false" data-field="base" data-filter-control="input" data-filter-control-placeholder="(any base)">package base</th>
+                        <th data-sortable="true" data-align="right" data-field="version" data-filter-control="input" data-filter-control-placeholder="(any version)">version</th>
+                        <th data-sortable="true" data-field="packages" data-filter-control="input" data-filter-control-placeholder="(any package)">packages</th>
+                        <th data-sortable="true" data-visible="false" data-field="groups" data-filter-control="select" data-filter-data="func:filterListGroups" data-filter-custom-search="filterList" data-filter-control-placeholder="(any group)">groups</th>
+                        <th data-sortable="true" data-visible="false" data-field="licenses" data-filter-control="select" data-filter-data="func:filterListLicenses" data-filter-custom-search="filterList" data-filter-control-placeholder="(any license)">licenses</th>
+                        <th data-sortable="true" data-visible="false" data-field="packager" data-filter-control="select" data-filter-custom-search="filterContains" data-filter-control-placeholder="(any packager)">packager</th>
+                        <th data-sortable="true" data-align="right" data-field="timestamp" data-filter-control="input" data-filter-custom-search="filterDateRange" data-filter-control-placeholder="(any date)">last update</th>
+                        <th data-sortable="true" data-align="center" data-cell-style="statusFormat" data-field="status" data-filter-control="select" data-filter-control-placeholder="(any status)">status</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        <div class="container">
+            <footer class="d-flex flex-wrap justify-content-between align-items-center border-top">
+                <ul class="nav">
+                    <li><a id="badge-version" class="nav-link" href="https://github.com/arcan1s/ahriman" title="sources"><i class="bi bi-github"></i> ahriman</a></li>
+                    <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/releases" title="releases list">releases</a></li>
+                    <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>
+                    {% if docs_enabled %}
+                        <li><a class="nav-link" href="/api-docs" title="API documentation">api</a></li>
+                    {% endif %}
+                </ul>
+
+                {% if index_url is not none %}
+                    <ul class="nav">
+                        <li><a class="nav-link" href="{{ index_url }}" title="repo index"><i class="bi bi-house"></i> repo index</a></li>
+                    </ul>
+                {% endif %}
+
+                {% if auth.enabled %}
+                    <ul class="nav">
+                        {% if auth.username is none %}
+                            <li>{{ auth.control | safe }}</li>
+                        {% else %}
+                            <li>
+                                <form action="/api/v1/logout" method="post">
+                                    <button class="btn btn-link" style="text-decoration: none"><i class="bi bi-box-arrow-right"></i> logout ({{ auth.username }})</button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </footer>
+        </div>
+
+        {% if auth.enabled %}
+            {% include "build-status/login-modal.jinja2" %}
+        {% endif %}
+
+        {% include "build-status/alerts.jinja2" %}
+
+        {% include "build-status/dashboard.jinja2" %}
+        {% include "build-status/package-add-modal.jinja2" %}
+        {% include "build-status/package-rebuild-modal.jinja2" %}
+        {% include "build-status/key-import-modal.jinja2" %}
+
+        {% include "build-status/package-info-modal.jinja2" %}
+
+        {% include "build-status/table.jinja2" %}
+
+    </body>
+
+</html>

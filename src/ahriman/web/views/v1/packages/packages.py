@@ -19,7 +19,7 @@
 #
 import itertools
 
-from aiohttp.web import HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPNoContent, Response
 from collections.abc import Callable
 from typing import ClassVar
 
@@ -78,7 +78,7 @@ class PackagesView(StatusViewGuard, BaseView):
             } for package, status in itertools.islice(sorted(packages, key=comparator), offset, stop)
         ]
 
-        return json_response(response)
+        return self.json_response(response)
 
     @apidocs(
         tags=["Packages"],

@@ -291,6 +291,28 @@ def test_filter_json_empty_value(package_ahriman: Package) -> None:
     assert "base" not in filter_json(probe, probe.keys())
 
 
+def test_filter_json_nested() -> None:
+    """
+    must recursively filter None values from nested dicts
+    """
+    assert filter_json({"a": {"b": None, "c": 1}}) == {"a": {"c": 1}}
+
+
+def test_filter_json_list() -> None:
+    """
+    must recursively filter None values inside lists
+    """
+    assert filter_json([{"a": 1, "b": None}]) == [{"a": 1}]
+
+
+def test_filter_json_scalar() -> None:
+    """
+    must pass through scalar values unchanged
+    """
+    assert filter_json("scalar") == "scalar"
+    assert filter_json(42) == 42
+
+
 def test_full_version() -> None:
     """
     must construct full version
@@ -583,6 +605,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "utils" / "style.jinja2",
         resource_path_root / "web" / "templates" / "api.jinja2",
         resource_path_root / "web" / "templates" / "build-status.jinja2",
+        resource_path_root / "web" / "templates" / "build-status-classic.jinja2",
         resource_path_root / "web" / "templates" / "email-index.jinja2",
         resource_path_root / "web" / "templates" / "error.jinja2",
         resource_path_root / "web" / "templates" / "repo-index.jinja2",
@@ -590,5 +613,5 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "shell",
         resource_path_root / "web" / "templates" / "telegram-index.jinja2",
     ])
-    local_files = list(sorted(walk(resource_path_root)))
+    local_files = list(path for path in sorted(walk(resource_path_root)) if path.name not in ("index.js", "index.css"))
     assert local_files == expected
