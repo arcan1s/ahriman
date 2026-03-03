@@ -53,7 +53,10 @@ def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
 
     assert task_ahriman.build(local) == [task_ahriman.package.base]
     check_output_mock.assert_called_once_with(
-        "extra-x86_64-build", "-r", str(task_ahriman.paths.chroot), "--", "--", "--skippgpcheck",
+        "extra-x86_64-build",
+        "-r", str(task_ahriman.paths.chroot),
+        "--", "-D", str(task_ahriman.paths.archive),
+        "--", "--skippgpcheck",
         exception=pytest.helpers.anyvar(int),
         cwd=local,
         logger=task_ahriman.logger,
@@ -76,7 +79,10 @@ def test_build_environment(task_ahriman: Task, mocker: MockerFixture) -> None:
 
     task_ahriman.build(local, **environment, empty=None)
     check_output_mock.assert_called_once_with(
-        "extra-x86_64-build", "-r", str(task_ahriman.paths.chroot), "--", "--", "--skippgpcheck",
+        "extra-x86_64-build",
+        "-r", str(task_ahriman.paths.chroot),
+        "--", "-D", str(task_ahriman.paths.archive),
+        "--", "--skippgpcheck",
         exception=pytest.helpers.anyvar(int),
         cwd=local,
         logger=task_ahriman.logger,
@@ -96,7 +102,11 @@ def test_build_dry_run(task_ahriman: Task, mocker: MockerFixture) -> None:
 
     assert task_ahriman.build(local, dry_run=True) == [task_ahriman.package.base]
     check_output_mock.assert_called_once_with(
-        "extra-x86_64-build", "-r", str(task_ahriman.paths.chroot), "--", "--", "--skippgpcheck", "--nobuild",
+        "extra-x86_64-build",
+        "-r", str(task_ahriman.paths.chroot),
+        "--", "-D", str(task_ahriman.paths.archive),
+        "--", "--skippgpcheck",
+        "--nobuild",
         exception=pytest.helpers.anyvar(int),
         cwd=local,
         logger=task_ahriman.logger,

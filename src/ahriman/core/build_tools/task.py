@@ -110,7 +110,7 @@ class Task(LazyLogging):
         """
         command = [self.build_command, "-r", str(self.paths.chroot)]
         command.extend(self.archbuild_flags)
-        command.extend(["--"] + self.makechrootpkg_flags)
+        command.extend(["--", "-D", str(self.paths.archive)] + self.makechrootpkg_flags)
         command.extend(["--"] + self.makepkg_flags)
         if dry_run:
             command.extend(["--nobuild"])
