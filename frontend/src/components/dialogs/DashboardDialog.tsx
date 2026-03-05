@@ -86,12 +86,12 @@ export default function DashboardDialog({ open, onClose }: DashboardDialogProps)
 
                     <Grid container spacing={2} sx={{ mt: 2 }}>
                         <Grid size={{ xs: 12, md: 6 }}>
-                            <Box sx={{ maxHeight: 300 }}>
+                            <Box sx={{ height: 300 }}>
                                 <PackageCountBarChart stats={status.stats} />
                             </Box>
                         </Grid>
                         <Grid size={{ xs: 12, md: 6 }}>
-                            <Box sx={{ maxHeight: 300, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                            <Box sx={{ height: 300, display: "flex", justifyContent: "center", alignItems: "center" }}>
                                 <StatusPieChart counters={status.packages} />
                             </Box>
                         </Grid>

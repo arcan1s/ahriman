@@ -32,14 +32,14 @@ export default function PackageCountBarChart({ stats }: PackageCountBarChartProp
             labels: ["packages"],
             datasets: [
                 {
-                    label: "archives",
-                    data: [stats.packages ?? 0],
-                    backgroundColor: blue[500],
-                },
-                {
                     label: "bases",
                     data: [stats.bases ?? 0],
                     backgroundColor: indigo[300],
+                },
+                {
+                    label: "archives",
+                    data: [stats.packages ?? 0],
+                    backgroundColor: blue[500],
                 },
             ],
         }}
@@ -48,7 +48,7 @@ export default function PackageCountBarChart({ stats }: PackageCountBarChartProp
             responsive: true,
             scales: {
                 x: { stacked: true },
-                y: { stacked: true },
+                y: { stacked: false },
             },
         }}
     />;
