@@ -250,7 +250,9 @@ digraph G {
     ahriman_web_schemas [fillcolor="blue",fontcolor="white",label="ahriman\.\nweb\.\nschemas",shape="box"];
     ahriman_web_schemas_any_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nany_schema"];
     ahriman_web_schemas_aur_package_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\naur_package_schema"];
+    ahriman_web_schemas_auth_info_schema [fillcolor="#c45431",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nauth_info_schema"];
     ahriman_web_schemas_auth_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nauth_schema"];
+    ahriman_web_schemas_auto_refresh_interval_schema [fillcolor="#c45431",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nauto_refresh_interval_schema"];
     ahriman_web_schemas_build_options_schema [fillcolor="#d04e24",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nbuild_options_schema"];
     ahriman_web_schemas_changes_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nchanges_schema"];
     ahriman_web_schemas_configuration_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nconfiguration_schema"];
@@ -261,6 +263,7 @@ digraph G {
     ahriman_web_schemas_event_search_schema [fillcolor="blue",fontcolor="white",label="ahriman\.\nweb\.\nschemas\.\nevent_search_schema",shape="box"];
     ahriman_web_schemas_file_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nfile_schema"];
     ahriman_web_schemas_info_schema [fillcolor="blue",fontcolor="white",label="ahriman\.\nweb\.\nschemas\.\ninfo_schema",shape="box"];
+    ahriman_web_schemas_info_v2_schema [fillcolor="blue",fontcolor="white",label="ahriman\.\nweb\.\nschemas\.\ninfo_v2_schema",shape="box"];
     ahriman_web_schemas_internal_status_schema [fillcolor="blue",fontcolor="white",label="ahriman\.\nweb\.\nschemas\.\ninternal_status_schema",shape="box"];
     ahriman_web_schemas_log_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nlog_schema"];
     ahriman_web_schemas_login_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nlogin_schema"];
@@ -289,11 +292,12 @@ digraph G {
     ahriman_web_schemas_status_schema [fillcolor="#ca4116",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nstatus_schema"];
     ahriman_web_schemas_update_flags_schema [fillcolor="blue",fontcolor="white",label="ahriman\.\nweb\.\nschemas\.\nupdate_flags_schema",shape="box"];
     ahriman_web_schemas_worker_schema [fillcolor="#b85a3d",fontcolor="#ffffff",label="ahriman\.\nweb\.\nschemas\.\nworker_schema"];
+    ahriman_web_server_info [fillcolor="#93371a",fontcolor="#ffffff",label="ahriman\.\nweb\.\nserver_info"];
     ahriman_web_views [fillcolor="#f94810",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews"];
     ahriman_web_views_api_docs [fillcolor="#794434",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\napi\.\ndocs"];
     ahriman_web_views_api_swagger [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\napi\.\nswagger"];
     ahriman_web_views_base [fillcolor="#952603",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nbase"];
-    ahriman_web_views_index [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nindex"];
+    ahriman_web_views_index [fillcolor="#794434",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nindex"];
     ahriman_web_views_static [fillcolor="#884d3a",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nstatic"];
     ahriman_web_views_status_view_guard [fillcolor="#ef3e06",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nstatus_view_guard"];
     ahriman_web_views_v1_auditlog_events [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nauditlog\.\nevents"];
@@ -316,13 +320,14 @@ digraph G {
     ahriman_web_views_v1_service_search [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nservice\.\nsearch"];
     ahriman_web_views_v1_service_update [fillcolor="#724031",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nservice\.\nupdate"];
     ahriman_web_views_v1_service_upload [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nservice\.\nupload"];
-    ahriman_web_views_v1_status_info [fillcolor="#724031",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nstatus\.\ninfo"];
+    ahriman_web_views_v1_status_info [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nstatus\.\ninfo"];
     ahriman_web_views_v1_status_metrics [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nstatus\.\nmetrics"];
     ahriman_web_views_v1_status_repositories [fillcolor="#724031",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nstatus\.\nrepositories"];
     ahriman_web_views_v1_status_status [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nstatus\.\nstatus"];
     ahriman_web_views_v1_user_login [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nuser\.\nlogin"];
     ahriman_web_views_v1_user_logout [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv1\.\nuser\.\nlogout"];
     ahriman_web_views_v2_packages_logs [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv2\.\npackages\.\nlogs"];
+    ahriman_web_views_v2_status_info [fillcolor="#6b3c2e",fontcolor="#ffffff",label="ahriman\.\nweb\.\nviews\.\nv2\.\nstatus\.\ninfo"];
     ahriman_web_web [fillcolor="#733826",fontcolor="#ffffff",label="ahriman\.\nweb\.\nweb"];
     aioauth_client [fillcolor="#c07d40",shape="folder"];
     aiohttp [fillcolor="#f9b506",shape="folder"];
@@ -489,10 +494,10 @@ digraph G {
     ahriman_core -> ahriman_web_keys [fillcolor="#ef3e06",minlen="2"];
     ahriman_core -> ahriman_web_middlewares_auth_handler [fillcolor="#ef3e06",minlen="3"];
     ahriman_core -> ahriman_web_routes [fillcolor="#ef3e06",minlen="2"];
+    ahriman_core -> ahriman_web_server_info [fillcolor="#ef3e06",minlen="2"];
     ahriman_core -> ahriman_web_views_api_docs [fillcolor="#ef3e06",minlen="3"];
     ahriman_core -> ahriman_web_views_api_swagger [fillcolor="#ef3e06",minlen="3"];
     ahriman_core -> ahriman_web_views_base [fillcolor="#ef3e06",minlen="3"];
-    ahriman_core -> ahriman_web_views_index [fillcolor="#ef3e06",minlen="3"];
     ahriman_core -> ahriman_web_views_status_view_guard [fillcolor="#ef3e06",minlen="3"];
     ahriman_core -> ahriman_web_views_v1_distributed_workers [fillcolor="#ef3e06",minlen="3"];
     ahriman_core -> ahriman_web_views_v1_packages_logs [fillcolor="#ef3e06",minlen="3"];
@@ -542,13 +547,13 @@ digraph G {
     ahriman_core_archive_archive_trigger -> ahriman_core_archive [fillcolor="blue",weight="3"];
     ahriman_core_auth -> ahriman_web_keys [fillcolor="blue",minlen="2"];
     ahriman_core_auth -> ahriman_web_middlewares_auth_handler [fillcolor="blue",minlen="3"];
+    ahriman_core_auth -> ahriman_web_server_info [fillcolor="blue",minlen="2"];
     ahriman_core_auth -> ahriman_web_views_base [fillcolor="blue",minlen="3"];
-    ahriman_core_auth -> ahriman_web_views_index [fillcolor="blue",minlen="3"];
     ahriman_core_auth -> ahriman_web_views_v1_user_login [fillcolor="blue",minlen="3"];
     ahriman_core_auth -> ahriman_web_views_v1_user_logout [fillcolor="blue",minlen="3"];
     ahriman_core_auth -> ahriman_web_web [fillcolor="blue",minlen="2"];
     ahriman_core_auth_auth -> ahriman_core_auth [fillcolor="blue",weight="3"];
-    ahriman_core_auth_helpers -> ahriman_web_views_index [fillcolor="#d04e24",minlen="3"];
+    ahriman_core_auth_helpers -> ahriman_web_server_info [fillcolor="#d04e24",minlen="3"];
     ahriman_core_auth_helpers -> ahriman_web_views_v1_user_login [fillcolor="#d04e24",minlen="3"];
     ahriman_core_auth_helpers -> ahriman_web_views_v1_user_logout [fillcolor="#d04e24",minlen="3"];
     ahriman_core_auth_mapping -> ahriman_core_auth_auth [fillcolor="blue",weight="3"];
@@ -991,6 +996,7 @@ digraph G {
     ahriman_core_types -> ahriman_core_report_jinja_template [fillcolor="#f94810",minlen="2",weight="2"];
     ahriman_core_types -> ahriman_core_report_rss [fillcolor="#f94810",minlen="2",weight="2"];
     ahriman_core_types -> ahriman_core_utils [fillcolor="#f94810",weight="2"];
+    ahriman_core_types -> ahriman_web_server_info [fillcolor="#f94810",minlen="2"];
     ahriman_core_types -> ahriman_web_views_v1_distributed_workers [fillcolor="#f94810",minlen="3"];
     ahriman_core_types -> ahriman_web_views_v1_packages_packages [fillcolor="#f94810",minlen="3"];
     ahriman_core_types -> ahriman_web_views_v1_service_search [fillcolor="#f94810",minlen="3"];
@@ -1060,8 +1066,9 @@ digraph G {
     ahriman_core_utils -> ahriman_models_repository_paths [fillcolor="#db3805",minlen="2"];
     ahriman_core_utils -> ahriman_models_repository_stats [fillcolor="#db3805",minlen="2"];
     ahriman_core_utils -> ahriman_models_worker [fillcolor="#db3805",minlen="2"];
+    ahriman_core_utils -> ahriman_web_server_info [fillcolor="#db3805",minlen="2"];
     ahriman_core_utils -> ahriman_web_views_api_swagger [fillcolor="#db3805",minlen="3"];
-    ahriman_core_utils -> ahriman_web_views_index [fillcolor="#db3805",minlen="3"];
+    ahriman_core_utils -> ahriman_web_views_base [fillcolor="#db3805",minlen="3"];
     ahriman_core_utils -> ahriman_web_views_v1_packages_logs [fillcolor="#db3805",minlen="3"];
     ahriman_core_utils -> ahriman_web_views_v1_service_upload [fillcolor="#db3805",minlen="3"];
     ahriman_models -> ahriman_application_ahriman [fillcolor="#f94810",minlen="2"];
@@ -1245,6 +1252,7 @@ digraph G {
     ahriman_models -> ahriman_web_views_v1_user_login [fillcolor="#f94810",minlen="3"];
     ahriman_models -> ahriman_web_views_v1_user_logout [fillcolor="#f94810",minlen="3"];
     ahriman_models -> ahriman_web_views_v2_packages_logs [fillcolor="#f94810",minlen="3"];
+    ahriman_models -> ahriman_web_views_v2_status_info [fillcolor="#f94810",minlen="3"];
     ahriman_models -> ahriman_web_web [fillcolor="#f94810",minlen="2"];
     ahriman_models_action -> ahriman_application_handlers_change [fillcolor="#e75222",minlen="3"];
     ahriman_models_action -> ahriman_application_handlers_patch [fillcolor="#e75222",minlen="3"];
@@ -1653,6 +1661,7 @@ digraph G {
     ahriman_models_user_access -> ahriman_web_views_v1_user_login [fillcolor="#f94810",minlen="3"];
     ahriman_models_user_access -> ahriman_web_views_v1_user_logout [fillcolor="#f94810",minlen="3"];
     ahriman_models_user_access -> ahriman_web_views_v2_packages_logs [fillcolor="#f94810",minlen="3"];
+    ahriman_models_user_access -> ahriman_web_views_v2_status_info [fillcolor="#f94810",minlen="3"];
     ahriman_models_waiter -> ahriman_application_lock [fillcolor="#c45431",minlen="2"];
     ahriman_models_waiter -> ahriman_core_report_remote_call [fillcolor="#c45431",minlen="3"];
     ahriman_models_worker -> ahriman_application_application_workers_remote_updater [fillcolor="#e9410c",minlen="3"];
@@ -1663,7 +1672,9 @@ digraph G {
     ahriman_web -> ahriman_application_handlers_web [fillcolor="#f94810",minlen="3"];
     ahriman_web_apispec -> ahriman_web_schemas_any_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_aur_package_schema [fillcolor="#e53b05",minlen="2",weight="2"];
+    ahriman_web_apispec -> ahriman_web_schemas_auth_info_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_auth_schema [fillcolor="#e53b05",minlen="2",weight="2"];
+    ahriman_web_apispec -> ahriman_web_schemas_auto_refresh_interval_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_build_options_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_changes_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_configuration_schema [fillcolor="#e53b05",minlen="2",weight="2"];
@@ -1674,6 +1685,7 @@ digraph G {
     ahriman_web_apispec -> ahriman_web_schemas_event_search_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_file_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_info_schema [fillcolor="#e53b05",minlen="2",weight="2"];
+    ahriman_web_apispec -> ahriman_web_schemas_info_v2_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_internal_status_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_log_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_login_schema [fillcolor="#e53b05",minlen="2",weight="2"];
@@ -1702,9 +1714,9 @@ digraph G {
     ahriman_web_apispec -> ahriman_web_schemas_status_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_update_flags_schema [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_schemas_worker_schema [fillcolor="#e53b05",minlen="2",weight="2"];
+    ahriman_web_apispec -> ahriman_web_server_info [fillcolor="#e53b05",weight="2"];
     ahriman_web_apispec -> ahriman_web_views_api_docs [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_views_api_swagger [fillcolor="#e53b05",minlen="2",weight="2"];
-    ahriman_web_apispec -> ahriman_web_views_index [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_views_v1_auditlog_events [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_views_v1_distributed_workers [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_views_v1_packages_changes [fillcolor="#e53b05",minlen="2",weight="2"];
@@ -1732,6 +1744,7 @@ digraph G {
     ahriman_web_apispec -> ahriman_web_views_v1_user_login [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_views_v1_user_logout [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_views_v2_packages_logs [fillcolor="#e53b05",minlen="2",weight="2"];
+    ahriman_web_apispec -> ahriman_web_views_v2_status_info [fillcolor="#e53b05",minlen="2",weight="2"];
     ahriman_web_apispec -> ahriman_web_web [fillcolor="#e53b05",weight="2"];
     ahriman_web_apispec_decorators -> ahriman_web_views_v1_auditlog_events [fillcolor="#bd3104",minlen="2",weight="2"];
     ahriman_web_apispec_decorators -> ahriman_web_views_v1_distributed_workers [fillcolor="#bd3104",minlen="2",weight="2"];
@@ -1760,6 +1773,7 @@ digraph G {
     ahriman_web_apispec_decorators -> ahriman_web_views_v1_user_login [fillcolor="#bd3104",minlen="2",weight="2"];
     ahriman_web_apispec_decorators -> ahriman_web_views_v1_user_logout [fillcolor="#bd3104",minlen="2",weight="2"];
     ahriman_web_apispec_decorators -> ahriman_web_views_v2_packages_logs [fillcolor="#bd3104",minlen="2",weight="2"];
+    ahriman_web_apispec_decorators -> ahriman_web_views_v2_status_info [fillcolor="#bd3104",minlen="2",weight="2"];
     ahriman_web_apispec_info -> ahriman_web_web [fillcolor="#a14f35",minlen="2",weight="2"];
     ahriman_web_cors -> ahriman_web_web [fillcolor="#b0573a",weight="2"];
     ahriman_web_keys -> ahriman_web_apispec_info [fillcolor="#823017",minlen="2",weight="2"];
@@ -1799,9 +1813,14 @@ digraph G {
     ahriman_web_schemas -> ahriman_web_views_v1_status_status [fillcolor="blue",minlen="2",weight="2"];
     ahriman_web_schemas -> ahriman_web_views_v1_user_login [fillcolor="blue",minlen="2",weight="2"];
     ahriman_web_schemas -> ahriman_web_views_v2_packages_logs [fillcolor="blue",minlen="2",weight="2"];
+    ahriman_web_schemas -> ahriman_web_views_v2_status_info [fillcolor="blue",minlen="2",weight="2"];
     ahriman_web_schemas_any_schema -> ahriman_web_schemas [fillcolor="#b85a3d",weight="3"];
     ahriman_web_schemas_aur_package_schema -> ahriman_web_schemas [fillcolor="#b85a3d",weight="3"];
+    ahriman_web_schemas_auth_info_schema -> ahriman_web_schemas [fillcolor="#c45431",weight="3"];
+    ahriman_web_schemas_auth_info_schema -> ahriman_web_schemas_info_v2_schema [fillcolor="#c45431",weight="3"];
     ahriman_web_schemas_auth_schema -> ahriman_web_schemas [fillcolor="#b85a3d",weight="3"];
+    ahriman_web_schemas_auto_refresh_interval_schema -> ahriman_web_schemas [fillcolor="#c45431",weight="3"];
+    ahriman_web_schemas_auto_refresh_interval_schema -> ahriman_web_schemas_info_v2_schema [fillcolor="#c45431",weight="3"];
     ahriman_web_schemas_build_options_schema -> ahriman_web_schemas [fillcolor="#d04e24",weight="3"];
     ahriman_web_schemas_build_options_schema -> ahriman_web_schemas_package_names_schema [fillcolor="#d04e24",weight="3"];
     ahriman_web_schemas_build_options_schema -> ahriman_web_schemas_update_flags_schema [fillcolor="#d04e24",weight="3"];
@@ -1815,6 +1834,7 @@ digraph G {
     ahriman_web_schemas_event_search_schema -> ahriman_web_schemas [fillcolor="blue",weight="3"];
     ahriman_web_schemas_file_schema -> ahriman_web_schemas [fillcolor="#b85a3d",weight="3"];
     ahriman_web_schemas_info_schema -> ahriman_web_schemas [fillcolor="blue",weight="3"];
+    ahriman_web_schemas_info_v2_schema -> ahriman_web_schemas [fillcolor="blue",weight="3"];
     ahriman_web_schemas_internal_status_schema -> ahriman_web_schemas [fillcolor="blue",weight="3"];
     ahriman_web_schemas_log_schema -> ahriman_web_schemas [fillcolor="#b85a3d",weight="3"];
     ahriman_web_schemas_login_schema -> ahriman_web_schemas [fillcolor="#b85a3d",weight="3"];
@@ -1847,6 +1867,7 @@ digraph G {
     ahriman_web_schemas_remote_schema -> ahriman_web_schemas_package_schema [fillcolor="#b44d2d",weight="3"];
     ahriman_web_schemas_repository_id_schema -> ahriman_web_schemas [fillcolor="#ef3e06",weight="3"];
     ahriman_web_schemas_repository_id_schema -> ahriman_web_schemas_info_schema [fillcolor="#ef3e06",weight="3"];
+    ahriman_web_schemas_repository_id_schema -> ahriman_web_schemas_info_v2_schema [fillcolor="#ef3e06",weight="3"];
     ahriman_web_schemas_repository_id_schema -> ahriman_web_schemas_internal_status_schema [fillcolor="#ef3e06",weight="3"];
     ahriman_web_schemas_repository_id_schema -> ahriman_web_schemas_package_status_schema [fillcolor="#ef3e06",weight="3"];
     ahriman_web_schemas_repository_id_schema -> ahriman_web_schemas_package_version_schema [fillcolor="#ef3e06",weight="3"];
@@ -1860,8 +1881,13 @@ digraph G {
     ahriman_web_schemas_status_schema -> ahriman_web_schemas_package_status_schema [fillcolor="#ca4116",weight="3"];
     ahriman_web_schemas_update_flags_schema -> ahriman_web_schemas [fillcolor="blue",weight="3"];
     ahriman_web_schemas_worker_schema -> ahriman_web_schemas [fillcolor="#b85a3d",weight="3"];
+    ahriman_web_server_info -> ahriman_web_views_index [fillcolor="#93371a",minlen="2",weight="2"];
+    ahriman_web_server_info -> ahriman_web_views_v1_status_info [fillcolor="#93371a",minlen="2",weight="2"];
+    ahriman_web_server_info -> ahriman_web_views_v2_status_info [fillcolor="#93371a",minlen="2",weight="2"];
     ahriman_web_views -> ahriman_web_routes [fillcolor="#f94810",weight="2"];
+    ahriman_web_views -> ahriman_web_server_info [fillcolor="#f94810",weight="2"];
     ahriman_web_views_base -> ahriman_web_routes [fillcolor="#952603",minlen="2",weight="2"];
+    ahriman_web_views_base -> ahriman_web_server_info [fillcolor="#952603",minlen="2",weight="2"];
     ahriman_web_views_base -> ahriman_web_views_api_docs [fillcolor="#952603",weight="3"];
     ahriman_web_views_base -> ahriman_web_views_api_swagger [fillcolor="#952603",weight="3"];
     ahriman_web_views_base -> ahriman_web_views_index [fillcolor="#952603",weight="3"];
@@ -1893,6 +1919,7 @@ digraph G {
     ahriman_web_views_base -> ahriman_web_views_v1_user_login [fillcolor="#952603",weight="3"];
     ahriman_web_views_base -> ahriman_web_views_v1_user_logout [fillcolor="#952603",weight="3"];
     ahriman_web_views_base -> ahriman_web_views_v2_packages_logs [fillcolor="#952603",weight="3"];
+    ahriman_web_views_base -> ahriman_web_views_v2_status_info [fillcolor="#952603",weight="3"];
     ahriman_web_views_status_view_guard -> ahriman_web_views_v1_packages_changes [fillcolor="#ef3e06",weight="3"];
     ahriman_web_views_status_view_guard -> ahriman_web_views_v1_packages_dependencies [fillcolor="#ef3e06",weight="3"];
     ahriman_web_views_status_view_guard -> ahriman_web_views_v1_packages_logs [fillcolor="#ef3e06",weight="3"];
@@ -1915,6 +1942,7 @@ digraph G {
     aiohttp -> ahriman_web_routes [fillcolor="#f9b506",minlen="2"];
     aiohttp -> ahriman_web_views_api_swagger [fillcolor="#f9b506",minlen="3"];
     aiohttp -> ahriman_web_views_base [fillcolor="#f9b506",minlen="3"];
+    aiohttp -> ahriman_web_views_index [fillcolor="#f9b506",minlen="3"];
     aiohttp -> ahriman_web_views_static [fillcolor="#f9b506",minlen="3"];
     aiohttp -> ahriman_web_views_v1_auditlog_events [fillcolor="#f9b506",minlen="3"];
     aiohttp -> ahriman_web_views_v1_distributed_workers [fillcolor="#f9b506",minlen="3"];
@@ -1943,6 +1971,7 @@ digraph G {
     aiohttp -> ahriman_web_views_v1_user_login [fillcolor="#f9b506",minlen="3"];
     aiohttp -> ahriman_web_views_v1_user_logout [fillcolor="#f9b506",minlen="3"];
     aiohttp -> ahriman_web_views_v2_packages_logs [fillcolor="#f9b506",minlen="3"];
+    aiohttp -> ahriman_web_views_v2_status_info [fillcolor="#f9b506",minlen="3"];
     aiohttp -> ahriman_web_web [fillcolor="#f9b506",minlen="2"];
     aiohttp -> aiohttp_cors [fillcolor="#f9b506",minlen="2"];
     aiohttp -> aiohttp_jinja2 [fillcolor="#f9b506",minlen="2"];
