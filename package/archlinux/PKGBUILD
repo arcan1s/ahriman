@@ -17,11 +17,10 @@ source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgbase-$
 build() {
     cd "$pkgbase-$pkgver"
 
-    python -m build --wheel --no-isolation
+    npm --prefix "frontend" install --cache "$srcdir/npm-cache"
+    npm --prefix "frontend" run build
 
-    cd "frontend"
-    npm install --cache "$srcdir/npm-cache"
-    npm run build
+    python -m build --wheel --no-isolation
 }
 
 package_ahriman() {

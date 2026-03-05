@@ -268,12 +268,13 @@ commands = [
     [
         "git",
         "add",
-        "package/archlinux/PKGBUILD",
-        "src/ahriman/__init__.py",
         "docs/_static/architecture.dot",
+        "frontend/package.json",
+        "package/archlinux/PKGBUILD",
         "package/share/man/man1/ahriman.1",
         "package/share/bash-completion/completions/_ahriman",
         "package/share/zsh/site-functions/_ahriman",
+        "src/ahriman/__init__.py",
     ],
     [
         "git",
