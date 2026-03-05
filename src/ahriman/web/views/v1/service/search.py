@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response
 from collections.abc import Callable
 from typing import ClassVar
 
@@ -83,4 +83,4 @@ class SearchView(BaseView):
                 "description": package.description,
             } for package in sorted(packages, key=comparator)
         ]
-        return json_response(response)
+        return self.json_response(response)

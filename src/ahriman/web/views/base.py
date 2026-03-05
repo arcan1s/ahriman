@@ -17,10 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNotFound, Request, StreamResponse, View
+from aiohttp.web import HTTPBadRequest, HTTPNotFound, Request, Response, StreamResponse, View, json_response
 from aiohttp_cors import CorsViewMixin
 from collections.abc import Awaitable, Callable
-from typing import ClassVar, TypeVar
+from typing import Any, ClassVar, TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -29,6 +29,7 @@ from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
+from ahriman.core.utils import filter_json
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey, WorkersKey
@@ -161,6 +162,20 @@ class BaseView(View, CorsViewMixin):
         except (KeyError, ValueError):
             raise KeyError(f"Key {key} is missing or empty") from None
         return value
+
+    @staticmethod
+    def json_response(data: dict[str, Any] | list[Any], **kwargs: Any) -> Response:
+        """
+        filter and convert data and return :class:`aiohttp.web.Response` object
+
+        Args:
+            data(dict[str, Any] | list[Any]): response in json format
+            **kwargs(Any): keyword arguments for :func:`aiohttp.web.json_response` function
+
+        Returns:
+            Response: generated response object
+        """
+        return json_response(filter_json(data), **kwargs)
 
     # pylint: disable=not-callable,protected-access
     async def head(self) -> StreamResponse:

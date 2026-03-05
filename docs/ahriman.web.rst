@@ -39,6 +39,14 @@ ahriman.web.routes module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.server\_info module
+-------------------------------
+
+.. automodule:: ahriman.web.server_info
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.web module
 ----------------------
 

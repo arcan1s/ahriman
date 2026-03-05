@@ -1,0 +1,42 @@
+{
+    "name": "ahriman-frontend",
+    "private": true,
+    "type": "module",
+    "version": "2.20.0-rc4",
+    "scripts": {
+        "build": "tsc && vite build",
+        "dev": "vite",
+        "lint": "eslint src/",
+        "lint:fix": "eslint --fix src/",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@emotion/react": "^11.11.0",
+        "@emotion/styled": "^11.11.0",
+        "@mui/icons-material": "^7.3.8",
+        "@mui/material": "^7.3.8",
+        "@mui/x-data-grid": "^8.27.3",
+        "@tanstack/react-query": "^5.0.0",
+        "chart.js": "^4.5.0",
+        "react": "^19.2.4",
+        "react-chartjs-2": "^5.2.0",
+        "react-dom": "^19.2.4",
+        "react-syntax-highlighter": "^16.1.1"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.3",
+        "@stylistic/eslint-plugin": "^5.9.0",
+        "@types/react": "^19.2.14",
+        "@types/react-dom": "^19.2.3",
+        "@types/react-syntax-highlighter": "^15.5.13",
+        "@vitejs/plugin-react": "^5.0.0",
+        "eslint": "^9.39.3",
+        "eslint-plugin-react-hooks": "^7.0.1",
+        "eslint-plugin-react-refresh": "^0.5.2",
+        "eslint-plugin-simple-import-sort": "^12.1.1",
+        "typescript": "^5.3.0",
+        "typescript-eslint": "^8.56.1",
+        "vite": "^7.3.1",
+        "vite-tsconfig-paths": "^6.1.1"
+    }
+}

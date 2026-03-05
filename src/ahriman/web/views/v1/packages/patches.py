@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response
 from typing import ClassVar
 
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -60,7 +60,7 @@ class PatchesView(StatusViewGuard, BaseView):
         patches = self.service().package_patches_get(package_base, None)
 
         response = [patch.view() for patch in patches]
-        return json_response(response)
+        return self.json_response(response)
 
     @apidocs(
         tags=["Packages"],

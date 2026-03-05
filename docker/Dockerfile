@@ -23,6 +23,7 @@ COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 RUN pacman -S --noconfirm --asdeps \
         devtools \
         git \
+        npm \
         pyalpm \
         python-bcrypt \
         python-filelock \

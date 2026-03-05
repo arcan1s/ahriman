@@ -1,0 +1,56 @@
+#
+# Copyright (c) 2021-2026 ahriman team.
+#
+# This file is part of ahriman
+# (see https://github.com/arcan1s/ahriman).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+from aiohttp.web import Response
+from typing import ClassVar
+
+from ahriman.models.user_access import UserAccess
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import InfoV2Schema
+from ahriman.web.server_info import server_info
+from ahriman.web.views.base import BaseView
+
+
+class InfoView(BaseView):
+    """
+    web service information view
+
+    Attributes:
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+    """
+
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
+    ROUTES = ["/api/v2/info"]
+
+    @apidocs(
+        tags=["Status"],
+        summary="Service information",
+        description="Perform basic service health check and returns its information",
+        permission=GET_PERMISSION,
+        schema=InfoV2Schema,
+    )
+    async def get(self) -> Response:
+        """
+        get service information
+
+        Returns:
+            Response: 200 with service information object
+        """
+        response = await server_info(self)
+        return self.json_response(response)

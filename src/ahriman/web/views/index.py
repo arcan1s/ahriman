@@ -19,12 +19,11 @@
 #
 import aiohttp_jinja2
 
-from typing import Any, ClassVar
+from aiohttp.web import Response
+from typing import ClassVar
 
-from ahriman.core.auth.helpers import authorized_userid
-from ahriman.core.utils import pretty_interval
 from ahriman.models.user_access import UserAccess
-from ahriman.web.apispec import aiohttp_apispec
+from ahriman.web.server_info import server_info
 from ahriman.web.views.base import BaseView
 
 
@@ -48,6 +47,7 @@ class IndexView(BaseView):
             * id - unique repository identifier, string, required
             * repository - repository name, string, required
             * architecture - repository architecture, string, required
+        * version - service version, string, required
 
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
@@ -56,41 +56,14 @@ class IndexView(BaseView):
     GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
     ROUTES = ["/", "/index.html"]
 
-    @aiohttp_jinja2.template("build-status.jinja2")
-    async def get(self) -> dict[str, Any]:
+    async def get(self) -> Response:
         """
         process get request. No parameters supported here
 
         Returns:
-            dict[str, Any]: parameters for jinja template
+            Response: 200 with rendered index page
         """
-        auth_username = await authorized_userid(self.request)
-        auth = {
-            "control": self.validator.auth_control,
-            "enabled": self.validator.enabled,
-            "username": auth_username,
-        }
+        context = await server_info(self)
 
-        autorefresh_intervals = [
-            {
-                "interval": interval * 1000,  # milliseconds
-                "is_active": index == 0,  # first element is always default
-                "text": pretty_interval(interval),
-            }
-            for index, interval in enumerate(self.configuration.getintlist("web", "autorefresh_intervals", fallback=[]))
-            if interval > 0  # special case if 0 exists and first, refresh will not be turned on by default
-        ]
-
-        return {
-            "auth": auth,
-            "autorefresh_intervals": sorted(autorefresh_intervals, key=lambda interval: interval["interval"]),
-            "docs_enabled": aiohttp_apispec is not None,
-            "index_url": self.configuration.get("web", "index_url", fallback=None),
-            "repositories": [
-                {
-                    "id": repository.id,
-                    **repository.view(),
-                }
-                for repository in sorted(self.services)
-            ]
-        }
+        template = self.configuration.get("web", "template", fallback="build-status.jinja2")
+        return aiohttp_jinja2.render_template(template, self.request, context)

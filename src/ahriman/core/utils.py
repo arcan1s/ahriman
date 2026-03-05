@@ -35,7 +35,7 @@ from enum import Enum
 from filelock import FileLock
 from pathlib import Path
 from pwd import getpwuid
-from typing import Any, IO, TypeVar
+from typing import Any, IO, TypeVar, cast
 
 from ahriman.core.exceptions import CalledProcessError, OptionError, UnsafeRunError
 from ahriman.core.types import Comparable
@@ -285,16 +285,17 @@ def filelock(path: Path) -> Iterator[FileLock]:
         lock_path.unlink(missing_ok=True)
 
 
-def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:
+def filter_json(source: T, known_fields: Iterable[str] | None = None) -> T:
     """
-    filter json object by fields used for json-to-object conversion
+    recursively filter json object removing ``None`` values and optionally filtering by known fields
 
     Args:
-        source(dict[str, Any]): raw json object
-        known_fields(Iterable[str]): list of fields which have to be known for the target object
+        source(T): raw json object (dict, list, or scalar)
+        known_fields(Iterable[str] | None, optional): list of fields which have to be known for the target object
+            (Default value = None)
 
     Returns:
-        dict[str, Any]: json object without unknown and empty fields
+        T: json without ``None`` values
 
     Examples:
         This wrapper is mainly used for the dataclasses, thus the flow must be something like this::
@@ -306,7 +307,15 @@ def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str
             >>> properties = filter_json(dump, known_fields)
             >>> package = Package(**properties)
     """
-    return {key: value for key, value in source.items() if key in known_fields and value is not None}
+    if isinstance(source, dict):
+        return cast(T, {
+            key: filter_json(value)
+            for key, value in source.items()
+            if value is not None and (known_fields is None or key in known_fields)
+        })
+    if isinstance(source, list):
+        return cast(T, [filter_json(value) for value in source])
+    return source
 
 
 def full_version(epoch: str | int | None, pkgver: str, pkgrel: str) -> str:

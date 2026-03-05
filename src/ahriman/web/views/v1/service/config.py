@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPNoContent, Response
 from typing import ClassVar
 
 from ahriman.core.formatters import ConfigurationPrinter
@@ -64,7 +64,7 @@ class ConfigView(BaseView):
             for key, value in values.items()
             if key not in ConfigurationPrinter.HIDE_KEYS
         ]
-        return json_response(response)
+        return self.json_response(response)
 
     @apidocs(
         tags=["Actions"],

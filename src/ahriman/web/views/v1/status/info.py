@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import Response, json_response
+from aiohttp.web import Response
 from typing import ClassVar
 
-from ahriman import __version__
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
 from ahriman.web.schemas import InfoSchema
+from ahriman.web.server_info import server_info
 from ahriman.web.views.base import BaseView
 
 
@@ -52,13 +52,11 @@ class InfoView(BaseView):
         Returns:
             Response: 200 with service information object
         """
+        info = await server_info(self)
         response = {
-            "auth": self.validator.enabled,
-            "repositories": [
-                repository_id.view()
-                for repository_id in sorted(self.services)
-            ],
-            "version": __version__,
+            "auth": info["auth"]["enabled"],
+            "repositories": info["repositories"],
+            "version": info["version"],
         }
 
-        return json_response(response)
+        return self.json_response(response)

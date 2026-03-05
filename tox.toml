@@ -9,6 +9,16 @@ labels.release = [
     "publish",
 ]
 
+[commands]
+npm_install = [
+    [
+        "npm",
+        { replace = "ref", of = ["flags", "npm"], extend = true },
+        "install",
+        "--cache", "{envtmpdir}/npm-cache",
+    ],
+]
+
 [flags]
 autopep8 = [
     "--max-line-length", "120",
@@ -31,6 +41,9 @@ mypy = [
     "--strict",
     "--allow-untyped-decorators",
     "--allow-subclassing-any",
+]
+npm = [
+    "--prefix", "frontend",
 ]
 pydeps = [
     "--no-config",
@@ -78,6 +91,9 @@ commands = [
 
 [env.check]
 description = "Run common checks like linter, mypy, etc"
+allowlist_externals = [
+    "npm",
+]
 dependency_groups = [
     "check",
 ]
@@ -122,6 +138,13 @@ commands = [
         "--install-types",
         "--non-interactive",
         "--package", "{[project]name}",
+    ],
+    { replace = "ref", of = ["commands", "npm_install"], extend = true },
+    [
+        "npm",
+        { replace = "ref", of = ["flags", "npm"], extend = true },
+        "run",
+        "lint",
     ],
 ]
 
@@ -190,6 +213,21 @@ commands = [
         "--output-file", "docs/requirements.txt",
         "--quiet",
         "pyproject.toml",
+    ],
+]
+
+[env.frontend]
+description = "Build frontend HTML and JS"
+allowlist_externals = [
+    "npm",
+]
+commands = [
+    { replace = "ref", of = ["commands", "npm_install"], extend = true },
+    [
+        "npm",
+        { replace = "ref", of = ["flags", "npm"], extend = true },
+        "run",
+        "build",
     ],
 ]
 
@@ -278,6 +316,7 @@ commands = [
 [env.version]
 description = "Bump package version"
 allowlist_externals = [
+    "npm",
     "sed",
 ]
 deps = [
@@ -294,6 +333,12 @@ commands = [
         "--in-place",
         "s/^__version__ = .*/__version__ = \"{posargs}\"/",
         "src/ahriman/__init__.py",
+    ],
+    [
+        "npm",
+        { replace = "ref", of = ["flags", "npm"], extend = true },
+        "version",
+        "{posargs}",
     ],
     [
         "sed",

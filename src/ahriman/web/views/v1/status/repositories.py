@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import Response, json_response
+from aiohttp.web import Response
 from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
@@ -56,4 +56,4 @@ class RepositoriesView(BaseView):
             for repository_id in sorted(self.services)
         ]
 
-        return json_response(repositories)
+        return self.json_response(repositories)

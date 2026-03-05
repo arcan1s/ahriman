@@ -125,7 +125,7 @@ Again, the most checks can be performed by `tox` command, though some additional
         def __hash__(self) -> int: ...  # basically any magic (or look-alike) method
     ```
   
-  Methods inside one group should be ordered alphabetically, the only exceptions are `__init__` (`__post_init__` for dataclasses), `__new__` and `__del__` methods which should be defined first. For test methods it is recommended to follow the order in which functions are defined.
+  Methods inside one group should be ordered alphabetically, the only exceptions are `__init__` (`__post_init__` for dataclasses), `__new__` and `__del__` methods which should be defined first. For test methods it is recommended to follow the order in which functions are defined. Same idea applies to frontend classes.
 
   Though, we would like to highlight abstract methods (i.e. ones which raise `NotImplementedError`), we still keep in global order at the moment.
 
@@ -172,8 +172,9 @@ Again, the most checks can be performed by `tox` command, though some additional
     )
     ```
 
-* One file should define only one class, exception is class satellites in case if file length remains less than 400 lines.
-* It is possible to create file which contains some functions (e.g. `ahriman.core.util`), but in this case you would need to define `__all__` attribute.
+* Imports goes in alphabetical order, no relative imports allowed. Same rule applies to frontend classes.
+* One file should define only one class, exception is class satellites in case if file length remains less than 400 lines. Same rule applies to frontend classes.
+* It is possible to create file which contains some functions (e.g. `ahriman.core.utils`), but in this case you would need to define `__all__` attribute.
 * The file size mentioned above must be applicable in general. In case of big classes consider splitting them into traits. Note, however, that `pylint` includes comments and docstrings into counter, thus you need to check file size by other tools.
 * No global variable is allowed outside of `ahriman` module. `ahriman.core.context` is also special case.
 * Single quotes are not allowed. The reason behind this restriction is the fact that docstrings must be written by using double quotes only, and we would like to make style consistent.
@@ -225,6 +226,8 @@ Again, the most checks can be performed by `tox` command, though some additional
 ### Other checks
 
 The projects also uses typing checks (provided by `mypy`) and some linter checks provided by `pylint` and `bandit`. Those checks must be passed successfully for any open pull requests.
+
+Frontend checks normally are performed by `eslint` (e.g. `npx run eslint`).
 
 ## Developers how to
 

@@ -118,11 +118,14 @@ include = [
     "CONTRIBUTING.md",
     "SECURITY.md",
     "package",
+    "frontend",
     "subpackages.py",
     "web.png",
 ]
 exclude = [
     "package/archlinux",
+    "frontend/node_modules",
+    "frontend/package-lock.json",
 ]
 
 [tool.flit.external-data]

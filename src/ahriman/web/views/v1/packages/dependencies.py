@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response
 from typing import ClassVar
 
 from ahriman.models.dependencies import Dependencies
@@ -65,7 +65,7 @@ class DependenciesView(StatusViewGuard, BaseView):
 
         dependencies = self.service(package_base=package_base).package_dependencies_get(package_base)
 
-        return json_response(dependencies.view())
+        return self.json_response(dependencies.view())
 
     @apidocs(
         tags=["Packages"],

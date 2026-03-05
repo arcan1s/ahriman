@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPNoContent, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPNoContent, HTTPNotFound, Response
 from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
@@ -89,4 +89,4 @@ class PatchView(StatusViewGuard, BaseView):
         if selected is None:
             raise HTTPNotFound(reason=f"Patch {variable} is unknown")
 
-        return json_response(selected.view())
+        return self.json_response(selected.view())

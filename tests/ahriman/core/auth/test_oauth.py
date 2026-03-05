@@ -15,6 +15,13 @@ def test_auth_control(oauth: OAuth) -> None:
     assert "<a" in oauth.auth_control  # I think it should be a link
 
 
+def test_is_external(oauth: OAuth) -> None:
+    """
+    must be external provider
+    """
+    assert oauth.is_external
+
+
 def test_get_provider() -> None:
     """
     must return valid provider type

@@ -16,6 +16,13 @@ def test_auth_control(auth: Auth) -> None:
     assert "button" in auth.auth_control  # I think it should be a button
 
 
+def test_is_external(auth: Auth) -> None:
+    """
+    must not be external provider
+    """
+    assert not auth.is_external
+
+
 def test_load_dummy(configuration: Configuration, database: SQLite) -> None:
     """
     must load dummy validator if authorization is not enabled

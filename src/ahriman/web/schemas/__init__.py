@@ -19,7 +19,9 @@
 #
 from ahriman.web.schemas.any_schema import AnySchema
 from ahriman.web.schemas.aur_package_schema import AURPackageSchema
+from ahriman.web.schemas.auth_info_schema import AuthInfoSchema
 from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.auto_refresh_interval_schema import AutoRefreshIntervalSchema
 from ahriman.web.schemas.build_options_schema import BuildOptionsSchema
 from ahriman.web.schemas.changes_schema import ChangesSchema
 from ahriman.web.schemas.configuration_schema import ConfigurationSchema
@@ -30,6 +32,7 @@ from ahriman.web.schemas.event_schema import EventSchema
 from ahriman.web.schemas.event_search_schema import EventSearchSchema
 from ahriman.web.schemas.file_schema import FileSchema
 from ahriman.web.schemas.info_schema import InfoSchema
+from ahriman.web.schemas.info_v2_schema import InfoV2Schema
 from ahriman.web.schemas.internal_status_schema import InternalStatusSchema
 from ahriman.web.schemas.log_schema import LogSchema
 from ahriman.web.schemas.login_schema import LoginSchema

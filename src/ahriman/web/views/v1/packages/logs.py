@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response
 from typing import ClassVar
 
 from ahriman.core.exceptions import UnknownPackageError
@@ -99,7 +99,7 @@ class LogsView(StatusViewGuard, BaseView):
             "status": status.view(),
             "logs": "\n".join(f"[{pretty_datetime(log_record.created)}] {log_record.message}" for log_record in logs)
         }
-        return json_response(response)
+        return self.json_response(response)
 
     @apidocs(
         tags=["Packages"],

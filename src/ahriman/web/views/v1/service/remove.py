@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, Response, json_response
+from aiohttp.web import HTTPBadRequest, Response
 from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
@@ -67,4 +67,4 @@ class RemoveView(BaseView):
         repository_id = self.repository_id()
         process_id = self.spawner.packages_remove(repository_id, packages)
 
-        return json_response({"process_id": process_id})
+        return self.json_response({"process_id": process_id})
