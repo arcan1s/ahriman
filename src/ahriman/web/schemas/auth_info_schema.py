@@ -25,9 +25,11 @@ class AuthInfoSchema(Schema):
     authorization information schema
     """
 
-    control = fields.String(required=True, metadata={
-        "description": "HTML control for login interface",
-    })
+    control = fields.String(
+        metadata={
+            "description": "HTML control for login interface",
+            "example": "<button type=\"button\" class=\"btn btn-link\" data-bs-toggle=\"modal\" data-bs-target=\"#login-modal\" style=\"text-decoration: none\"><i class=\"bi bi-box-arrow-in-right\"></i> login</button>",
+        })
     enabled = fields.Boolean(required=True, metadata={
         "description": "Whether authentication is enabled or not",
     })
@@ -35,5 +37,5 @@ class AuthInfoSchema(Schema):
         "description": "Whether authorization provider is external (e.g. OAuth)",
     })
     username = fields.String(metadata={
-        "description": "Currently authenticated username if any",
+        "description": "Currently authenticated username if available",
     })

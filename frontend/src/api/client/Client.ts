@@ -49,7 +49,7 @@ export class Client {
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
         const requestInit: RequestInit = {
-            method: method || (json ? "POST" : "GET"),
+            method: method ?? (json ? "POST" : "GET"),
             headers,
             signal: controller.signal,
         };

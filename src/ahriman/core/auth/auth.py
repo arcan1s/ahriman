@@ -58,7 +58,7 @@ class Auth(LazyLogging):
         Returns:
             str: login control as html code to insert
         """
-        return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#login-modal" style="text-decoration: none"><i class="bi bi-box-arrow-in-right"></i> login</button>"""
+        return "<button type=\"button\" class=\"btn btn-link\" data-bs-toggle=\"modal\" data-bs-target=\"#login-modal\" style=\"text-decoration: none\"><i class=\"bi bi-box-arrow-in-right\"></i> login</button>"
 
     @property
     def is_external(self) -> bool:

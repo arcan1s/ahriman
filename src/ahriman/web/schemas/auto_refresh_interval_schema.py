@@ -27,10 +27,12 @@ class AutoRefreshIntervalSchema(Schema):
 
     interval = fields.Integer(required=True, metadata={
         "description": "Auto refresh interval in milliseconds",
+        "example": "60000",
     })
     is_active = fields.Boolean(required=True, metadata={
         "description": "Whether this interval is the default active one",
     })
     text = fields.String(required=True, metadata={
         "description": "Human readable interval description",
+        "example": "1 minute",
     })

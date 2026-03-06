@@ -40,6 +40,7 @@ class InfoV2Schema(Schema):
     })
     index_url = fields.String(metadata={
         "description": "URL to the repository index page",
+        "example": "https://ahriman.readthedocs.io/",
     })
     repositories = fields.Nested(RepositoryIdSchema(many=True), required=True, metadata={
         "description": "List of loaded repositories",

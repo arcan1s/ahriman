@@ -52,7 +52,7 @@ export default function AppLayout(): React.JSX.Element {
 
     return <Container maxWidth="xl">
         <Box sx={{ display: "flex", alignItems: "center", py: 1, gap: 1 }}>
-            <a href="https://github.com/arcan1s/ahriman" title="logo">
+            <a href="https://ahriman.readthedocs.io/" title="logo">
                 <img src="/static/logo.svg" width={30} height={30} alt="" />
             </a>
             <Box sx={{ flex: 1 }}>

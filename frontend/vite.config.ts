@@ -1,22 +1,22 @@
-import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
+import { defineConfig, type Plugin } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 
-function renameHtml(newName: string): Plugin {
+function rename(oldName: string, newName: string): Plugin {
     return {
-        name: "rename-html",
+        name: "rename",
         enforce: "post",
         generateBundle(_, bundle) {
-            if (bundle["index.html"]) {
-                bundle["index.html"].fileName = newName;
+            if (bundle[oldName]) {
+                bundle[oldName].fileName = newName;
             }
         },
     };
 }
 
 export default defineConfig({
-    plugins: [react(), tsconfigPaths(), renameHtml("build-status.jinja2")],
+    plugins: [react(), tsconfigPaths(), rename("index.html", "build-status.jinja2")],
     base: "/",
     build: {
         chunkSizeWarningLimit: 10000,
