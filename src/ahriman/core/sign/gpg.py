@@ -20,7 +20,7 @@
 from pathlib import Path
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import BuildError
+from ahriman.core.exceptions import BuildError, GPGError
 from ahriman.core.http import SyncHttpClient
 from ahriman.core.utils import check_output
 from ahriman.models.sign_settings import SignSettings
@@ -147,12 +147,19 @@ class GPG(SyncHttpClient):
 
         Returns:
             str: full PGP key fingerprint
+
+        Raises:
+            GPGError: if key is in wrong format
         """
-        metadata = check_output("gpg", "--with-colons", "--fingerprint", key, logger=self.logger)
         # fingerprint line will be like
         # fpr:::::::::43A663569A07EE1E4ECC55CC7E3A4240CE3C45C2:
-        fingerprint = next(filter(lambda line: line[:3] == "fpr", metadata.splitlines()))
-        return fingerprint.split(":")[-2]
+        metadata = check_output("gpg", "--with-colons", "--fingerprint", key, logger=self.logger)
+
+        try:
+            fingerprint = next(filter(lambda line: line[:3] == "fpr", metadata.splitlines()))
+            return fingerprint.split(":")[-2]
+        except (IndexError, StopIteration):
+            raise GPGError(f"key {key} has invalid metadata") from None
 
     def key_import(self, server: str, key: str) -> None:
         """

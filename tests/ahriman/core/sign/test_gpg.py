@@ -5,6 +5,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import GPGError
 from ahriman.core.sign.gpg import GPG
 from ahriman.models.sign_settings import SignSettings
 
@@ -111,6 +112,15 @@ fpr:::::::::43A663569A07EE1E4ECC55CC7E3A4240CE3C45C2:""")
     key = "0xCE3C45C2"
     assert gpg.key_fingerprint(key) == "C6EBB9222C3C8078631A0DE4BD2AC8C5E989490C"
     check_output_mock.assert_called_once_with("gpg", "--with-colons", "--fingerprint", key, logger=gpg.logger)
+
+
+def test_key_fingerprint_invalid(gpg: GPG, mocker: MockerFixture) -> None:
+    """
+    must raise GPGError if no fingerprint found in output
+    """
+    mocker.patch("ahriman.core.sign.gpg.check_output", return_value="no fingerprint here")
+    with pytest.raises(GPGError):
+        gpg.key_fingerprint("0xCE3C45C2")
 
 
 def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:

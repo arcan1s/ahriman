@@ -183,6 +183,15 @@ def test_sync_files_local(pacman_database: PacmanDatabase, mocker: MockerFixture
     copy_mock.assert_called_once_with(Path("/var/core.files.tar.gz"), pytest.helpers.anyvar(int))
 
 
+def test_sync_files_no_servers(pacman_database: PacmanDatabase) -> None:
+    """
+    must raise PacmanError if no servers are configured
+    """
+    pacman_database.database.servers = []
+    with pytest.raises(PacmanError):
+        pacman_database.sync_files(force=False)
+
+
 def test_sync_files_unknown_source(pacman_database: PacmanDatabase) -> None:
     """
     must raise an exception in case if server scheme is unsupported

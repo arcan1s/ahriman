@@ -88,8 +88,12 @@ class User:
         """
         if not self.password:
             return None
-        algo = next(segment for segment in self.password.split("$") if segment)
-        return f"${algo}$"
+
+        try:
+            algo = next(segment for segment in self.password.split("$") if segment)
+            return f"${algo}$"
+        except StopIteration:
+            return None
 
     @staticmethod
     def generate_password(length: int) -> str:

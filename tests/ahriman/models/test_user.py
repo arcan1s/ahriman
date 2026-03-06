@@ -12,6 +12,8 @@ def test_algo() -> None:
     """
     assert User(username="user", password=None, access=UserAccess.Read).algo is None
     assert User(username="user", password="", access=UserAccess.Read).algo is None
+    assert User(username="user", password="$$$", access=UserAccess.Read).algo is None
+
     assert User(
         username="user",
         password="$6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0",

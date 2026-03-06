@@ -116,6 +116,19 @@ class GitRemoteError(RuntimeError):
         RuntimeError.__init__(self, "Git remote failed")
 
 
+class GPGError(RuntimeError):
+    """
+    PGP/GPG related exception
+    """
+
+    def __init__(self, details: str) -> None:
+        """
+        Args:
+            details(str): details of the exception
+        """
+        RuntimeError.__init__(self, f"GPG operation failed: {details}")
+
+
 class InitializeError(RuntimeError):
     """
     base service initialization exception

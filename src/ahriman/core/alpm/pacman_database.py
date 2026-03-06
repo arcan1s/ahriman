@@ -138,8 +138,14 @@ class PacmanDatabase(SyncHttpClient):
 
         Args:
             force(bool): force database synchronization (same as ``pacman -Syy``)
+
+        Raises:
+            PacmanError: on operation error (invalid scheme or incomplete configuration)
         """
-        server = next(iter(self.database.servers))
+        try:
+            server = next(iter(self.database.servers))
+        except StopIteration:
+            raise PacmanError("No configured servers available for database") from None
         filename = f"{self.database.name}.files.tar.gz"
         url = f"{server}/{filename}"
 
