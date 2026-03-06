@@ -86,6 +86,11 @@ class ArchiveRotationTrigger(Trigger):
             package(Package): package which has been updated to check for older versions
             pacman(Pacman): alpm wrapper instance
         """
+        # explicit guard to skip process in case if rotation is disabled
+        # this guard is supposed to speedup process
+        if self.keep_built_packages == 0:
+            return
+
         packages: dict[tuple[str, str], Package] = {}
         # we can't use here load_archives, because it ignores versions
         for full_path in filter(package_like, self.paths.archive_for(package.base).iterdir()):
@@ -94,7 +99,7 @@ class ArchiveRotationTrigger(Trigger):
 
         comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)
         to_remove = sorted(packages.values(), key=cmp_to_key(comparator))
-        # 0 will implicitly be translated into [:0], meaning we keep all packages
+
         for single in to_remove[:-self.keep_built_packages]:
             self.logger.info("removing version %s of package %s", single.version, single.base)
             for archive in single.packages.values():
