@@ -28,6 +28,14 @@ ahriman.core.log.lazy\_logging module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.log.log\_context module
+------------------------------------
+
+.. automodule:: ahriman.core.log.log_context
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.log.log\_loader module
 -----------------------------------
 

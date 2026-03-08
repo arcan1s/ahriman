@@ -19,6 +19,7 @@
 #
 import contextlib
 import requests
+import uuid
 
 from requests.adapters import BaseAdapter
 from urllib.parse import urlparse
@@ -59,6 +60,15 @@ class SyncAhrimanClient(SyncHttpClient):
             adapters[f"{scheme}://"] = UnixAdapter()  # type: ignore[no-untyped-call]
 
         return adapters
+
+    def headers(self) -> dict[str, str]:
+        """
+        additional request headers
+
+        Returns:
+            dict[str, str]: additional request headers defined by class
+        """
+        return SyncHttpClient.headers(self) | {"X-Request-ID": str(uuid.uuid4())}
 
     def on_session_creation(self, session: requests.Session) -> None:
         """

@@ -40,6 +40,7 @@ export class Client {
 
         const headers: Record<string, string> = {
             Accept: "application/json",
+            "X-Request-ID": crypto.randomUUID(),
         };
         if (json !== undefined) {
             headers["Content-Type"] = "application/json";

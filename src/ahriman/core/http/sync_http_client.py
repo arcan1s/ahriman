@@ -144,6 +144,15 @@ class SyncHttpClient(LazyLogging):
             "https://": HTTPAdapter(max_retries=self.retry),
         }
 
+    def headers(self) -> dict[str, str]:
+        """
+        additional request headers
+
+        Returns:
+            dict[str, str]: additional request headers defined by class
+        """
+        return {}
+
     def make_request(self, method: Literal["DELETE", "GET", "HEAD", "POST", "PUT"], url: str, *,
                      headers: dict[str, str] | None = None,
                      params: list[tuple[str, str]] | None = None,
@@ -177,6 +186,9 @@ class SyncHttpClient(LazyLogging):
             suppress_errors = self.suppress_errors
         if session is None:
             session = self.session
+
+        if additional_headers := self.headers():
+            headers = additional_headers | (headers or {})
 
         try:
             response = session.request(method, url, params=params, data=data, headers=headers, files=files, json=json,

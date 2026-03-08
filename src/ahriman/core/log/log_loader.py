@@ -21,10 +21,11 @@ import logging
 
 from logging.config import fileConfig
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, Literal
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log.http_log_handler import HttpLogHandler
+from ahriman.core.log.log_context import LogContext
 from ahriman.models.log_handler import LogHandler
 from ahriman.models.repository_id import RepositoryId
 
@@ -36,11 +37,13 @@ class LogLoader:
     Attributes:
         DEFAULT_LOG_FORMAT(str): (class attribute) default log format (in case of fallback)
         DEFAULT_LOG_LEVEL(int): (class attribute) default log level (in case of fallback)
+        DEFAULT_LOG_STYLE(str): (class attribute) default log style (in case of fallback)
         DEFAULT_SYSLOG_DEVICE(Path): (class attribute) default path to syslog device
     """
 
-    DEFAULT_LOG_FORMAT: ClassVar[str] = "[%(levelname)s %(asctime)s] [%(name)s]: %(message)s"
+    DEFAULT_LOG_FORMAT: ClassVar[str] = "[{levelname} {asctime}] [{name}]: {message}"
     DEFAULT_LOG_LEVEL: ClassVar[int] = logging.DEBUG
+    DEFAULT_LOG_STYLE: ClassVar[Literal["%", "{", "$"]] = "{"
     DEFAULT_SYSLOG_DEVICE: ClassVar[Path] = Path("/") / "dev" / "log"
 
     @staticmethod
@@ -100,10 +103,22 @@ class LogLoader:
             fileConfig(log_configuration, disable_existing_loggers=True)
             logging.debug("using %s logger", default_handler)
         except Exception:
-            logging.basicConfig(filename=None, format=LogLoader.DEFAULT_LOG_FORMAT, level=LogLoader.DEFAULT_LOG_LEVEL)
+            logging.basicConfig(filename=None, format=LogLoader.DEFAULT_LOG_FORMAT,
+                                style=LogLoader.DEFAULT_LOG_STYLE, level=LogLoader.DEFAULT_LOG_LEVEL)
             logging.exception("could not load logging from configuration, fallback to stderr")
 
         HttpLogHandler.load(repository_id, configuration, report=report)
+        LogLoader.register_context()
 
         if quiet:
             logging.disable(logging.WARNING)  # only print errors here
+
+    @staticmethod
+    def register_context() -> None:
+        """
+        register logging context
+        """
+        # predefined context variables
+        for variable in ("package_id", "request_id"):
+            LogContext.register(variable)
+        logging.setLogRecordFactory(LogContext.log_record_factory)

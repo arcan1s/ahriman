@@ -14,6 +14,7 @@ from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.database.migrations import Migrations
+from ahriman.core.log.log_loader import LogLoader
 from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
 from ahriman.core.status import Client
@@ -124,6 +125,14 @@ def import_error(package: str, components: list[str], mocker: MockerFixture) -> 
 
 
 # generic fixtures
+@pytest.fixture(autouse=True)
+def _register_log_context() -> None:
+    """
+    register log context variables and factory
+    """
+    LogLoader.register_context()
+
+
 @pytest.fixture
 def aur_package_ahriman() -> AURPackage:
     """

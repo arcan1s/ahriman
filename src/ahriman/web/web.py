@@ -38,6 +38,7 @@ from ahriman.web.cors import setup_cors
 from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey, WorkersKey
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.middlewares.metrics_handler import metrics_handler
+from ahriman.web.middlewares.request_id_handler import request_id_handler
 from ahriman.web.routes import setup_routes
 
 
@@ -146,6 +147,7 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     application.on_startup.append(_on_startup)
 
     application.middlewares.append(normalize_path_middleware(append_slash=False, remove_slash=True))
+    application.middlewares.append(request_id_handler())
     application.middlewares.append(exception_handler(application.logger))
     application.middlewares.append(metrics_handler())
 

@@ -7,6 +7,7 @@ from pytest_mock import MockerFixture
 from systemd.journal import JournalHandler
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.log.log_context import LogContext
 from ahriman.core.log.log_loader import LogLoader
 from ahriman.models.log_handler import LogHandler
 
@@ -75,3 +76,13 @@ def test_load_quiet(configuration: Configuration, mocker: MockerFixture) -> None
     _, repository_id = configuration.check_loaded()
     LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=True, report=False)
     disable_mock.assert_called_once_with(logging.WARNING)
+
+
+def test_register_context() -> None:
+    """
+    must register predefined context variables and install log record factory
+    """
+    LogLoader.register_context()
+    assert "package_id" in LogContext._context
+    assert "request_id" in LogContext._context
+    assert logging.getLogRecordFactory().__func__ is LogContext.log_record_factory.__func__

@@ -28,6 +28,14 @@ ahriman.web.middlewares.metrics\_handler module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.middlewares.request\_id\_handler module
+---------------------------------------------------
+
+.. automodule:: ahriman.web.middlewares.request_id_handler
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

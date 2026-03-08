@@ -30,6 +30,13 @@ def test_login_url(ahriman_client: SyncAhrimanClient) -> None:
     assert ahriman_client._login_url().endswith("/api/v1/login")
 
 
+def test_headers(ahriman_client: SyncAhrimanClient) -> None:
+    """
+    must inject request id header
+    """
+    assert "X-Request-ID" in ahriman_client.headers()
+
+
 def test_on_session_creation(ahriman_client: SyncAhrimanClient, user: User, mocker: MockerFixture) -> None:
     """
     must log in user on start

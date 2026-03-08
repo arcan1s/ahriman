@@ -94,6 +94,13 @@ def test_adapters() -> None:
     assert all(adapter.max_retries == client.retry for adapter in adapters.values())
 
 
+def test_headers() -> None:
+    """
+    must return empty additional headers
+    """
+    assert SyncHttpClient().headers() == {}
+
+
 def test_make_request(mocker: MockerFixture) -> None:
     """
     must make HTTP request
@@ -191,6 +198,20 @@ def test_make_request_session() -> None:
     client.make_request("GET", "url", session=session_mock)
     session_mock.request.assert_called_once_with(
         "GET", "url", params=None, data=None, headers=None, files=None, json=None,
+        stream=None, auth=None, timeout=client.timeout)
+
+
+def test_make_request_with_additional_headers(mocker: MockerFixture) -> None:
+    """
+    must merge additional headers into request
+    """
+    request_mock = mocker.patch("requests.Session.request")
+    mocker.patch("ahriman.core.http.sync_http_client.SyncHttpClient.headers", return_value={"X-Custom": "value"})
+    client = SyncHttpClient()
+
+    client.make_request("GET", "url")
+    request_mock.assert_called_once_with(
+        "GET", "url", params=None, data=None, headers={"X-Custom": "value"}, files=None, json=None,
         stream=None, auth=None, timeout=client.timeout)
 
 

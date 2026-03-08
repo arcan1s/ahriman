@@ -24,6 +24,7 @@ from collections.abc import Iterator
 from functools import cached_property
 from typing import Any
 
+from ahriman.core.log.log_context import LogContext
 from ahriman.models.log_record_id import LogRecordId
 
 
@@ -54,30 +55,20 @@ class LazyLogging:
         prefix = "" if clazz.__module__ is None else f"{clazz.__module__}."
         return f"{prefix}{clazz.__qualname__}"
 
-    @staticmethod
-    def _package_logger_reset() -> None:
+    @contextlib.contextmanager
+    def in_context(self, name: str, value: Any) -> Iterator[None]:
         """
-        reset package logger to empty one
-        """
-        logging.setLogRecordFactory(logging.LogRecord)
-
-    @staticmethod
-    def _package_logger_set(package_base: str, version: str | None) -> None:
-        """
-        set package base as extra info to the logger
+        execute function while setting log context. The context will be reset after the execution
 
         Args:
-            package_base(str): package base
-            version(str | None): package version if available
+            name(str): attribute name to set on log records
+            value(Any): current value of the context variable
         """
-        current_factory = logging.getLogRecordFactory()
-
-        def package_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
-            record = current_factory(*args, **kwargs)
-            record.package_id = LogRecordId(package_base, version or "<unknown>")
-            return record
-
-        logging.setLogRecordFactory(package_record_factory)
+        token = LogContext.set(name, value)
+        try:
+            yield
+        finally:
+            LogContext.reset(name, token)
 
     @contextlib.contextmanager
     def in_package_context(self, package_base: str, version: str | None) -> Iterator[None]:
@@ -94,8 +85,5 @@ class LazyLogging:
                 >>> with self.in_package_context(package.base, package.version):
                 >>>     build_package(package)
         """
-        try:
-            self._package_logger_set(package_base, version)
+        with self.in_context("package_id", LogRecordId(package_base, version or "<unknown>")):
             yield
-        finally:
-            self._package_logger_reset()
