@@ -9,7 +9,8 @@ Packages have strict rules of importing:
 * ``ahriman.application`` package must not be used outside of this package.
 * ``ahriman.core`` and ``ahriman.models`` packages don't have any import restriction. Actually we would like to totally restrict importing of ``core`` package from ``models``, but it is impossible at the moment.
 * ``ahriman.web`` package is allowed to be imported from ``ahriman.application`` (web handler only, only ``ahriman.web.web`` methods).
-* The idea remains the same for all imports, if an package requires some specific dependencies, it must be imported locally to keep dependencies optional.
+
+The idea remains the same for all imports, if a package requires some specific dependencies, it must be imported locally to keep dependencies optional.
 
 Full dependency diagram:
 
@@ -42,7 +43,7 @@ This package contains everything required for the most of application actions an
 * ``ahriman.core.gitremote`` is a package with remote PKGBUILD triggers. Should not be called directly.
 * ``ahriman.core.housekeeping`` package provides few triggers for removing old data.
 * ``ahriman.core.http`` package provides HTTP clients which can be used later by other classes.
-* ``ahriman.core.log`` is a log utils package. It includes logger loader class, custom HTTP based logger and some wrappers.
+* ``ahriman.core.log`` is a log utils package. It includes logger loader class, custom HTTP based logger, log context for injecting context variables into log records and some wrappers.
 * ``ahriman.core.report`` is a package with reporting triggers. Should not be called directly.
 * ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.Repository`` class) implementation.
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
@@ -85,6 +86,7 @@ Application run
 #. Call ``Handler.execute`` method.
 #. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or continue in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether the application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Config``, which utilizes stdout to print messages).
 #. In each child process call lock functions.
+#. Load configuration and install logging.
 #. After success checks pass control to ``Handler.run`` method defined by specific handler class.
 #. Return result (success or failure) of each subprocess and exit from application.
 #. Some handlers may override their status and throw ``ExitCode`` exception. This exception is just silently suppressed and changes application exit code to ``1``.
@@ -159,12 +161,12 @@ Having default root as ``/var/lib/ahriman`` (differs from container though), the
                ├── aur.files -> aur.files.tar.gz
                └── aur.files.tar.gz
 
-There are multiple subdirectories, some of them are commons for any repository, but some of them are not.
+There are multiple subdirectories, some of them are common for any repository, but some of them are not.
 
 * ``archive`` is the package archive directory. It is common for all repositories and architectures and contains two subdirectories:
 
   * ``archive/packages/{first_letter}/{package_base}`` stores the actual built package files and their signatures.
-  * ``archive/repos/{YYYY}/{MM}/{DD}/{repository}/{architecture}`` contains daily repository snapshots. Each snapshot is a repository database with symlinks pointing to the corresponding packages in the ``archive/packages`` tree.
+  * ``archive/repos/{YYYY}/{MM}/{DD}/{repository}/{architecture}`` contains daily repository snapshots. Each snapshot is a repository database with symlinks pointing to the corresponding packages in the ``archive/packages`` tree. These directories only appear if ``ahriman.core.archive.ArchiveTrigger`` is enabled.
 
   The archive also allows the build process to skip rebuilding a package if a matching version already exists.
 
@@ -239,9 +241,9 @@ Check outdated packages
 There are few ways for packages to be marked as out-of-date and hence requiring rebuild. Those are following:
 
 #. User requested update of the package. It can be caused by calling ``package-add`` subcommand (or ``package-update`` with arguments).
-#. The most common way for packages to be marked as out-of-dated is that the version in AUR (or the official repositories) is newer than in the repository.
+#. The most common way for packages to be marked as out-of-date is that the version in AUR (or the official repositories) is newer than in the repository.
 #. In addition to the above, if package is named as VCS (e.g. has suffix ``-git``) and the last update was more than specified threshold ago, the service will also try to fetch sources and check if the revision is newer than the built one.
-#. In addition, there is ability to check if the dependencies of the package have been updated (e.g. if linked library has been renamed or the modules directory - e.g. in case of python and ruby packages - has been changed). And if so, the package will be marked as out-of-dated as well.
+#. In addition, there is ability to check if the dependencies of the package have been updated (e.g. if linked library has been renamed or the modules directory - e.g. in case of python and ruby packages - has been changed). And if so, the package will be marked as out-of-date as well.
 
 Update packages
 ^^^^^^^^^^^^^^^
@@ -255,6 +257,7 @@ This feature is divided into the following stages: check AUR for updates and run
 
    #. Download package data from AUR.
    #. Bump ``pkgrel`` if there is duplicate version in the local repository (see explanation below).
+   #. Check if there is already built package of the same version in archive (cross-repository support). If so, then just copy built archives and skip steps below.
    #. Build every package in clean chroot.
    #. Sign packages if required.
    #. Add packages to database and sign database if required.
@@ -313,7 +316,7 @@ Having the initial dependencies tree, the application is looking for packages wh
 
 Those paths are also filtered by regular expressions set in the configuration.
 
-All those implicit dependencies are stored in the database and extracted on each check. In case if any of the repository packages doesn't contain any entry anymore (e.g. so version has been changed or modules directory has been changed), the dependent package will be marked as out-of-dated.
+All those implicit dependencies are stored in the database and extracted on each check. In case if any of the repository packages doesn't contain any entry anymore (e.g. so version has been changed or modules directory has been changed), the dependent package will be marked as out-of-date.
 
 Core functions reference
 ------------------------
@@ -344,6 +347,8 @@ The ``_Context`` class itself mimics default collection interface (as is ``Mappi
 
 In order to provide statically typed interface, the ``ahriman.models.context_key.ContextKey`` class is used for both ``_Content.get`` and ``_Content.set`` methods; the context instance itself, however, does not store information about types.
 
+Logging module has its own context variables, which are required to be registered in advance to avoid possible race conditions.
+
 Submodules
 ^^^^^^^^^^
 
@@ -370,7 +375,7 @@ Passwords must be stored in database as ``hash(password + salt)``, where ``passw
 
 means that there is user ``username`` with ``read`` access and password ``password`` hashed by ``sha512`` with salt ``salt``.
 
-OAuth provider uses library definitions (``aioauth-client``) in order *authenticate* users. It still requires user permission to be set in database, thus it inherits mapping provider without any changes. Whereas we could override ``check_credentials`` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
+OAuth provider uses library definitions (``aioauth-client``) in order to *authenticate* users. It still requires user permission to be set in database, thus it inherits mapping provider without any changes. Whereas we could override ``check_credentials`` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
 
 OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature can be used by service reporting (aka robots).
 
@@ -383,7 +388,7 @@ Triggers
 
 Triggers are extensions which can be used in order to perform any actions on application start, after the update process and, finally, before the application exit.
 
-The main idea is to load classes by their full path (e.g. ``ahriman.core.upload.UploadTrigger``) by using ``importlib``: get the last part of the import and treat it as class name, join remain part by ``.`` and interpret as module path, import module and extract attribute from it.
+The main idea is to load classes by their full path (e.g. ``ahriman.core.upload.UploadTrigger``) by using ``importlib``: get the last part of the import and treat it as class name, join the remaining part by ``.`` and interpret as module path, import module and extract attribute from it.
 
 The loaded triggers will be called with ``ahriman.models.result.Result`` and ``list[Packages]`` arguments, which describes the process result and current repository packages respectively. Any exception raised will be suppressed and will generate an exception message in logs.
 
@@ -407,7 +412,7 @@ PKGBUILD parsing
 
 The application provides a house-made shell parser ``ahriman.core.alpm.pkgbuild_parser.PkgbuildParser`` to process PKGBUILDs and extract package data from them. It relies on the ``shlex.shlex`` parser with some configuration tweaks and adds some token post-processing.
 
-#. During the parser process, firstly, it extract next token from the source file (basically, the word) and tries to match it to the variable assignment. If so, then just processes accordingly.
+#. During the parser process, firstly, it extracts the next token from the source file (basically, the word) and tries to match it to the variable assignment. If so, then just processes accordingly.
 #. If it is not an assignment, the parser checks if the token was quoted.
 #. If it wasn't quoted then the parser tries to match the array starts (two consecutive tokens like ``array=`` and ``(``) or it is function (``function``, ``()`` and ``{``).
 #. The arrays are processed until the next closing bracket ``)``. After extraction, the parser tries to expand an array according to bash rules (``prefix{first,second}suffix`` constructions).
@@ -445,7 +450,7 @@ Web application requires the following python packages to be installed:
 Middlewares
 ^^^^^^^^^^^
 
-Service provides some custom middlewares, e.g. logging every exception (except for user ones) and user authorization.
+Service provides some custom middlewares, e.g. logging every exception (except for user ones), user authorization and request tracing via ``X-Request-ID`` header.
 
 HEAD and OPTIONS requests
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -457,7 +462,7 @@ On the other side, ``OPTIONS`` method is implemented in the ``ahriman.web.middle
 Web views
 ^^^^^^^^^
 
-All web views are defined in separated package and derived from ``ahriman.web.views.base.Base`` class which provides typed interfaces for web application. 
+All web views are defined in a separate package and derived from ``ahriman.web.views.base.Base`` class which provides typed interfaces for web application. 
 
 REST API supports only JSON data.
 
@@ -476,7 +481,7 @@ The views are also divided by supporting API versions (e.g. ``v1``, ``v2``).
 Templating
 ^^^^^^^^^^
 
-Package provides base jinja templates which can be overridden by settings. Vanilla templates actively use bootstrap library.
+Package provides base jinja templates which can be overridden by settings. The default web interface is a React application. The classic bootstrap-based template is still available as ``build-status-classic.jinja2`` and can be enabled via the ``web.template`` configuration option.
 
 Requests and scopes
 ^^^^^^^^^^^^^^^^^^^
