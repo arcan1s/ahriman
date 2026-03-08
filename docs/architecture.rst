@@ -425,6 +425,15 @@ The PKGBUILD class also provides some additional functions on top of that:
 * Ability to extract fields defined inside ``package*()`` functions, which are in particular used for the multi-packages.
 * Shell substitution, which supports constructions ``$var`` (including ``${var}``), ``${var#(#)pattern}``, ``${var%(%)pattern}`` and ``${var/(/)pattern/replacement}`` (including ``#pattern`` and ``%pattern``).
 
+HTTP client
+^^^^^^^^^^^
+
+The ``ahriman.core.http`` package provides a HTTP client built on top of the ``requests`` library.
+
+The base class ``ahriman.core.http.SyncHttpClient`` wraps ``requests.Session`` and provides common features for all HTTP interactions: configurable timeouts, retry policies with exponential backoff (using ``urllib3.util.retry.Retry``), basic authentication, custom User-Agent header, error processing, and ``make_request`` method. The session is lazily created (via ``cached_property``).
+
+On top of that, ``ahriman.core.http.SyncAhrimanClient`` extends the base client for communication with the ahriman web service specifically. It adds automatic login on session creation (using configured credentials), ``X-Request-ID`` header injection and Unix socket transport support (via ``requests-unixsocket2``) if required.
+
 Additional features
 ^^^^^^^^^^^^^^^^^^^
 
