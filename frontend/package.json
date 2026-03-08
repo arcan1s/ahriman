@@ -2,7 +2,7 @@
     "name": "ahriman-frontend",
     "private": true,
     "type": "module",
-    "version": "2.20.0-rc6",
+    "version": "2.20.0-rc7",
     "scripts": {
         "build": "tsc && vite build",
         "dev": "vite",
