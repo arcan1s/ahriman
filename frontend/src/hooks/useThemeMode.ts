@@ -17,20 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { createTheme, type Theme } from "@mui/material/styles";
+import { ThemeContext, type ThemeContextValue } from "contexts/ThemeContext";
+import { useContextNotNull } from "hooks/useContextNotNull";
 
-export function createAppTheme(mode: "light" | "dark"): Theme {
-    return createTheme({
-        palette: {
-            mode,
-        },
-        components: {
-            MuiDialog: {
-                defaultProps: {
-                    maxWidth: "lg",
-                    fullWidth: true,
-                },
-            },
-        },
-    });
+export function useThemeMode(): ThemeContextValue {
+    return useContextNotNull(ThemeContext);
 }

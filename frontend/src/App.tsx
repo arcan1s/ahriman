@@ -17,16 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider } from "@mui/material/styles";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppLayout from "components/layout/AppLayout";
 import { AuthProvider } from "contexts/AuthProvider";
 import { ClientProvider } from "contexts/ClientProvider";
 import { NotificationProvider } from "contexts/NotificationProvider";
 import { RepositoryProvider } from "contexts/RepositoryProvider";
+import { ThemeProvider } from "contexts/ThemeProvider";
 import type React from "react";
-import Theme from "theme/Theme";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -39,8 +37,7 @@ const queryClient = new QueryClient({
 
 export default function App(): React.JSX.Element {
     return <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={Theme}>
-            <CssBaseline />
+        <ThemeProvider>
             <NotificationProvider>
                 <ClientProvider>
                     <AuthProvider>

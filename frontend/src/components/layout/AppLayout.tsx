@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { Box, Container } from "@mui/material";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import { Box, Container, IconButton, Tooltip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import LoginDialog from "components/dialogs/LoginDialog";
 import Footer from "components/layout/Footer";
@@ -27,6 +29,7 @@ import { QueryKeys } from "hooks/QueryKeys";
 import { useAuth } from "hooks/useAuth";
 import { useClient } from "hooks/useClient";
 import { useRepository } from "hooks/useRepository";
+import { useThemeMode } from "hooks/useThemeMode";
 import type { InfoResponse } from "models/InfoResponse";
 import React, { useEffect, useState } from "react";
 
@@ -34,6 +37,7 @@ export default function AppLayout(): React.JSX.Element {
     const client = useClient();
     const { setAuthState } = useAuth();
     const { setRepositories } = useRepository();
+    const { mode, toggleTheme } = useThemeMode();
     const [loginOpen, setLoginOpen] = useState(false);
 
     const { data: info } = useQuery<InfoResponse>({
@@ -58,6 +62,11 @@ export default function AppLayout(): React.JSX.Element {
             <Box sx={{ flex: 1 }}>
                 <Navbar />
             </Box>
+            <Tooltip title="Toggle theme">
+                <IconButton aria-label="Toggle theme" onClick={toggleTheme}>
+                    {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+                </IconButton>
+            </Tooltip>
         </Box>
 
         <PackageTable

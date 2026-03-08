@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+import { blue } from "@mui/material/colors";
 import type { Event } from "models/Event";
 import type React from "react";
 import { Line } from "react-chartjs-2";
@@ -33,6 +34,8 @@ export default function EventDurationLineChart({ events }: EventDurationLineChar
             {
                 label: "update duration, s",
                 data: updateEvents.map(event => event.data?.took ?? 0),
+                borderColor: blue[500],
+                backgroundColor: blue[200],
                 cubicInterpolationMode: "monotone" as const,
                 tension: 0.4,
             },
