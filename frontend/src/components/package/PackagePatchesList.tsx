@@ -55,7 +55,7 @@ export default function PackagePatchesList({
                     sx={{ flex: 1 }}
                 />
                 {editable &&
-                    <IconButton size="small" color="error" onClick={() => onDelete(patch.key)}>
+                    <IconButton size="small" color="error" aria-label="Remove patch" onClick={() => onDelete(patch.key)}>
                         <DeleteIcon fontSize="small" />
                     </IconButton>
                 }

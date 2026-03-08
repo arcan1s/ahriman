@@ -42,7 +42,7 @@ export default function CodeBlock({
             component="pre"
             onScroll={onScroll}
             sx={{
-                backgroundColor: "grey.100",
+                backgroundColor: "action.hover",
                 p: 2,
                 borderRadius: 1,
                 overflow: "auto",

@@ -47,6 +47,7 @@ export default function AutoRefreshControl({
         <Tooltip title="Auto-refresh">
             <IconButton
                 size="small"
+                aria-label="Auto-refresh"
                 onClick={event => setAnchorEl(event.currentTarget)}
                 color={enabled ? "primary" : "default"}
             >
