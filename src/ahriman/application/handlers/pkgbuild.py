@@ -19,18 +19,19 @@
 #
 import argparse
 
+from dataclasses import replace
+
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters import ChangesPrinter
+from ahriman.core.formatters import PkgbuildPrinter
 from ahriman.models.action import Action
-from ahriman.models.changes import Changes
 from ahriman.models.repository_id import RepositoryId
 
 
-class Change(Handler):
+class Pkgbuild(Handler):
     """
-    package changes handler
+    package pkgbuild handler
     """
 
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
@@ -53,15 +54,16 @@ class Change(Handler):
         match args.action:
             case Action.List:
                 changes = client.package_changes_get(args.package)
-                ChangesPrinter(changes)(verbose=True, separator="")
-                Change.check_status(args.exit_code, changes.changes is not None)
+                PkgbuildPrinter(changes)(verbose=True, separator="")
+                Pkgbuild.check_status(args.exit_code, changes.pkgbuild is not None)
             case Action.Remove:
-                client.package_changes_update(args.package, Changes())
+                changes = client.package_changes_get(args.package)
+                client.package_changes_update(args.package, replace(changes, pkgbuild=None))
 
     @staticmethod
-    def _set_package_changes_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    def _set_package_pkgbuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
         """
-        add parser for package changes subcommand
+        add parser for package pkgbuild subcommand
 
         Args:
             root(SubParserAction): subparsers for the commands
@@ -69,8 +71,8 @@ class Change(Handler):
         Returns:
             argparse.ArgumentParser: created argument parser
         """
-        parser = root.add_parser("package-changes", help="get package changes",
-                                 description="retrieve package changes stored in database",
+        parser = root.add_parser("package-pkgbuild", help="get package pkgbuild",
+                                 description="retrieve package PKGBUILD stored in database",
                                  epilog="This command requests package status from the web interface "
                                         "if it is available.")
         parser.add_argument("package", help="package base")
@@ -80,9 +82,9 @@ class Change(Handler):
         return parser
 
     @staticmethod
-    def _set_package_changes_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    def _set_package_pkgbuild_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
         """
-        add parser for package change remove subcommand
+        add parser for package pkgbuild remove subcommand
 
         Args:
             root(SubParserAction): subparsers for the commands
@@ -90,10 +92,10 @@ class Change(Handler):
         Returns:
             argparse.ArgumentParser: created argument parser
         """
-        parser = root.add_parser("package-changes-remove", help="remove package changes",
-                                 description="remove the package changes stored remotely")
+        parser = root.add_parser("package-pkgbuild-remove", help="remove package pkgbuild",
+                                 description="remove the package PKGBUILD stored remotely")
         parser.add_argument("package", help="package base")
         parser.set_defaults(action=Action.Remove, exit_code=False, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
-    arguments = [_set_package_changes_parser, _set_package_changes_remove_parser]
+    arguments = [_set_package_pkgbuild_parser, _set_package_pkgbuild_remove_parser]

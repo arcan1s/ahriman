@@ -38,16 +38,6 @@ class Changes:
     changes: str | None = None
     pkgbuild: str | None = None
 
-    @property
-    def is_empty(self) -> bool:
-        """
-        validate that changes are not empty
-
-        Returns:
-            bool: ``True`` in case if changes are not set and ``False`` otherwise
-        """
-        return self.changes is None
-
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """

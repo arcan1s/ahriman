@@ -92,6 +92,14 @@ ahriman.application.handlers.patch module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.pkgbuild module
+--------------------------------------------
+
+.. automodule:: ahriman.application.handlers.pkgbuild
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.rebuild module
 -------------------------------------------
 

@@ -309,6 +309,44 @@ def test_subparsers_package_changes_remove_package_changes(parser: argparse.Argu
     assert dir(args) == dir(reference_args)
 
 
+def test_subparsers_package_pkgbuild(parser: argparse.ArgumentParser) -> None:
+    """
+    package-pkgbuild command must imply action, exit code, lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-pkgbuild", "ahriman"])
+    assert args.action == Action.List
+    assert args.architecture == "x86_64"
+    assert not args.exit_code
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == "repo"
+    assert args.unsafe
+
+
+def test_subparsers_package_pkgbuild_remove(parser: argparse.ArgumentParser) -> None:
+    """
+    package-pkgbuild-remove command must imply action, lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-pkgbuild-remove", "ahriman"])
+    assert args.action == Action.Remove
+    assert args.architecture == "x86_64"
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == "repo"
+    assert args.unsafe
+
+
+def test_subparsers_package_pkgbuild_remove_package_pkgbuild(parser: argparse.ArgumentParser) -> None:
+    """
+    package-pkgbuild-remove must have same keys as package-pkgbuild
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-pkgbuild-remove", "ahriman"])
+    reference_args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-pkgbuild", "ahriman"])
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_package_copy_option_architecture(parser: argparse.ArgumentParser) -> None:
     """
     package-copy command must correctly parse architecture list

@@ -76,6 +76,14 @@ ahriman.core.formatters.patch\_printer module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.formatters.pkgbuild\_printer module
+------------------------------------------------
+
+.. automodule:: ahriman.core.formatters.pkgbuild_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.formatters.printer module
 --------------------------------------
 

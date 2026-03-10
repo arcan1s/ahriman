@@ -26,6 +26,7 @@ from ahriman.core.formatters.event_stats_printer import EventStatsPrinter
 from ahriman.core.formatters.package_printer import PackagePrinter
 from ahriman.core.formatters.package_stats_printer import PackageStatsPrinter
 from ahriman.core.formatters.patch_printer import PatchPrinter
+from ahriman.core.formatters.pkgbuild_printer import PkgbuildPrinter
 from ahriman.core.formatters.printer import Printer
 from ahriman.core.formatters.repository_printer import RepositoryPrinter
 from ahriman.core.formatters.repository_stats_printer import RepositoryStatsPrinter

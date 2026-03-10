@@ -22,9 +22,9 @@ from ahriman.models.changes import Changes
 from ahriman.models.property import Property
 
 
-class ChangesPrinter(Printer):
+class PkgbuildPrinter(Printer):
     """
-    print content of the changes object
+    print content of the pkgbuild stored in changes
 
     Attributes:
         changes(Changes): package changes
@@ -45,9 +45,9 @@ class ChangesPrinter(Printer):
         Returns:
             list[Property]: list of content properties
         """
-        if self.changes.changes is None:
+        if self.changes.pkgbuild is None:
             return []
-        return [Property("", self.changes.changes, is_required=True, indent=0)]
+        return [Property("", self.changes.pkgbuild, is_required=True, indent=0)]
 
     # pylint: disable=redundant-returns-doc
     def title(self) -> str | None:
@@ -57,6 +57,6 @@ class ChangesPrinter(Printer):
         Returns:
             str | None: content title if it can be generated and ``None`` otherwise
         """
-        if self.changes.changes is None:
+        if self.changes.pkgbuild is None:
             return None
         return self.changes.last_commit_sha
