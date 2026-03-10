@@ -26,6 +26,7 @@ from typing import ClassVar
 from ahriman.core.exceptions import CalledProcessError
 from ahriman.core.log import LazyLogging
 from ahriman.core.utils import check_output, utcnow, walk
+from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -51,24 +52,25 @@ class Sources(LazyLogging):
     }
 
     @staticmethod
-    def changes(source_dir: Path, last_commit_sha: str | None) -> str | None:
+    def changes(source_dir: Path, last_commit_sha: str) -> Changes:
         """
         extract changes from the last known commit if available
 
         Args:
             source_dir(Path): local path to directory with source files
-            last_commit_sha(str | None): last known commit hash
+            last_commit_sha(str): last known commit hash
 
         Returns:
-            str | None: changes from the last commit if available or ``None`` otherwise
+            Changes: changes from the last commit if available
         """
-        if last_commit_sha is None:
-            return None  # no previous reference found
-
         instance = Sources()
+
+        diff = None
         if instance.fetch_until(source_dir, commit_sha=last_commit_sha) is not None:
-            return instance.diff(source_dir, last_commit_sha)
-        return None
+            diff = instance.diff(source_dir, last_commit_sha)
+        pkgbuild = instance.read(source_dir, "HEAD", Path("PKGBUILD"))
+
+        return Changes(last_commit_sha, diff, pkgbuild)
 
     @staticmethod
     def extend_architectures(sources_dir: Path, architecture: str) -> list[PkgbuildPatch]:
@@ -413,3 +415,17 @@ class Sources(LazyLogging):
                          cwd=sources_dir, input_data=patch.serialize(), logger=self.logger)
         else:
             patch.write(sources_dir / "PKGBUILD")
+
+    def read(self, sources_dir: Path, commit_sha: str, path: Path) -> str:
+        """
+        read file content from the specified commit
+
+        Args:
+            sources_dir(Path): local path to git repository
+            commit_sha(str): commit hash to read from
+            path(Path): path to file inside the repository
+
+        Returns:
+            str: file content at specified commit
+        """
+        return check_output(*self.git(), "show", f"{commit_sha}:{path}", cwd=sources_dir, logger=self.logger)

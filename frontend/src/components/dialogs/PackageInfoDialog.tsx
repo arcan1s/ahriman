@@ -27,6 +27,8 @@ import EventsTab from "components/package/EventsTab";
 import PackageDetailsGrid from "components/package/PackageDetailsGrid";
 import PackageInfoActions from "components/package/PackageInfoActions";
 import PackagePatchesList from "components/package/PackagePatchesList";
+import PkgbuildTab from "components/package/PkgbuildTab";
+import { type TabKey, tabs } from "components/package/TabKey";
 import { QueryKeys } from "hooks/QueryKeys";
 import { useAuth } from "hooks/useAuth";
 import { useAutoRefresh } from "hooks/useAutoRefresh";
@@ -55,7 +57,7 @@ export default function PackageInfoDialog({
     autoRefreshIntervals,
 }: PackageInfoDialogProps): React.JSX.Element {
     const client = useClient();
-    const { current } = useRepository();
+    const { currentRepository } = useRepository();
     const { isAuthorized } = useAuth();
     const { showSuccess, showError } = useNotification();
     const queryClient = useQueryClient();
@@ -65,11 +67,11 @@ export default function PackageInfoDialog({
         setLocalPackageBase(packageBase);
     }
 
-    const [tabIndex, setTabIndex] = useState(0);
+    const [activeTab, setActiveTab] = useState<TabKey>("logs");
     const [refreshDatabase, setRefreshDatabase] = useState(true);
 
     const handleClose = (): void => {
-        setTabIndex(0);
+        setActiveTab("logs");
         setRefreshDatabase(true);
         onClose();
     };
@@ -77,16 +79,17 @@ export default function PackageInfoDialog({
     const autoRefresh = useAutoRefresh("package-info-autoreload-button", defaultInterval(autoRefreshIntervals));
 
     const { data: packageData } = useQuery<PackageStatus[]>({
-        queryKey: localPackageBase && current ? QueryKeys.package(localPackageBase, current) : ["packages"],
-        queryFn: localPackageBase && current ? () => client.fetch.fetchPackage(localPackageBase, current) : skipToken,
+        queryKey: localPackageBase && currentRepository ? QueryKeys.package(localPackageBase, currentRepository) : ["packages"],
+        queryFn: localPackageBase && currentRepository ?
+            () => client.fetch.fetchPackage(localPackageBase, currentRepository) : skipToken,
         enabled: open,
         refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const { data: dependencies } = useQuery<Dependencies>({
-        queryKey: localPackageBase && current ? QueryKeys.dependencies(localPackageBase, current) : ["dependencies"],
-        queryFn: localPackageBase && current
-            ? () => client.fetch.fetchPackageDependencies(localPackageBase, current) : skipToken,
+        queryKey: localPackageBase && currentRepository ? QueryKeys.dependencies(localPackageBase, currentRepository) : ["dependencies"],
+        queryFn: localPackageBase && currentRepository ?
+            () => client.fetch.fetchPackageDependencies(localPackageBase, currentRepository) : skipToken,
         enabled: open,
     });
 
@@ -102,11 +105,12 @@ export default function PackageInfoDialog({
     const headerStyle = status ? StatusHeaderStyles[status.status] : {};
 
     const handleUpdate: () => Promise<void> = async () => {
-        if (!localPackageBase || !current) {
+        if (!localPackageBase || !currentRepository) {
             return;
         }
         try {
-            await client.service.servicePackageAdd(current, { packages: [localPackageBase], refresh: refreshDatabase });
+            await client.service.servicePackageAdd(
+                currentRepository, { packages: [localPackageBase], refresh: refreshDatabase });
             showSuccess("Success", `Run update for packages ${localPackageBase}`);
         } catch (exception) {
             showError("Action failed", `Package update failed: ${ApiError.errorDetail(exception)}`);
@@ -114,11 +118,11 @@ export default function PackageInfoDialog({
     };
 
     const handleRemove: () => Promise<void> = async () => {
-        if (!localPackageBase || !current) {
+        if (!localPackageBase || !currentRepository) {
             return;
         }
         try {
-            await client.service.servicePackageRemove(current, [localPackageBase]);
+            await client.service.servicePackageRemove(currentRepository, [localPackageBase]);
             showSuccess("Success", `Packages ${localPackageBase} have been removed`);
             onClose();
         } catch (exception) {
@@ -156,25 +160,26 @@ export default function PackageInfoDialog({
                     />
 
                     <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 2 }}>
-                        <Tabs value={tabIndex} onChange={(_, index: number) => setTabIndex(index)}>
-                            <Tab label="Build logs" />
-                            <Tab label="Changes" />
-                            <Tab label="Events" />
+                        <Tabs value={activeTab} onChange={(_, tab: TabKey) => setActiveTab(tab)}>
+                            {tabs.map(({ key, label }) => <Tab key={key} value={key} label={label} />)}
                         </Tabs>
                     </Box>
 
-                    {tabIndex === 0 && localPackageBase && current &&
+                    {activeTab === "logs" && localPackageBase && currentRepository &&
                         <BuildLogsTab
                             packageBase={localPackageBase}
-                            repository={current}
+                            repository={currentRepository}
                             refreshInterval={autoRefresh.interval}
                         />
                     }
-                    {tabIndex === 1 && localPackageBase && current &&
-                        <ChangesTab packageBase={localPackageBase} repository={current} />
+                    {activeTab === "changes" && localPackageBase && currentRepository &&
+                        <ChangesTab packageBase={localPackageBase} repository={currentRepository} />
                     }
-                    {tabIndex === 2 && localPackageBase && current &&
-                        <EventsTab packageBase={localPackageBase} repository={current} />
+                    {activeTab === "pkgbuild" && localPackageBase && currentRepository &&
+                        <PkgbuildTab packageBase={localPackageBase} repository={currentRepository} />
+                    }
+                    {activeTab === "events" && localPackageBase && currentRepository &&
+                        <EventsTab packageBase={localPackageBase} repository={currentRepository} />
                     }
                 </>
             }

@@ -17,47 +17,57 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { Box } from "@mui/material";
+import "components/common/syntaxLanguages";
+
+import { Box, useTheme } from "@mui/material";
 import CopyButton from "components/common/CopyButton";
+import { useThemeMode } from "hooks/useThemeMode";
 import React, { type RefObject } from "react";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import { githubGist, vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 interface CodeBlockProps {
-    preRef?: RefObject<HTMLElement | null>;
-    getText: () => string;
+    content: string;
     height?: number | string;
+    language?: string;
     onScroll?: () => void;
-    wordBreak?: boolean;
+    preRef?: RefObject<HTMLElement | null>;
 }
 
 export default function CodeBlock({
-    preRef,
-    getText,
+    content,
     height,
+    language = "text",
     onScroll,
-    wordBreak,
+    preRef,
 }: CodeBlockProps): React.JSX.Element {
+    const { mode } = useThemeMode();
+    const theme = useTheme();
+
     return <Box sx={{ position: "relative" }}>
         <Box
             ref={preRef}
-            component="pre"
             onScroll={onScroll}
-            sx={{
-                backgroundColor: "action.hover",
-                p: 2,
-                borderRadius: 1,
-                overflow: "auto",
-                height,
-                fontSize: "0.8rem",
-                fontFamily: "monospace",
-                ...wordBreak ? { whiteSpace: "pre-wrap", wordBreak: "break-all" } : {},
-            }}
+            sx={{ overflow: "auto", height }}
         >
-            <code>
-                {getText()}
-            </code>
+            <SyntaxHighlighter
+                language={language}
+                style={mode === "dark" ? vs2015 : githubGist}
+                wrapLongLines
+                customStyle={{
+                    padding: theme.spacing(2),
+                    borderRadius: `${theme.shape.borderRadius}px`,
+                    fontSize: "0.8rem",
+                    fontFamily: "monospace",
+                    margin: 0,
+                    minHeight: "100%",
+                }}
+            >
+                {content}
+            </SyntaxHighlighter>
         </Box>
-        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
-            <CopyButton getText={getText} />
-        </Box>
+        {content && <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+            <CopyButton text={content} />
+        </Box>}
     </Box>;
 }

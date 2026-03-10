@@ -34,20 +34,20 @@ export function RepositoryProvider({ children }: { children: ReactNode }): React
     const [repositories, setRepositories] = useState<RepositoryId[]>([]);
     const hash = useSyncExternalStore(subscribeToHash, getHashSnapshot);
 
-    const current = useMemo(() => {
+    const currentRepository = useMemo(() => {
         if (repositories.length === 0) {
             return null;
         }
         return repositories.find(repository => repository.key === hash) ?? repositories[0] ?? null;
     }, [repositories, hash]);
 
-    const setCurrent = useCallback((repository: RepositoryId) => {
+    const setCurrentRepository = useCallback((repository: RepositoryId) => {
         window.location.hash = repository.key;
     }, []);
 
     const value = useMemo(() => ({
-        repositories, current, setRepositories, setCurrent,
-    }), [repositories, current, setCurrent]);
+        repositories, currentRepository, setRepositories, setCurrentRepository,
+    }), [repositories, currentRepository, setCurrentRepository]);
 
     return <RepositoryContext.Provider value={value}>{children}</RepositoryContext.Provider>;
 }

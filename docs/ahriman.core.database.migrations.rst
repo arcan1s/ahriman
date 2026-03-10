@@ -140,6 +140,14 @@ ahriman.core.database.migrations.m016\_archive module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m017\_pkgbuild module
+------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m017_pkgbuild
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

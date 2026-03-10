@@ -17,21 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.web.apispec import Schema, fields
+__all__ = ["steps"]
 
 
-class ChangesSchema(Schema):
-    """
-    response package changes schema
-    """
-
-    changes = fields.String(metadata={
-        "description": "Package changes in patch format",
-    })
-    last_commit_sha = fields.String(metadata={
-        "description": "Last recorded commit hash",
-        "example": "f1875edca1eb8fc0e55c41d1cae5fa05b6b7c6",
-    })
-    pkgbuild = fields.String(metadata={
-        "description": "Original PKGBUILD content",
-    })
+steps = [
+    """alter table package_changes add column pkgbuild text""",
+]

@@ -17,14 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import type { RepositoryId } from "models/RepositoryId";
-import { createContext } from "react";
+export type TabKey = "logs" | "changes" | "pkgbuild" | "events";
 
-export interface RepositoryContextValue {
-    repositories: RepositoryId[];
-    currentRepository: RepositoryId | null;
-    setRepositories: (repositories: RepositoryId[]) => void;
-    setCurrentRepository: (repository: RepositoryId) => void;
-}
-
-export const RepositoryContext = createContext<RepositoryContextValue | null>(null);
+export const tabs: { key: TabKey; label: string }[] = [
+    { key: "logs", label: "Build logs" },
+    { key: "changes", label: "Changes" },
+    { key: "pkgbuild", label: "PKGBUILD" },
+    { key: "events", label: "Events" },
+];

@@ -17,14 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+import CodeBlock from "components/common/CodeBlock";
+import { usePackageChanges } from "hooks/usePackageChanges";
 import type { RepositoryId } from "models/RepositoryId";
-import { createContext } from "react";
+import React from "react";
 
-export interface RepositoryContextValue {
-    repositories: RepositoryId[];
-    currentRepository: RepositoryId | null;
-    setRepositories: (repositories: RepositoryId[]) => void;
-    setCurrentRepository: (repository: RepositoryId) => void;
+interface PkgbuildTabProps {
+    packageBase: string;
+    repository: RepositoryId;
 }
 
-export const RepositoryContext = createContext<RepositoryContextValue | null>(null);
+export default function PkgbuildTab({ packageBase, repository }: PkgbuildTabProps): React.JSX.Element {
+    const data = usePackageChanges(packageBase, repository);
+
+    return <CodeBlock language="bash" content={data?.pkgbuild ?? ""} height={400} />;
+}

@@ -18,7 +18,7 @@ def test_changes(application_repository: ApplicationRepository, package_ahriman:
     """
     must generate changes for the packages
     """
-    changes = Changes("hash", "change")
+    changes = Changes("sha", "change")
     hashes_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get", return_value=changes)
     changes_mock = mocker.patch("ahriman.core.repository.Repository.package_changes", return_value=changes)
     report_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
@@ -39,6 +39,20 @@ def test_changes_skip(application_repository: ApplicationRepository, package_ahr
 
     application_repository.changes([package_ahriman])
     changes_mock.assert_not_called()
+    report_mock.assert_not_called()
+
+
+def test_changes_no_update(application_repository: ApplicationRepository, package_ahriman: Package,
+                           mocker: MockerFixture) -> None:
+    """
+    must skip update if package_changes returns None (no new commits)
+    """
+    changes = Changes("sha", "change")
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get", return_value=changes)
+    mocker.patch("ahriman.core.repository.Repository.package_changes", return_value=None)
+    report_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
+
+    application_repository.changes([package_ahriman])
     report_mock.assert_not_called()
 
 

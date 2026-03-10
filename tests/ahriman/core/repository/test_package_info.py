@@ -97,7 +97,7 @@ def test_package_changes(package_info: PackageInfo, package_ahriman: Package, mo
     """
     changes = Changes("sha", "change")
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha2")
-    changes_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.changes", return_value=changes.changes)
+    changes_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.changes", return_value=changes)
 
     assert package_info.package_changes(package_ahriman, changes.last_commit_sha) == changes
     load_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman, [], package_info.paths)
@@ -108,11 +108,10 @@ def test_package_changes_skip(package_info: PackageInfo, package_ahriman: Packag
     """
     must skip loading package changes if no new commits
     """
-    changes = Changes("sha")
-    mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value=changes.last_commit_sha)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha")
     changes_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.changes")
 
-    assert package_info.package_changes(package_ahriman, changes.last_commit_sha) == changes
+    assert package_info.package_changes(package_ahriman, "sha") is None
     changes_mock.assert_not_called()
 
 

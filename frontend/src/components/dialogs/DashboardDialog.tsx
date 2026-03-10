@@ -36,11 +36,11 @@ interface DashboardDialogProps {
 
 export default function DashboardDialog({ open, onClose }: DashboardDialogProps): React.JSX.Element {
     const client = useClient();
-    const { current } = useRepository();
+    const { currentRepository } = useRepository();
 
     const { data: status } = useQuery<InternalStatus>({
-        queryKey: current ? QueryKeys.status(current) : ["status"],
-        queryFn: current ? () => client.fetch.fetchServerStatus(current) : skipToken,
+        queryKey: currentRepository ? QueryKeys.status(currentRepository) : ["status"],
+        queryFn: currentRepository ? () => client.fetch.fetchServerStatus(currentRepository) : skipToken,
         enabled: open,
     });
 

@@ -17,14 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+import { useQuery } from "@tanstack/react-query";
+import { QueryKeys } from "hooks/QueryKeys";
+import { useClient } from "hooks/useClient";
+import type { Changes } from "models/Changes";
 import type { RepositoryId } from "models/RepositoryId";
-import { createContext } from "react";
 
-export interface RepositoryContextValue {
-    repositories: RepositoryId[];
-    currentRepository: RepositoryId | null;
-    setRepositories: (repositories: RepositoryId[]) => void;
-    setCurrentRepository: (repository: RepositoryId) => void;
+export function usePackageChanges(packageBase: string, repository: RepositoryId): Changes | undefined {
+    const client = useClient();
+
+    const { data } = useQuery<Changes>({
+        queryKey: QueryKeys.changes(packageBase, repository),
+        queryFn: () => client.fetch.fetchPackageChanges(packageBase, repository),
+        enabled: !!packageBase,
+    });
+
+    return data;
 }
-
-export const RepositoryContext = createContext<RepositoryContextValue | null>(null);

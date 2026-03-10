@@ -25,12 +25,12 @@ import type React from "react";
 export default function RepositorySelect({
     repositorySelect,
 }: { repositorySelect: SelectedRepositoryResult }): React.JSX.Element {
-    const { repositories, current } = useRepository();
+    const { repositories, currentRepository } = useRepository();
 
     return <FormControl fullWidth margin="normal">
         <InputLabel>repository</InputLabel>
         <Select
-            value={repositorySelect.selectedKey || (current?.key ?? "")}
+            value={repositorySelect.selectedKey || (currentRepository?.key ?? "")}
             label="repository"
             onChange={event => repositorySelect.setSelectedKey(event.target.value)}
         >

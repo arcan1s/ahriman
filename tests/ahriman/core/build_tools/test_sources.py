@@ -6,6 +6,7 @@ from unittest.mock import call as MockCall
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import CalledProcessError
+from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -19,35 +20,27 @@ def test_changes(mocker: MockerFixture) -> None:
     """
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch_until")
     diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff", return_value="diff")
+    read_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.read", return_value="pkgbuild")
     local = Path("local")
     last_commit_sha = "sha"
 
-    assert Sources.changes(local, last_commit_sha) == "diff"
+    assert Sources.changes(local, last_commit_sha) == Changes(last_commit_sha, "diff", "pkgbuild")
     fetch_mock.assert_called_once_with(local, commit_sha=last_commit_sha)
     diff_mock.assert_called_once_with(local, last_commit_sha)
-
-
-def test_changes_skip(mocker: MockerFixture) -> None:
-    """
-    must return none in case if commit sha is not available
-    """
-    fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch_until")
-    diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff")
-
-    assert Sources.changes(Path("local"), None) is None
-    fetch_mock.assert_not_called()
-    diff_mock.assert_not_called()
+    read_mock.assert_called_once_with(local, "HEAD", Path("PKGBUILD"))
 
 
 def test_changes_unknown_commit(mocker: MockerFixture) -> None:
     """
-    must return none in case if commit sha wasn't found at the required depth
+    must return changes without diff in case if commit sha wasn't found at the required depth
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch_until", return_value=None)
     diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff")
+    read_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.read", return_value="pkgbuild")
 
-    assert Sources.changes(Path("local"), "sha") is None
+    assert Sources.changes(Path("local"), "sha") == Changes("sha", None, "pkgbuild")
     diff_mock.assert_not_called()
+    read_mock.assert_called_once_with(Path("local"), "HEAD", Path("PKGBUILD"))
 
 
 def test_extend_architectures(mocker: MockerFixture) -> None:
@@ -603,3 +596,12 @@ def test_patch_apply_function(sources: Sources, mocker: MockerFixture) -> None:
 
     sources.patch_apply(local, patch)
     write_mock.assert_called_once_with(local / "PKGBUILD")
+
+
+def test_read(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must read file from commit
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="content")
+    assert sources.read(Path("local"), "sha", Path("PKGBUILD")) == "content"
+    check_output_mock.assert_called_once()

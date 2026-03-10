@@ -45,10 +45,10 @@ class ChangesOperations(Operations):
         def run(connection: Connection) -> Changes:
             return next(
                 (
-                    Changes(row["last_commit_sha"], row["changes"] or None)
+                    Changes(row["last_commit_sha"], row["changes"] or None, row["pkgbuild"] or None)
                     for row in connection.execute(
                         """
-                        select last_commit_sha, changes from package_changes
+                        select last_commit_sha, changes, pkgbuild from package_changes
                         where package_base = :package_base and repository = :repository
                         """,
                         {
@@ -77,16 +77,17 @@ class ChangesOperations(Operations):
             connection.execute(
                 """
                 insert into package_changes
-                (package_base, last_commit_sha, changes, repository)
+                (package_base, last_commit_sha, changes, pkgbuild, repository)
                 values
-                (:package_base, :last_commit_sha, :changes ,:repository)
+                (:package_base, :last_commit_sha, :changes, :pkgbuild, :repository)
                 on conflict (package_base, repository) do update set
-                last_commit_sha = :last_commit_sha, changes = :changes
+                last_commit_sha = :last_commit_sha, changes = :changes, pkgbuild = :pkgbuild
                 """,
                 {
                     "package_base": package_base,
                     "last_commit_sha": changes.last_commit_sha,
                     "changes": changes.changes,
+                    "pkgbuild": changes.pkgbuild,
                     "repository": repository_id.id,
                 })
 

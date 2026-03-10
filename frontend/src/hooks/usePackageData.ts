@@ -39,20 +39,20 @@ export interface UsePackageDataResult {
 
 export function usePackageData(autoRefreshIntervals: AutoRefreshInterval[]): UsePackageDataResult {
     const client = useClient();
-    const { current } = useRepository();
+    const { currentRepository } = useRepository();
     const { isAuthorized } = useAuth();
 
     const autoRefresh = useAutoRefresh("table-autoreload-button", defaultInterval(autoRefreshIntervals));
 
     const { data: packages = [], isLoading } = useQuery({
-        queryKey: current ? QueryKeys.packages(current) : ["packages"],
-        queryFn: current ? () => client.fetch.fetchPackages(current) : skipToken,
+        queryKey: currentRepository ? QueryKeys.packages(currentRepository) : ["packages"],
+        queryFn: currentRepository ? () => client.fetch.fetchPackages(currentRepository) : skipToken,
         refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const { data: status } = useQuery({
-        queryKey: current ? QueryKeys.status(current) : ["status"],
-        queryFn: current ? () => client.fetch.fetchServerStatus(current) : skipToken,
+        queryKey: currentRepository ? QueryKeys.status(currentRepository) : ["status"],
+        queryFn: currentRepository ? () => client.fetch.fetchServerStatus(currentRepository) : skipToken,
         refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 

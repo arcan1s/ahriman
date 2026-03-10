@@ -23,17 +23,17 @@ import { IconButton, Tooltip } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 
 interface CopyButtonProps {
-    getText: () => string;
+    text: string;
 }
 
-export default function CopyButton({ getText }: CopyButtonProps): React.JSX.Element {
+export default function CopyButton({ text }: CopyButtonProps): React.JSX.Element {
     const [copied, setCopied] = useState(false);
     const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     useEffect(() => () => clearTimeout(timer.current), []);
 
     const handleCopy: () => Promise<void> = async () => {
-        await navigator.clipboard.writeText(getText());
+        await navigator.clipboard.writeText(text);
         setCopied(true);
         clearTimeout(timer.current);
         timer.current = setTimeout(() => setCopied(false), 2000);

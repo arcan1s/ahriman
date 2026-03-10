@@ -102,27 +102,25 @@ class PackageInfo(RepositoryProperties):
                 self.logger.exception("could not load package from %s", full_path)
         return list(result.values())
 
-    def package_changes(self, package: Package, last_commit_sha: str | None) -> Changes:
+    def package_changes(self, package: Package, last_commit_sha: str) -> Changes | None:
         """
         extract package change for the package since last commit if available
 
         Args:
             package(Package): package properties
-            last_commit_sha(str | None): last known commit hash
+            last_commit_sha(str): last known commit hash
 
         Returns:
-            Changes: changes if available
+            Changes | None: changes if available
         """
         with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
             dir_path = Path(dir_name)
             patches = self.reporter.package_patches_get(package.base, None)
             current_commit_sha = Sources.load(dir_path, package, patches, self.paths)
 
-            changes: str | None = None
             if current_commit_sha != last_commit_sha:
-                changes = Sources.changes(dir_path, last_commit_sha)
-
-            return Changes(last_commit_sha, changes)
+                return Sources.changes(dir_path, last_commit_sha)
+            return None
 
     def packages(self, filter_packages: Iterable[str] | None = None) -> list[Package]:
         """

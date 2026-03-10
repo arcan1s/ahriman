@@ -92,10 +92,11 @@ class ChangesView(StatusViewGuard, BaseView):
             data = await self.request.json()
             last_commit_sha = data.get("last_commit_sha")  # empty/null meant removal
             change = data.get("changes")
+            pkgbuild = data.get("pkgbuild")
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        changes = Changes(last_commit_sha, change)
+        changes = Changes(last_commit_sha, change, pkgbuild)
         self.service().package_changes_update(package_base, changes)
 
         raise HTTPNoContent

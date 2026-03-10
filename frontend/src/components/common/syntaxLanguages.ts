@@ -17,14 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import type { RepositoryId } from "models/RepositoryId";
-import { createContext } from "react";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import bash from "react-syntax-highlighter/dist/esm/languages/hljs/bash";
+import diff from "react-syntax-highlighter/dist/esm/languages/hljs/diff";
+import plaintext from "react-syntax-highlighter/dist/esm/languages/hljs/plaintext";
 
-export interface RepositoryContextValue {
-    repositories: RepositoryId[];
-    currentRepository: RepositoryId | null;
-    setRepositories: (repositories: RepositoryId[]) => void;
-    setCurrentRepository: (repository: RepositoryId) => void;
-}
-
-export const RepositoryContext = createContext<RepositoryContextValue | null>(null);
+SyntaxHighlighter.registerLanguage("bash", bash);
+SyntaxHighlighter.registerLanguage("diff", diff);
+SyntaxHighlighter.registerLanguage("text", plaintext);

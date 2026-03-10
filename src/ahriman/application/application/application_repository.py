@@ -45,8 +45,8 @@ class ApplicationRepository(ApplicationProperties):
             if last_commit_sha is None:
                 continue  # skip check in case if we can't calculate diff
 
-            changes = self.repository.package_changes(package, last_commit_sha)
-            self.repository.reporter.package_changes_update(package.base, changes)
+            if (changes := self.repository.package_changes(package, last_commit_sha)) is not None:
+                self.repository.reporter.package_changes_update(package.base, changes)
 
     def clean(self, *, cache: bool, chroot: bool, manual: bool, packages: bool, pacman: bool) -> None:
         """

@@ -105,7 +105,7 @@ export default function KeyImportDialog({ open, onClose }: KeyImportDialogProps)
             />
             {keyBody &&
                 <Box sx={{ mt: 2 }}>
-                    <CodeBlock getText={() => keyBody} height={300} />
+                    <CodeBlock content={keyBody} height={300} />
                 </Box>
             }
         </DialogContent>

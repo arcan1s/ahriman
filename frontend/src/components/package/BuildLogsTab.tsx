@@ -175,10 +175,9 @@ export default function BuildLogsTab({
         <Box sx={{ flex: 1 }}>
             <CodeBlock
                 preRef={preRef}
-                getText={() => displayedLogs}
+                content={displayedLogs}
                 height={400}
                 onScroll={handleScroll}
-                wordBreak
             />
         </Box>
     </Box>;

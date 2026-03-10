@@ -204,7 +204,8 @@ class Executor(PackageInfo, Cleaner):
 
                         # update commit hash for changes keeping current diff if there is any
                         changes = self.reporter.package_changes_get(single.base)
-                        self.reporter.package_changes_update(single.base, Changes(commit_sha, changes.changes))
+                        self.reporter.package_changes_update(
+                            single.base, Changes(commit_sha, changes.changes, changes.pkgbuild))
 
                         # update dependencies list
                         package_archive = PackageArchive(self.paths.build_root, single, self.pacman, self.scan_paths)

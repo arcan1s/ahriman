@@ -37,7 +37,7 @@ export function usePackageActions(
     setSelectionModel: (model: string[]) => void,
 ): UsePackageActionsResult {
     const client = useClient();
-    const { current } = useRepository();
+    const { currentRepository } = useRepository();
     const { showSuccess, showError } = useNotification();
     const queryClient = useQueryClient();
 
@@ -50,13 +50,13 @@ export function usePackageActions(
         action: (repository: RepositoryId) => Promise<string>,
         errorMessage: string,
     ): Promise<void> => {
-        if (!current) {
+        if (!currentRepository) {
             return;
         }
         try {
-            const successMessage = await action(current);
+            const successMessage = await action(currentRepository);
             showSuccess("Success", successMessage);
-            invalidate(current);
+            invalidate(currentRepository);
             setSelectionModel([]);
         } catch (exception) {
             showError("Action failed", `${errorMessage}: ${ApiError.errorDetail(exception)}`);
@@ -64,8 +64,8 @@ export function usePackageActions(
     };
 
     const handleReload: () => void = () => {
-        if (current !== null) {
-            invalidate(current);
+        if (currentRepository !== null) {
+            invalidate(currentRepository);
         }
     };
 

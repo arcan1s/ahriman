@@ -219,7 +219,7 @@ def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any
     mocker.patch("ahriman.models.repository_paths.getpwuid", return_value=passwd)
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     changes_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get",
-                                return_value=Changes("commit", "change"))
+                                return_value=Changes("commit", "change", "pkgbuild"))
     commit_sha_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
     depends_on_mock = mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.depends_on",
                                    return_value=Dependencies())
@@ -231,7 +231,7 @@ def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any
     build_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(Path, strict=True), None, None)
     depends_on_mock.assert_called_once_with()
     dependencies_mock.assert_called_once_with(package_ahriman.base, Dependencies())
-    commit_sha_mock.assert_called_once_with(package_ahriman.base, Changes("sha", "change"))
+    commit_sha_mock.assert_called_once_with(package_ahriman.base, Changes("sha", "change", "pkgbuild"))
 
 
 def test_process_build_bump_pkgrel(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

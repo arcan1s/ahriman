@@ -31,10 +31,12 @@ class Changes:
     Attributes:
         last_commit_sha(str | None): last commit hash
         changes(str | None): package change since the last commit if available
+        pkgbuild(str | None): original PKGBUILD content if available
     """
 
     last_commit_sha: str | None = None
     changes: str | None = None
+    pkgbuild: str | None = None
 
     @property
     def is_empty(self) -> bool:

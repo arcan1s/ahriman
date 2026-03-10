@@ -29,10 +29,10 @@ export interface SelectedRepositoryResult {
 }
 
 export function useSelectedRepository(): SelectedRepositoryResult {
-    const { repositories, current } = useRepository();
+    const { repositories, currentRepository } = useRepository();
     const [selectedKey, setSelectedKey] = useState("");
 
-    let selectedRepository: RepositoryId | null = current;
+    let selectedRepository: RepositoryId | null = currentRepository;
     if (selectedKey) {
         const repository = repositories.find(repository => repository.key === selectedKey);
         if (repository) {

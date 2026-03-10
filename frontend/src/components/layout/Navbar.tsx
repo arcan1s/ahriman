@@ -22,14 +22,15 @@ import { useRepository } from "hooks/useRepository";
 import type React from "react";
 
 export default function Navbar(): React.JSX.Element | null {
-    const { repositories, current, setCurrent } = useRepository();
+    const { repositories, currentRepository, setCurrentRepository } = useRepository();
 
-    if (repositories.length === 0 || !current) {
+    if (repositories.length === 0 || !currentRepository) {
         return null;
     }
 
     const currentIndex = repositories.findIndex(repository =>
-        repository.architecture === current.architecture && repository.repository === current.repository,
+        repository.architecture === currentRepository.architecture &&
+            repository.repository === currentRepository.repository,
     );
 
     return <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -38,7 +39,7 @@ export default function Navbar(): React.JSX.Element | null {
             onChange={(_, newValue: number) => {
                 const repository = repositories[newValue];
                 if (repository) {
-                    setCurrent(repository);
+                    setCurrentRepository(repository);
                 }
             }}
             variant="scrollable"

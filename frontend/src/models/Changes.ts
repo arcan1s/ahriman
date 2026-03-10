@@ -20,4 +20,5 @@
 export interface Changes {
     changes?: string;
     last_commit_sha?: string;
+    pkgbuild?: string;
 }
