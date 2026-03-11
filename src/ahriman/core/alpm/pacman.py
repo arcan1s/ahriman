@@ -24,10 +24,11 @@ import tarfile
 from collections.abc import Iterable, Iterator
 from functools import cached_property
 from pathlib import Path
-from pyalpm import DB, Handle, Package, SIG_DATABASE_OPTIONAL, SIG_PACKAGE_OPTIONAL  # type: ignore[import-not-found]
+from pyalpm import DB, Package, SIG_DATABASE_OPTIONAL, SIG_PACKAGE_OPTIONAL  # type: ignore[import-not-found]
 from string import Template
 
 from ahriman.core.alpm.pacman_database import PacmanDatabase
+from ahriman.core.alpm.pacman_handle import PacmanHandle
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.core.utils import trim_package
@@ -61,16 +62,16 @@ class Pacman(LazyLogging):
         self.refresh_database = refresh_database
 
     @cached_property
-    def handle(self) -> Handle:
+    def handle(self) -> PacmanHandle:
         """
         pyalpm handle
 
         Returns:
-            Handle: generated pyalpm handle instance
+            PacmanHandle: generated pyalpm handle instance
         """
         return self.__create_handle(refresh_database=self.refresh_database)
 
-    def __create_handle(self, *, refresh_database: PacmanSynchronization) -> Handle:
+    def __create_handle(self, *, refresh_database: PacmanSynchronization) -> PacmanHandle:
         """
         create lazy handle function
 
@@ -78,14 +79,14 @@ class Pacman(LazyLogging):
             refresh_database(PacmanSynchronization): synchronize local cache to remote
 
         Returns:
-            Handle: fully initialized pacman handle
+            PacmanHandle: fully initialized pacman handle
         """
         pacman_root = self.configuration.getpath("alpm", "database")
         use_ahriman_cache = self.configuration.getboolean("alpm", "use_ahriman_cache")
 
         database_path = self.repository_paths.pacman if use_ahriman_cache else pacman_root
         root = self.configuration.getpath("alpm", "root")
-        handle = Handle(str(root), str(database_path))
+        handle = PacmanHandle(str(root), str(database_path))
 
         for repository in self.configuration.getlist("alpm", "repositories"):
             database = self.database_init(handle, repository, self.repository_id.architecture)
@@ -99,12 +100,12 @@ class Pacman(LazyLogging):
 
         return handle
 
-    def database_copy(self, handle: Handle, database: DB, pacman_root: Path, *, use_ahriman_cache: bool) -> None:
+    def database_copy(self, handle: PacmanHandle, database: DB, pacman_root: Path, *, use_ahriman_cache: bool) -> None:
         """
         copy database from the operating system root to the ahriman local home
 
         Args:
-            handle(Handle): pacman handle which will be used for database copying
+            handle(PacmanHandle): pacman handle which will be used for database copying
             database(DB): pacman database instance to be copied
             pacman_root(Path): operating system pacman root
             use_ahriman_cache(bool): use local ahriman cache instead of system one
@@ -133,12 +134,12 @@ class Pacman(LazyLogging):
         with self.repository_paths.preserve_owner():
             shutil.copy(src, dst)
 
-    def database_init(self, handle: Handle, repository: str, architecture: str) -> DB:
+    def database_init(self, handle: PacmanHandle, repository: str, architecture: str) -> DB:
         """
         create database instance from pacman handler and set its properties
 
         Args:
-            handle(Handle): pacman handle which will be used for database initializing
+            handle(PacmanHandle): pacman handle which will be used for database initializing
             repository(str): pacman repository name (e.g. core)
             architecture(str): repository architecture
 
@@ -164,12 +165,12 @@ class Pacman(LazyLogging):
 
         return database
 
-    def database_sync(self, handle: Handle, *, force: bool) -> None:
+    def database_sync(self, handle: PacmanHandle, *, force: bool) -> None:
         """
         sync local database
 
         Args:
-            handle(Handle): pacman handle which will be used for database sync
+            handle(PacmanHandle): pacman handle which will be used for database sync
             force(bool): force database synchronization (same as ``pacman -Syy``)
         """
         self.logger.info("refresh ahriman's home pacman database (force refresh %s)", force)

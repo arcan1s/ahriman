@@ -34,8 +34,7 @@ def test_migrate_package_base_packager(connection: Connection, configuration: Co
     package_mock = mocker.patch("ahriman.models.package.Package.from_archive", return_value=package_ahriman)
 
     migrate_package_base_packager(connection, configuration)
-    package_mock.assert_called_once_with(
-        package_ahriman.packages[package_ahriman.base].filepath, pytest.helpers.anyvar(int))
+    package_mock.assert_called_once_with(package_ahriman.packages[package_ahriman.base].filepath)
     connection.executemany.assert_called_once_with(pytest.helpers.anyvar(str, strict=True), [{
         "package_base": package_ahriman.base,
         "packager": package_ahriman.packager,

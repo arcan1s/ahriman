@@ -28,6 +28,14 @@ ahriman.core.alpm.pacman\_database module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.alpm.pacman\_handle module
+---------------------------------------
+
+.. automodule:: ahriman.core.alpm.pacman_handle
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.alpm.pkgbuild\_parser module
 -----------------------------------------
 

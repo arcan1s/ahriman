@@ -26,6 +26,7 @@ from pyalpm import vercmp  # type: ignore[import-not-found]
 from typing import Any, Self
 
 from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.pacman_handle import PacmanHandle
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.log import LazyLogging
 from ahriman.core.utils import dataclass_view, full_version, list_flatmap, parse_version, srcinfo_property_list
@@ -186,18 +187,17 @@ class Package(LazyLogging):
         return sorted(packages)
 
     @classmethod
-    def from_archive(cls, path: Path, pacman: Pacman) -> Self:
+    def from_archive(cls, path: Path) -> Self:
         """
         construct package properties from package archive
 
         Args:
             path(Path): path to package archive
-            pacman(Pacman): alpm wrapper instance
 
         Returns:
             Self: package properties
         """
-        package = pacman.handle.load_pkg(str(path))
+        package = PacmanHandle.ephemeral().package_load(path)
         description = PackageDescription.from_package(package, path)
         return cls(
             base=package.base or package.name,
@@ -400,17 +400,16 @@ class Package(LazyLogging):
         """
         return dataclass_view(self)
 
-    def with_packages(self, packages: Iterable[Path], pacman: Pacman) -> None:
+    def with_packages(self, packages: Iterable[Path]) -> None:
         """
         replace packages descriptions with ones from archives
 
         Args:
             packages(Iterable[Path]): paths to package archives
-            pacman(Pacman): alpm wrapper instance
         """
         self.packages = {}  # reset state
         for package in packages:
-            archive = self.from_archive(package, pacman)
+            archive = self.from_archive(package)
             if archive.base != self.base:
                 continue
 

@@ -4,12 +4,12 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.core.repository.package_info import PackageInfo
+from ahriman.core.repository import Repository
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 
 
-def test_full_depends(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+def test_full_depends(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
                       pyalpm_package_ahriman: MagicMock) -> None:
     """
     must extract all dependencies from the package
@@ -18,18 +18,18 @@ def test_full_depends(package_info: PackageInfo, package_ahriman: Package, packa
 
     database_mock = MagicMock()
     database_mock.pkgcache = [pyalpm_package_ahriman]
-    package_info.pacman = MagicMock()
-    package_info.pacman.handle.get_syncdbs.return_value = [database_mock]
+    repository.pacman = MagicMock()
+    repository.pacman.handle.get_syncdbs.return_value = [database_mock]
 
-    assert package_info.full_depends(package_ahriman, [package_python_schedule]) == package_ahriman.depends
+    assert repository.full_depends(package_ahriman, [package_python_schedule]) == package_ahriman.depends
 
     package_python_schedule.packages[package_python_schedule.base].depends = [package_ahriman.base]
     expected = sorted(set(package_python_schedule.depends + package_ahriman.depends))
-    assert package_info.full_depends(package_python_schedule, [package_python_schedule]) == expected
+    assert repository.full_depends(package_python_schedule, [package_python_schedule]) == expected
 
 
-def test_load_archives(package_ahriman: Package, package_python_schedule: Package,
-                       package_info: PackageInfo, mocker: MockerFixture) -> None:
+def test_load_archives(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
+                       mocker: MockerFixture) -> None:
     """
     must return all packages grouped by package base
     """
@@ -45,7 +45,7 @@ def test_load_archives(package_ahriman: Package, package_python_schedule: Packag
         (package_ahriman, None),
     ])
 
-    packages = package_info.load_archives([Path("a.pkg.tar.xz"), Path("b.pkg.tar.xz"), Path("c.pkg.tar.xz")])
+    packages = repository.load_archives([Path("a.pkg.tar.xz"), Path("b.pkg.tar.xz"), Path("c.pkg.tar.xz")])
     assert len(packages) == 2
     assert {package.base for package in packages} == {package_ahriman.base, package_python_schedule.base}
 
@@ -56,22 +56,22 @@ def test_load_archives(package_ahriman: Package, package_python_schedule: Packag
     assert set(archives) == expected
 
 
-def test_load_archives_failed(package_info: PackageInfo, mocker: MockerFixture) -> None:
+def test_load_archives_failed(repository: Repository, mocker: MockerFixture) -> None:
     """
     must skip packages which cannot be loaded
     """
     mocker.patch("ahriman.models.package.Package.from_archive", side_effect=Exception)
-    assert not package_info.load_archives([Path("a.pkg.tar.xz")])
+    assert not repository.load_archives([Path("a.pkg.tar.xz")])
 
 
-def test_load_archives_not_package(package_info: PackageInfo) -> None:
+def test_load_archives_not_package(repository: Repository) -> None:
     """
     must skip not packages from iteration
     """
-    assert not package_info.load_archives([Path("a.tar.xz")])
+    assert not repository.load_archives([Path("a.tar.xz")])
 
 
-def test_load_archives_different_version(package_info: PackageInfo, package_python_schedule: Package,
+def test_load_archives_different_version(repository: Repository, package_python_schedule: Package,
                                          mocker: MockerFixture) -> None:
     """
     must load packages with different versions choosing maximal
@@ -86,12 +86,12 @@ def test_load_archives_different_version(package_info: PackageInfo, package_pyth
     single_packages[0].version = "0.0.1-1"
     mocker.patch("ahriman.models.package.Package.from_archive", side_effect=single_packages)
 
-    packages = package_info.load_archives([Path("a.pkg.tar.xz"), Path("b.pkg.tar.xz")])
+    packages = repository.load_archives([Path("a.pkg.tar.xz"), Path("b.pkg.tar.xz")])
     assert len(packages) == 1
     assert packages[0].version == package_python_schedule.version
 
 
-def test_package_archives(package_info: PackageInfo, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_package_archives(repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must load package archives sorted by version
     """
@@ -110,12 +110,12 @@ def test_package_archives(package_info: PackageInfo, package_ahriman: Package, m
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(str(i)) for i in range(5)])
     mocker.patch("ahriman.models.package.Package.from_archive", side_effect=package)
 
-    result = package_info.package_archives(package_ahriman.base)
+    result = repository.package_archives(package_ahriman.base)
     assert len(result) == 5
     assert [p.version for p in result] == [str(i) for i in range(5)]
 
 
-def test_package_changes(package_info: PackageInfo, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_package_changes(repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must load package changes
     """
@@ -123,23 +123,24 @@ def test_package_changes(package_info: PackageInfo, package_ahriman: Package, mo
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha2")
     changes_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.changes", return_value=changes)
 
-    assert package_info.package_changes(package_ahriman, changes.last_commit_sha) == changes
-    load_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman, [], package_info.paths)
+    assert repository.package_changes(package_ahriman, changes.last_commit_sha) == changes
+    load_mock.assert_called_once_with(
+        pytest.helpers.anyvar(int), package_ahriman, [], repository.configuration.repository_paths)
     changes_mock.assert_called_once_with(pytest.helpers.anyvar(int), changes.last_commit_sha)
 
 
-def test_package_changes_skip(package_info: PackageInfo, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_package_changes_skip(repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must skip loading package changes if no new commits
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha")
     changes_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.changes")
 
-    assert package_info.package_changes(package_ahriman, "sha") is None
+    assert repository.package_changes(package_ahriman, "sha") is None
     changes_mock.assert_not_called()
 
 
-def test_packages(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+def test_packages(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
                   mocker: MockerFixture) -> None:
     """
     must return repository packages
@@ -147,12 +148,12 @@ def test_packages(package_info: PackageInfo, package_ahriman: Package, package_p
     mocker.patch("pathlib.Path.iterdir")
     load_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives",
                              return_value=[package_ahriman, package_python_schedule])
-    assert package_info.packages() == [package_ahriman, package_python_schedule]
+    assert repository.packages() == [package_ahriman, package_python_schedule]
     # it uses filter object, so we cannot verify argument list =/
     load_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
-def test_packages_filter(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+def test_packages_filter(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
                          mocker: MockerFixture) -> None:
     """
     must filter result by bases
@@ -160,33 +161,33 @@ def test_packages_filter(package_info: PackageInfo, package_ahriman: Package, pa
     mocker.patch("pathlib.Path.iterdir")
     mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives",
                  return_value=[package_ahriman, package_python_schedule])
-    assert package_info.packages([package_ahriman.base]) == [package_ahriman]
+    assert repository.packages([package_ahriman.base]) == [package_ahriman]
 
 
-def test_packages_built(package_info: PackageInfo, mocker: MockerFixture) -> None:
+def test_packages_built(repository: Repository, mocker: MockerFixture) -> None:
     """
     must return build packages
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[Path("a.tar.xz"), Path("b.pkg.tar.xz")])
-    assert package_info.packages_built() == [Path("b.pkg.tar.xz")]
+    assert repository.packages_built() == [Path("b.pkg.tar.xz")]
 
 
-def test_packages_depend_on(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+def test_packages_depend_on(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
                             mocker: MockerFixture) -> None:
     """
     must filter packages by depends list
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
-    assert package_info.packages_depend_on([package_ahriman], {"python-srcinfo"}) == [package_ahriman]
+    assert repository.packages_depend_on([package_ahriman], {"python-srcinfo"}) == [package_ahriman]
 
 
-def test_packages_depend_on_empty(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+def test_packages_depend_on_empty(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
                                   mocker: MockerFixture) -> None:
     """
     must return all packages in case if no filter is provided
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
-    assert package_info.packages_depend_on([package_ahriman, package_python_schedule], None) == \
+    assert repository.packages_depend_on([package_ahriman, package_python_schedule], None) == \
         [package_ahriman, package_python_schedule]

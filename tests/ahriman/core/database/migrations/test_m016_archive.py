@@ -7,7 +7,6 @@ from sqlite3 import Connection
 from typing import Any
 from unittest.mock import call as MockCall
 
-from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations.m016_archive import migrate_data, move_packages
 from ahriman.models.package import Package
@@ -28,12 +27,12 @@ def test_migrate_data(connection: Connection, configuration: Configuration, mock
 
     migrate_data(connection, configuration)
     migration_mock.assert_has_calls([
-        MockCall(replace(configuration.repository_paths, repository_id=repository), pytest.helpers.anyvar(int))
+        MockCall(replace(configuration.repository_paths, repository_id=repository))
         for repository in repositories
     ])
 
 
-def test_move_packages(repository_paths: RepositoryPaths, pacman: Pacman, package_ahriman: Package,
+def test_move_packages(repository_paths: RepositoryPaths, package_ahriman: Package,
                        mocker: MockerFixture) -> None:
     """
     must move packages to the archive directory
@@ -57,9 +56,9 @@ def test_move_packages(repository_paths: RepositoryPaths, pacman: Pacman, packag
     move_mock = mocker.patch("ahriman.core.database.migrations.m016_archive.atomic_move")
     symlink_mock = mocker.patch("pathlib.Path.symlink_to")
 
-    move_packages(repository_paths, pacman)
+    move_packages(repository_paths)
     archive_mock.assert_has_calls([
-        MockCall(repository_paths.repository / filename, pacman)
+        MockCall(repository_paths.repository / filename)
         for filename in ("file.pkg.tar.xz", "file2.pkg.tar.xz")
     ])
     move_mock.assert_has_calls([

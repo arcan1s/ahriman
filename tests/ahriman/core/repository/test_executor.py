@@ -118,7 +118,7 @@ def test_package_build(executor: Executor, package_ahriman: Package, mocker: Moc
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
     package_mock.assert_called_once_with(Path("local"), executor.architecture, None)
     lookup_mock.assert_called_once_with(package_ahriman)
-    with_packages_mock.assert_called_once_with([Path(package_ahriman.base)], executor.pacman)
+    with_packages_mock.assert_called_once_with([Path(package_ahriman.base)])
     rename_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
 
 

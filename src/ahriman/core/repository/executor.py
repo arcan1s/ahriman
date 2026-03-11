@@ -57,7 +57,7 @@ class Executor(PackageInfo, Cleaner):
 
         for path in filter(package_like, archive.iterdir()):
             # check if package version is the same
-            built = Package.from_archive(path, self.pacman)
+            built = Package.from_archive(path)
             if built.version != package.version:
                 continue
 
@@ -117,7 +117,7 @@ class Executor(PackageInfo, Cleaner):
         else:
             built = task.build(path, PACKAGER=packager)
 
-        package.with_packages(built, self.pacman)
+        package.with_packages(built)
         for src in built:
             dst = self.paths.packages / src.name
             atomic_move(src, dst)

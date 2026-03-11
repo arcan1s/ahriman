@@ -90,22 +90,6 @@ def pkgbuild_ahriman(resource_path_root: Path) -> Pkgbuild:
 
 
 @pytest.fixture
-def pyalpm_handle(pyalpm_package_ahriman: MagicMock) -> MagicMock:
-    """
-    mock object for pyalpm
-
-    Args:
-        pyalpm_package_ahriman(MagicMock): mock object for pyalpm package
-
-    Returns:
-        MagicMock: pyalpm mock
-    """
-    mock = MagicMock()
-    mock.handle.load_pkg.return_value = pyalpm_package_ahriman
-    return mock
-
-
-@pytest.fixture
 def pyalpm_package_description_ahriman(package_description_ahriman: PackageDescription) -> MagicMock:
     """
     mock object for pyalpm package description

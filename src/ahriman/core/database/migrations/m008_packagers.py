@@ -19,11 +19,9 @@
 #
 from sqlite3 import Connection
 
-from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
 from ahriman.core.utils import package_like
 from ahriman.models.package import Package
-from ahriman.models.pacman_synchronization import PacmanSynchronization
 
 
 __all__ = ["migrate_data", "steps"]
@@ -64,12 +62,9 @@ def migrate_package_base_packager(connection: Connection, configuration: Configu
     if not configuration.repository_paths.repository.is_dir():
         return
 
-    _, repository_id = configuration.check_loaded()
-    pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Disabled)
-
     package_list = []
     for full_path in filter(package_like, configuration.repository_paths.repository.iterdir()):
-        package = Package.from_archive(full_path, pacman)
+        package = Package.from_archive(full_path)
         package_list.append({
             "package_base": package.base,
             "packager": package.packager,

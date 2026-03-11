@@ -20,13 +20,11 @@
 from dataclasses import replace
 from sqlite3 import Connection
 
-from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Explorer
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.utils import atomic_move, package_like, symlink_relative
 from ahriman.models.package import Package
-from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -45,29 +43,27 @@ def migrate_data(connection: Connection, configuration: Configuration) -> None:
 
     for repository_id in Explorer.repositories_extract(configuration):
         paths = replace(configuration.repository_paths, repository_id=repository_id)
-        pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Disabled)
 
         # create archive directory if required
         if not paths.archive.is_dir():
             with paths.preserve_owner():
                 paths.archive.mkdir(mode=0o755, parents=True)
 
-        move_packages(paths, pacman)
+        move_packages(paths)
 
 
-def move_packages(repository_paths: RepositoryPaths, pacman: Pacman) -> None:
+def move_packages(repository_paths: RepositoryPaths) -> None:
     """
     move packages from repository to archive and create symbolic links
 
     Args:
         repository_paths(RepositoryPaths): repository paths instance
-        pacman(Pacman): alpm wrapper instance
     """
     for archive in filter(package_like, repository_paths.repository.iterdir()):
         if not archive.is_file(follow_symlinks=False):
             continue  # skip symbolic links if any
 
-        package = Package.from_archive(archive, pacman)
+        package = Package.from_archive(archive)
         artifacts = [archive]
         # check if there are signatures for this package and append it here too
         if (signature := GPG.signature(archive)).exists():

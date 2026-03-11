@@ -148,13 +148,14 @@ def test_packages_full(package_ahriman: Package) -> None:
     assert package_ahriman.packages_full == [package_ahriman.base, f"{package_ahriman.base}-git"]
 
 
-def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+def test_from_archive(package_ahriman: Package, pyalpm_package_ahriman: MagicMock, mocker: MockerFixture) -> None:
     """
     must construct package from alpm library
     """
+    mocker.patch("ahriman.core.alpm.pacman_handle.PacmanHandle.package_load", return_value=pyalpm_package_ahriman)
     mocker.patch("ahriman.models.package_description.PackageDescription.from_package",
                  return_value=package_ahriman.packages[package_ahriman.base])
-    generated = Package.from_archive(Path("path"), pyalpm_handle)
+    generated = Package.from_archive(Path("path"))
     generated.remote = package_ahriman.remote
 
     assert generated == package_ahriman
@@ -165,13 +166,12 @@ def test_from_archive_empty_base(package_ahriman: Package, pyalpm_package_ahrima
     """
     must construct package with empty base from alpm library
     """
-    pyalpm_handle = MagicMock()
     type(pyalpm_package_ahriman).base = PropertyMock(return_value=None)
-    pyalpm_handle.handle.load_pkg.return_value = pyalpm_package_ahriman
+    mocker.patch("ahriman.core.alpm.pacman_handle.PacmanHandle.package_load", return_value=pyalpm_package_ahriman)
 
     mocker.patch("ahriman.models.package_description.PackageDescription.from_package",
                  return_value=package_ahriman.packages[package_ahriman.base])
-    generated = Package.from_archive(Path("path"), pyalpm_handle)
+    generated = Package.from_archive(Path("path"))
     generated.remote = package_ahriman.remote
 
     assert generated == package_ahriman
@@ -362,7 +362,7 @@ def test_vercmp(package_ahriman: Package, mocker: MockerFixture) -> None:
     vercmp_mock.assert_called_once_with(package_ahriman.version, "version")
 
 
-def test_with_packages(package_ahriman: Package, package_python_schedule: Package, pacman: Pacman,
+def test_with_packages(package_ahriman: Package, package_python_schedule: Package,
                        mocker: MockerFixture) -> None:
     """
     must correctly replace packages descriptions
@@ -375,8 +375,8 @@ def test_with_packages(package_ahriman: Package, package_python_schedule: Packag
     result = copy.deepcopy(package_ahriman)
     package_ahriman.packages[package_ahriman.base].architecture = "i686"
 
-    result.with_packages(paths, pacman)
+    result.with_packages(paths)
     from_archive_mock.assert_has_calls([
-        MockCall(path, pacman) for path in paths
+        MockCall(path) for path in paths
     ])
     assert result.packages[result.base] == package_ahriman.packages[package_ahriman.base]
