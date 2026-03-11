@@ -17,14 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Callable
-from functools import cmp_to_key
-
 from ahriman.core import context
-from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 from ahriman.core.triggers import Trigger
-from ahriman.core.utils import package_like
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
@@ -78,27 +74,20 @@ class ArchiveRotationTrigger(Trigger):
         """
         return list(cls.CONFIGURATION_SCHEMA.keys())
 
-    def archives_remove(self, package: Package, pacman: Pacman) -> None:
+    def archives_remove(self, package: Package, repository: Repository) -> None:
         """
         remove older versions of the specified package
 
         Args:
             package(Package): package which has been updated to check for older versions
-            pacman(Pacman): alpm wrapper instance
+            repository(Repository): repository instance
         """
         # explicit guard to skip process in case if rotation is disabled
         # this guard is supposed to speedup process
         if self.keep_built_packages == 0:
             return
 
-        packages: dict[tuple[str, str], Package] = {}
-        # we can't use here load_archives, because it ignores versions
-        for full_path in filter(package_like, self.paths.archive_for(package.base).iterdir()):
-            local = Package.from_archive(full_path, pacman)
-            packages.setdefault((local.base, local.version), local).packages.update(local.packages)
-
-        comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)
-        to_remove = sorted(packages.values(), key=cmp_to_key(comparator))
+        to_remove = repository.package_archives(package.base)
 
         for single in to_remove[:-self.keep_built_packages]:
             self.logger.info("removing version %s of package %s", single.version, single.base)
@@ -115,7 +104,7 @@ class ArchiveRotationTrigger(Trigger):
             packages(list[Package]): list of all available packages
         """
         ctx = context.get()
-        pacman = ctx.get(Pacman)
+        repository = ctx.get(Repository)
 
         for package in result.success:
-            self.archives_remove(package, pacman)
+            self.archives_remove(package, repository)

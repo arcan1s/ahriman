@@ -19,7 +19,8 @@
 #
 import copy
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
+from functools import cmp_to_key
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -101,6 +102,27 @@ class PackageInfo(RepositoryProperties):
             except Exception:
                 self.logger.exception("could not load package from %s", full_path)
         return list(result.values())
+
+    def package_archives(self, package_base: str) -> list[Package]:
+        """
+        load list of packages known for this package base. This method unlike
+        :func:`ahriman.core.repository.package_info.PackageInfo.load_archives` scans archive directory and loads all
+        versions available for the ``package_base``
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            list[Package]: list of packages belonging to this base, sorted by version by ascension
+        """
+        packages: dict[tuple[str, str], Package] = {}
+        # we can't use here load_archives, because it ignores versions
+        for full_path in filter(package_like, self.paths.archive_for(package_base).iterdir()):
+            local = Package.from_archive(full_path, self.pacman)
+            packages.setdefault((local.base, local.version), local).packages.update(local.packages)
+
+        comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)
+        return sorted(packages.values(), key=cmp_to_key(comparator))
 
     def package_changes(self, package: Package, last_commit_sha: str) -> Changes | None:
         """

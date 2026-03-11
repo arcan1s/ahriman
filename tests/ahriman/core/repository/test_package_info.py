@@ -91,6 +91,30 @@ def test_load_archives_different_version(package_info: PackageInfo, package_pyth
     assert packages[0].version == package_python_schedule.version
 
 
+def test_package_archives(package_info: PackageInfo, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must load package archives sorted by version
+    """
+    from dataclasses import replace
+    from typing import Any
+
+    def package(version: Any, *args: Any, **kwargs: Any) -> Package:
+        generated = replace(package_ahriman, version=str(version))
+        generated.packages = {
+            key: replace(value, filename=str(version))
+            for key, value in generated.packages.items()
+        }
+        return generated
+
+    mocker.patch("ahriman.core.repository.package_info.package_like", return_value=True)
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path(str(i)) for i in range(5)])
+    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=package)
+
+    result = package_info.package_archives(package_ahriman.base)
+    assert len(result) == 5
+    assert [p.version for p in result] == [str(i) for i in range(5)]
+
+
 def test_package_changes(package_info: PackageInfo, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must load package changes
