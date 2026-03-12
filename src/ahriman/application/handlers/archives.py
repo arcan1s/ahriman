@@ -19,19 +19,18 @@
 #
 import argparse
 
-from dataclasses import replace
-
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters import PkgbuildPrinter
+from ahriman.core.formatters import PackagePrinter
 from ahriman.models.action import Action
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.repository_id import RepositoryId
 
 
-class Pkgbuild(Handler):
+class Archives(Handler):
     """
-    package pkgbuild handler
+    package archives handler
     """
 
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
@@ -48,21 +47,20 @@ class Pkgbuild(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        client = Application(repository_id, configuration, report=True).reporter
+        application = Application(repository_id, configuration, report=True)
 
         match args.action:
             case Action.List:
-                changes = client.package_changes_get(args.package)
-                PkgbuildPrinter(changes)(verbose=True, separator="")
-                Pkgbuild.check_status(args.exit_code, changes.pkgbuild is not None)
-            case Action.Remove:
-                changes = client.package_changes_get(args.package)
-                client.package_changes_update(args.package, replace(changes, pkgbuild=None))
+                archives = application.repository.package_archives(args.package)
+                for package in archives:
+                    PackagePrinter(package, BuildStatus(BuildStatusEnum.Success))(verbose=args.info)
+
+                Archives.check_status(args.exit_code, bool(archives))
 
     @staticmethod
-    def _set_package_pkgbuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    def _set_package_archives_parser(root: SubParserAction) -> argparse.ArgumentParser:
         """
-        add parser for package pkgbuild subcommand
+        add parser for package archives subcommand
 
         Args:
             root(SubParserAction): subparsers for the commands
@@ -70,31 +68,14 @@ class Pkgbuild(Handler):
         Returns:
             argparse.ArgumentParser: created argument parser
         """
-        parser = root.add_parser("package-pkgbuild", help="get package pkgbuild",
-                                 description="retrieve package PKGBUILD stored in database",
-                                 epilog="This command requests package status from the web interface "
-                                        "if it is available.")
+        parser = root.add_parser("package-archives", help="list package archive versions",
+                                 description="list available archive versions for the package")
         parser.add_argument("package", help="package base")
         parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
                             action="store_true")
+        parser.add_argument("--info", help="show additional package information",
+                            action=argparse.BooleanOptionalAction, default=False)
         parser.set_defaults(action=Action.List, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
-    @staticmethod
-    def _set_package_pkgbuild_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
-        """
-        add parser for package pkgbuild remove subcommand
-
-        Args:
-            root(SubParserAction): subparsers for the commands
-
-        Returns:
-            argparse.ArgumentParser: created argument parser
-        """
-        parser = root.add_parser("package-pkgbuild-remove", help="remove package pkgbuild",
-                                 description="remove the package PKGBUILD stored remotely")
-        parser.add_argument("package", help="package base")
-        parser.set_defaults(action=Action.Remove, exit_code=False, lock=None, quiet=True, report=False, unsafe=True)
-        return parser
-
-    arguments = [_set_package_pkgbuild_parser, _set_package_pkgbuild_remove_parser]
+    arguments = [_set_package_archives_parser]

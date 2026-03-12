@@ -47,8 +47,7 @@ class StatusUpdate(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(repository_id, configuration, report=True)
-        client = application.repository.reporter
+        client = Application(repository_id, configuration, report=True).reporter
 
         match args.action:
             case Action.Update if args.package:

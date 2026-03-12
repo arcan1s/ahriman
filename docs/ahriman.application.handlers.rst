@@ -12,6 +12,14 @@ ahriman.application.handlers.add module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.archives module
+--------------------------------------------
+
+.. automodule:: ahriman.application.handlers.archives
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.backup module
 ------------------------------------------
 

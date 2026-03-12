@@ -52,7 +52,7 @@ class Status(Handler):
             report(bool): force enable or disable reporting
         """
         # we are using reporter here
-        client = Application(repository_id, configuration, report=True).repository.reporter
+        client = Application(repository_id, configuration, report=True).reporter
         if args.ahriman:
             service_status = client.status_get()
             StatusPrinter(service_status.status)(verbose=args.info)

@@ -23,6 +23,7 @@ from typing import Any, Self
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.log import LazyLogging
+from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.status import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
@@ -39,15 +40,18 @@ class Watcher(LazyLogging):
 
     Attributes:
         client(Client): reporter instance
+        package_info(PackageInfo): package info instance
         status(BuildStatus): daemon status
     """
 
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: Client, package_info: PackageInfo) -> None:
         """
         Args:
             client(Client): reporter instance
+            package_info(PackageInfo): package info instance
         """
         self.client = client
+        self.package_info = package_info
 
         self._lock = Lock()
         self._known: dict[str, tuple[Package, BuildStatus]] = {}
@@ -79,6 +83,18 @@ class Watcher(LazyLogging):
             }
 
     logs_rotate: Callable[[int], None]
+
+    def package_archives(self, package_base: str) -> list[Package]:
+        """
+        get known package archives
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            list[Package]: list of built package for this package base
+        """
+        return self.package_info.package_archives(package_base)
 
     package_changes_get: Callable[[str], Changes]
 

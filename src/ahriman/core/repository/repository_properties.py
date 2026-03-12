@@ -72,31 +72,11 @@ class RepositoryProperties(EventLogger, LazyLogging):
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(repository_id, configuration, refresh_database=refresh_pacman_database)
         self.sign = GPG(configuration)
-        self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
+        self.repo = Repo(self.repository_id.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client.load(repository_id, configuration, database, report=report)
         self.triggers = TriggerLoader.load(repository_id, configuration)
 
         self.scan_paths = ScanPaths(configuration.getlist("build", "scan_paths", fallback=[]))
-
-    @property
-    def architecture(self) -> str:
-        """
-        repository architecture for backward compatibility
-
-        Returns:
-            str: repository architecture
-        """
-        return self.repository_id.architecture
-
-    @property
-    def name(self) -> str:
-        """
-        repository name for backward compatibility
-
-        Returns:
-            str: repository name
-        """
-        return self.repository_id.name
 
     def packager(self, packagers: Packagers, package_base: str) -> User:
         """

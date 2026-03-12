@@ -16,6 +16,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.database.migrations import Migrations
 from ahriman.core.log.log_loader import LogLoader
 from ahriman.core.repository import Repository
+from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.spawn import Spawn
 from ahriman.core.status import Client
 from ahriman.core.status.watcher import Watcher
@@ -688,4 +689,5 @@ def watcher(local_client: Client) -> Watcher:
     Returns:
         Watcher: package status watcher test instance
     """
-    return Watcher(local_client)
+    package_info = PackageInfo()
+    return Watcher(local_client, package_info)

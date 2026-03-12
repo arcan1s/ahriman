@@ -61,12 +61,11 @@ class Executor(PackageInfo, Cleaner):
             if built.version != package.version:
                 continue
 
-            packages = built.packages.values()
             # all packages must be either any or same architecture
-            if not all(single.architecture in ("any", self.architecture) for single in packages):
+            if not built.supports_architecture(self.repository_id.architecture):
                 continue
 
-            return list_flatmap(packages, lambda single: archive.glob(f"{single.filename}*"))
+            return list_flatmap(built.packages.values(), lambda single: archive.glob(f"{single.filename}*"))
 
         return []
 
@@ -102,11 +101,11 @@ class Executor(PackageInfo, Cleaner):
         """
         self.reporter.set_building(package.base)
 
-        task = Task(package, self.configuration, self.architecture, self.paths)
+        task = Task(package, self.configuration, self.repository_id.architecture, self.paths)
         patches = self.reporter.package_patches_get(package.base, None)
         commit_sha = task.init(path, patches, local_version)
 
-        loaded_package = Package.from_build(path, self.architecture, None)
+        loaded_package = Package.from_build(path, self.repository_id.architecture, None)
         if prebuilt := list(self._archive_lookup(loaded_package)):
             self.logger.info("using prebuilt packages for %s-%s", loaded_package.base, loaded_package.version)
             built = []
@@ -218,7 +217,7 @@ class Executor(PackageInfo, Cleaner):
                 except Exception:
                     self.reporter.set_failed(single.base)
                     result.add_failed(single)
-                    self.logger.exception("%s (%s) build exception", single.base, self.architecture)
+                    self.logger.exception("%s (%s) build exception", single.base, self.repository_id.architecture)
 
         return result
 

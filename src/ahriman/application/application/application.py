@@ -154,13 +154,13 @@ class Application(ApplicationPackages, ApplicationRepository):
                 for package_name, packager in missing.items():
                     if (source_dir := self.repository.paths.cache_for(package_name)).is_dir():
                         # there is local cache, load package from it
-                        leaf = Package.from_build(source_dir, self.repository.architecture, packager)
+                        leaf = Package.from_build(source_dir, self.repository.repository_id.architecture, packager)
                     else:
                         leaf = Package.from_aur(package_name, packager, include_provides=True)
                     portion[leaf.base] = leaf
 
                     # register package in the database
-                    self.repository.reporter.set_unknown(leaf)
+                    self.reporter.set_unknown(leaf)
 
             return portion
 

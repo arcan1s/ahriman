@@ -10,7 +10,7 @@ from ahriman.core.exceptions import InitializeError
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.web.keys import ConfigurationKey
-from ahriman.web.web import _create_socket, _on_shutdown, _on_startup, run_server, setup_server
+from ahriman.web.web import _create_socket, _create_watcher, _on_shutdown, _on_startup, run_server, setup_server
 
 
 async def test_create_socket(application: Application, mocker: MockerFixture) -> None:
@@ -137,6 +137,20 @@ def test_run_with_socket(application: Application, mocker: MockerFixture) -> Non
         application, host="127.0.0.1", port=port, sock=42, handle_signals=True,
         access_log=pytest.helpers.anyvar(int),
     )
+
+
+def test_create_watcher(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must create watcher for repository
+    """
+    database_mock = mocker.patch("ahriman.core.database.SQLite.load")
+    client_mock = mocker.patch("ahriman.core.status.Client.load")
+    configuration_path, repository_id = configuration.check_loaded()
+
+    result = _create_watcher(configuration_path, repository_id)
+    assert isinstance(result, Watcher)
+    database_mock.assert_called_once()
+    client_mock.assert_called_once()
 
 
 def test_setup_no_repositories(configuration: Configuration, spawner: Spawn) -> None:

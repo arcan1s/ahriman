@@ -4,6 +4,14 @@ ahriman.web.views.v1.packages package
 Submodules
 ----------
 
+ahriman.web.views.v1.packages.archives module
+---------------------------------------------
+
+.. automodule:: ahriman.web.views.v1.packages.archives
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.v1.packages.changes module
 --------------------------------------------
 

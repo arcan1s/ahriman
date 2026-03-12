@@ -138,16 +138,6 @@ class Package(LazyLogging):
         return list_flatmap(self.packages.values(), lambda package: package.groups)
 
     @property
-    def is_single_package(self) -> bool:
-        """
-        is it possible to transform package base to single package or not
-
-        Returns:
-            bool: true in case if this base has only one package with the same name
-        """
-        return self.base in self.packages and len(self.packages) == 1
-
-    @property
     def is_vcs(self) -> bool:
         """
         get VCS flag based on the package base
@@ -375,8 +365,21 @@ class Package(LazyLogging):
         Returns:
             str: print-friendly string
         """
-        details = "" if self.is_single_package else f" ({" ".join(sorted(self.packages.keys()))})"
+        is_single_package = self.base in self.packages and len(self.packages) == 1
+        details = "" if is_single_package else f" ({" ".join(sorted(self.packages.keys()))})"
         return f"{self.base}{details}"
+
+    def supports_architecture(self, architecture: str) -> bool:
+        """
+        helper to check if the package belongs to the specified architecture
+
+        Args:
+            architecture(str): probe repository architecture
+
+        Returns:
+            bool: ``True`` if all packages are same architecture or any
+        """
+        return all(single.architecture in ("any", architecture) for single in self.packages.values())
 
     def vercmp(self, version: str) -> int:
         """

@@ -1,5 +1,6 @@
 import pytest
 
+from dataclasses import replace
 from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
@@ -95,24 +96,28 @@ def test_package_archives(repository: Repository, package_ahriman: Package, mock
     """
     must load package archives sorted by version
     """
-    from dataclasses import replace
-    from typing import Any
-
-    def package(version: Any, *args: Any, **kwargs: Any) -> Package:
-        generated = replace(package_ahriman, version=str(version))
-        generated.packages = {
-            key: replace(value, filename=str(version))
-            for key, value in generated.packages.items()
-        }
-        return generated
-
     mocker.patch("ahriman.core.repository.package_info.package_like", return_value=True)
-    mocker.patch("pathlib.Path.iterdir", return_value=[Path(str(i)) for i in range(5)])
-    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=package)
+    mocker.patch("pathlib.Path.iterdir", return_value=[str(i) for i in range(5)])
+    mocker.patch("ahriman.models.package.Package.from_archive",
+                 side_effect=lambda version: replace(package_ahriman, version=version))
 
     result = repository.package_archives(package_ahriman.base)
     assert len(result) == 5
     assert [p.version for p in result] == [str(i) for i in range(5)]
+
+
+def test_package_archives_architecture_mismatch(repository: Repository, package_ahriman: Package,
+                                                mocker: MockerFixture) -> None:
+    """
+    must skip packages with mismatched architecture
+    """
+    package_ahriman.packages[package_ahriman.base].architecture = "i686"
+
+    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.packages[package_ahriman.base].filepath])
+    mocker.patch("ahriman.models.package.Package.from_archive", return_value=package_ahriman)
+
+    result = repository.package_archives(package_ahriman.base)
+    assert len(result) == 0
 
 
 def test_package_changes(repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:

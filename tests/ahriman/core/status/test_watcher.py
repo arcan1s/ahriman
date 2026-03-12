@@ -45,6 +45,18 @@ def test_load_known(watcher: Watcher, package_ahriman: Package, mocker: MockerFi
     assert status.status == BuildStatusEnum.Success
 
 
+def test_package_archives(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return package archives from package info
+    """
+    archives_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.package_archives",
+                                 return_value=[package_ahriman])
+
+    result = watcher.package_archives(package_ahriman.base)
+    assert result == [package_ahriman]
+    archives_mock.assert_called_once_with(package_ahriman.base)
+
+
 def test_package_get(watcher: Watcher, package_ahriman: Package) -> None:
     """
     must return package status

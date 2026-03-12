@@ -101,20 +101,6 @@ def test_groups(package_ahriman: Package) -> None:
     assert sorted(package_ahriman.groups) == package_ahriman.groups
 
 
-def test_is_single_package_false(package_python_schedule: Package) -> None:
-    """
-    python-schedule must not be single package
-    """
-    assert not package_python_schedule.is_single_package
-
-
-def test_is_single_package_true(package_ahriman: Package) -> None:
-    """
-    ahriman must be single package
-    """
-    assert package_ahriman.is_single_package
-
-
 def test_is_vcs_false(package_ahriman: Package) -> None:
     """
     ahriman must not be VCS package
@@ -351,6 +337,30 @@ def test_build_status_pretty_print(package_ahriman: Package) -> None:
     """
     assert package_ahriman.pretty_print()
     assert isinstance(package_ahriman.pretty_print(), str)
+
+
+def test_supports_architecture(package_ahriman: Package) -> None:
+    """
+    must check if package supports architecture
+    """
+    package_ahriman.packages[package_ahriman.base].architecture = "x86_64"
+    assert package_ahriman.supports_architecture("x86_64")
+
+
+def test_supports_architecture_any(package_ahriman: Package) -> None:
+    """
+    must support any architecture
+    """
+    package_ahriman.packages[package_ahriman.base].architecture = "any"
+    assert package_ahriman.supports_architecture("x86_64")
+
+
+def test_supports_architecture_mismatch(package_ahriman: Package) -> None:
+    """
+    must not support mismatched architecture
+    """
+    package_ahriman.packages[package_ahriman.base].architecture = "i686"
+    assert not package_ahriman.supports_architecture("x86_64")
 
 
 def test_vercmp(package_ahriman: Package, mocker: MockerFixture) -> None:

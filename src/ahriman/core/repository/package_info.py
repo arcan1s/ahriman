@@ -33,6 +33,7 @@ from ahriman.core.status import Client
 from ahriman.core.utils import package_like
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class PackageInfo(LazyLogging):
@@ -43,11 +44,13 @@ class PackageInfo(LazyLogging):
         configuration(Configuration): configuration instance
         pacman(Pacman): alpm wrapper instance
         reporter(Client): build status reporter instance
+        repository_id(RepositoryId): repository unique identifier
     """
 
     configuration: Configuration
     pacman: Pacman
     reporter: Client
+    repository_id: RepositoryId
 
     def full_depends(self, package: Package, packages: Iterable[Package]) -> list[str]:
         """
@@ -133,6 +136,8 @@ class PackageInfo(LazyLogging):
         # we can't use here load_archives, because it ignores versions
         for full_path in filter(package_like, paths.archive_for(package_base).iterdir()):
             local = Package.from_archive(full_path)
+            if not local.supports_architecture(self.repository_id.architecture):
+                continue
             packages.setdefault((local.base, local.version), local).packages.update(local.packages)
 
         comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)

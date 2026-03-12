@@ -23,12 +23,14 @@ import logging
 import socket
 
 from aiohttp.web import Application, normalize_path_middleware, run_app
+from pathlib import Path
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.distributed import WorkersCache
 from ahriman.core.exceptions import InitializeError
+from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.spawn import Spawn
 from ahriman.core.status import Client
 from ahriman.core.status.watcher import Watcher
@@ -76,6 +78,34 @@ def _create_socket(configuration: Configuration, application: Application) -> so
     application.on_shutdown.append(remove_socket)
 
     return sock
+
+
+def _create_watcher(path: Path, repository_id: RepositoryId) -> Watcher:
+    """
+    build watcher for selected repository
+
+    Args:
+        path(Path): path to configuration file
+        repository_id(RepositoryId): repository unique identifier
+
+    Returns:
+        Watcher: watcher instance
+    """
+    logging.getLogger(__name__).info("load repository %s", repository_id)
+    # load settings explicitly for architecture if any
+    configuration = Configuration.from_path(path, repository_id)
+
+    # load database instance, because it holds identifier
+    database = SQLite.load(configuration)
+    # explicitly load local client
+    client = Client.load(repository_id, configuration, database, report=False)
+
+    # load package info wrapper
+    package_info = PackageInfo()
+    package_info.configuration = configuration
+    package_info.repository_id = repository_id
+
+    return Watcher(client, package_info)
 
 
 async def _on_shutdown(application: Application) -> None:
@@ -168,18 +198,11 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     # package cache
     if not repositories:
         raise InitializeError("No repositories configured, exiting")
-    watchers: dict[RepositoryId, Watcher] = {}
     configuration_path, _ = configuration.check_loaded()
-    for repository_id in repositories:
-        application.logger.info("load repository %s", repository_id)
-        # load settings explicitly for architecture if any
-        repository_configuration = Configuration.from_path(configuration_path, repository_id)
-        # load database instance, because it holds identifier
-        database = SQLite.load(repository_configuration)
-        # explicitly load local client
-        client = Client.load(repository_id, repository_configuration, database, report=False)
-        watchers[repository_id] = Watcher(client)
-    application[WatcherKey] = watchers
+    application[WatcherKey] = {
+        repository_id: _create_watcher(configuration_path, repository_id)
+        for repository_id in repositories
+    }
     # workers cache
     application[WorkersKey] = WorkersCache(configuration)
     # process spawner

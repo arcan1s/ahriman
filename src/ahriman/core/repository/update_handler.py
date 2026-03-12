@@ -150,7 +150,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                     )
 
                     Sources.fetch(cache_dir, source)
-                    remote = Package.from_build(cache_dir, self.architecture, None)
+                    remote = Package.from_build(cache_dir, self.repository_id.architecture, None)
 
                     local = packages.get(remote.base)
                     if local is None:

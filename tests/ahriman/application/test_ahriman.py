@@ -271,6 +271,22 @@ def test_subparsers_package_add_option_variable_multiple(parser: argparse.Argume
     assert args.variable == ["var1", "var2"]
 
 
+def test_subparsers_package_archives(parser: argparse.ArgumentParser) -> None:
+    """
+    package-archives command must imply action, exit code, info, lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-archives", "ahriman"])
+    assert args.action == Action.List
+    assert args.architecture == "x86_64"
+    assert not args.exit_code
+    assert not args.info
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == "repo"
+    assert args.unsafe
+
+
 def test_subparsers_package_changes(parser: argparse.ArgumentParser) -> None:
     """
     package-changes command must imply action, exit code, lock, quiet, report and unsafe

@@ -11,6 +11,7 @@ from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user import User
 
 
@@ -56,7 +57,7 @@ def test_archive_lookup_architecture_mismatch(executor: Executor, package_ahrima
     """
     package_ahriman.packages[package_ahriman.base].architecture = "x86_64"
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    mocker.patch("ahriman.core.repository.executor.Executor.architecture", return_value="i686")
+    executor.repository_id = RepositoryId("i686", executor.repository_id.name)
     mocker.patch("pathlib.Path.iterdir", return_value=[
         Path("1.pkg.tar.zst"),
     ])
@@ -116,7 +117,7 @@ def test_package_build(executor: Executor, package_ahriman: Package, mocker: Moc
     assert executor._package_build(package_ahriman, Path("local"), "packager", None) == "sha"
     status_client_mock.assert_called_once_with(package_ahriman.base)
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
-    package_mock.assert_called_once_with(Path("local"), executor.architecture, None)
+    package_mock.assert_called_once_with(Path("local"), executor.repository_id.architecture, None)
     lookup_mock.assert_called_once_with(package_ahriman)
     with_packages_mock.assert_called_once_with([Path(package_ahriman.base)])
     rename_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
