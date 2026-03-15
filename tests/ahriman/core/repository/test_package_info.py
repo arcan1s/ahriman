@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 from ahriman.core.repository import Repository
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 def test_full_depends(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
@@ -118,6 +119,67 @@ def test_package_archives_architecture_mismatch(repository: Repository, package_
 
     result = repository.package_archives(package_ahriman.base)
     assert len(result) == 0
+
+
+def test_package_archives_lookup(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
+                                 mocker: MockerFixture) -> None:
+    """
+    must existing packages which match the version
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    mocker.patch("pathlib.Path.iterdir", return_value=[
+        Path("1.pkg.tar.zst"),
+        Path("2.pkg.tar.zst"),
+        Path("3.pkg.tar.zst"),
+    ])
+    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=[
+        package_ahriman,
+        package_python_schedule,
+        replace(package_ahriman, version="1"),
+    ])
+    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("1.pkg.tar.xz")])
+
+    assert repository.package_archives_lookup(package_ahriman) == [Path("1.pkg.tar.xz")]
+    glob_mock.assert_called_once_with(f"{package_ahriman.packages[package_ahriman.base].filename}*")
+
+
+def test_package_archives_lookup_version_mismatch(repository: Repository, package_ahriman: Package,
+                                                  mocker: MockerFixture) -> None:
+    """
+    must return nothing if no packages found with the same version
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    mocker.patch("pathlib.Path.iterdir", return_value=[
+        Path("1.pkg.tar.zst"),
+    ])
+    mocker.patch("ahriman.models.package.Package.from_archive", return_value=replace(package_ahriman, version="1"))
+
+    assert repository.package_archives_lookup(package_ahriman) == []
+
+
+def test_package_archives_lookup_architecture_mismatch(repository: Repository, package_ahriman: Package,
+                                                       mocker: MockerFixture) -> None:
+    """
+    must return nothing if architecture doesn't match
+    """
+    package_ahriman.packages[package_ahriman.base].architecture = "x86_64"
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    repository.repository_id = RepositoryId("i686", repository.repository_id.name)
+    mocker.patch("pathlib.Path.iterdir", return_value=[
+        Path("1.pkg.tar.zst"),
+    ])
+    mocker.patch("ahriman.models.package.Package.from_archive", return_value=package_ahriman)
+
+    assert repository.package_archives_lookup(package_ahriman) == []
+
+
+def test_package_archives_lookup_no_archive_directory(repository: Repository, package_ahriman: Package,
+                                                      mocker: MockerFixture) -> None:
+    """
+    must return nothing if no archive directory found
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    assert repository.package_archives_lookup(package_ahriman) == []
 
 
 def test_package_changes(repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:

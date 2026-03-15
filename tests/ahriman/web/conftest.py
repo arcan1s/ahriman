@@ -127,6 +127,7 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite, 
         Application: application test instance
     """
     configuration.set_option("web", "port", "8080")
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     mocker.patch.object(helpers, "aiohttp_security", None)
@@ -153,6 +154,7 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     """
     configuration.set_option("auth", "target", "configuration")
     configuration.set_option("web", "port", "8080")
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     _, repository_id = configuration.check_loaded()

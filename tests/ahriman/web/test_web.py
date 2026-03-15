@@ -61,6 +61,21 @@ def test_create_socket_safe(application: Application, mocker: MockerFixture) -> 
     chmod_mock.assert_not_called()
 
 
+def test_create_watcher(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must create watcher for repository
+    """
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
+    database_mock = mocker.patch("ahriman.core.database.SQLite.load")
+    client_mock = mocker.patch("ahriman.core.status.Client.load")
+    configuration_path, repository_id = configuration.check_loaded()
+
+    result = _create_watcher(configuration_path, repository_id)
+    assert isinstance(result, Watcher)
+    database_mock.assert_called_once()
+    client_mock.assert_called_once()
+
+
 async def test_on_shutdown(application: Application, mocker: MockerFixture) -> None:
     """
     must write information to log
@@ -137,20 +152,6 @@ def test_run_with_socket(application: Application, mocker: MockerFixture) -> Non
         application, host="127.0.0.1", port=port, sock=42, handle_signals=True,
         access_log=pytest.helpers.anyvar(int),
     )
-
-
-def test_create_watcher(configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must create watcher for repository
-    """
-    database_mock = mocker.patch("ahriman.core.database.SQLite.load")
-    client_mock = mocker.patch("ahriman.core.status.Client.load")
-    configuration_path, repository_id = configuration.check_loaded()
-
-    result = _create_watcher(configuration_path, repository_id)
-    assert isinstance(result, Watcher)
-    database_mock.assert_called_once()
-    client_mock.assert_called_once()
 
 
 def test_setup_no_repositories(configuration: Configuration, spawner: Spawn) -> None:

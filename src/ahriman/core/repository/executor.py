@@ -27,7 +27,7 @@ from ahriman.core.build_tools.package_archive import PackageArchive
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
-from ahriman.core.utils import atomic_move, filelock, list_flatmap, package_like, safe_filename, symlink_relative
+from ahriman.core.utils import atomic_move, filelock, safe_filename, symlink_relative
 from ahriman.models.changes import Changes
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -40,34 +40,6 @@ class Executor(PackageInfo, Cleaner):
     """
     trait for common repository update processes
     """
-
-    def _archive_lookup(self, package: Package) -> list[Path]:
-        """
-        check if there is a rebuilt package already
-
-        Args:
-            package(Package): package to check
-
-        Returns:
-            list[Path]: list of built packages and signatures if available, empty list otherwise
-        """
-        archive = self.paths.archive_for(package.base)
-        if not archive.is_dir():
-            return []
-
-        for path in filter(package_like, archive.iterdir()):
-            # check if package version is the same
-            built = Package.from_archive(path)
-            if built.version != package.version:
-                continue
-
-            # all packages must be either any or same architecture
-            if not built.supports_architecture(self.repository_id.architecture):
-                continue
-
-            return list_flatmap(built.packages.values(), lambda single: archive.glob(f"{single.filename}*"))
-
-        return []
 
     def _archive_rename(self, description: PackageDescription, package_base: str) -> None:
         """
@@ -106,7 +78,7 @@ class Executor(PackageInfo, Cleaner):
         commit_sha = task.init(path, patches, local_version)
 
         loaded_package = Package.from_build(path, self.repository_id.architecture, None)
-        if prebuilt := list(self._archive_lookup(loaded_package)):
+        if prebuilt := self.package_archives_lookup(loaded_package):
             self.logger.info("using prebuilt packages for %s-%s", loaded_package.base, loaded_package.version)
             built = []
             for artifact in prebuilt:
