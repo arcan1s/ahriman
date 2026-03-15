@@ -131,6 +131,19 @@ def test_package_status_update(watcher: Watcher, package_ahriman: Package, mocke
     assert status.status == BuildStatusEnum.Success
 
 
+def test_package_status_update_preserves_hold(watcher: Watcher, package_ahriman: Package,
+                                              mocker: MockerFixture) -> None:
+    """
+    must preserve hold status on package status update
+    """
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_status_update")
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus(is_held=True))}
+
+    watcher.package_status_update(package_ahriman.base, BuildStatusEnum.Success)
+    _, status = watcher._known[package_ahriman.base]
+    assert status.is_held is True
+
+
 def test_package_status_update_unknown(watcher: Watcher, package_ahriman: Package) -> None:
     """
     must fail on unknown package status update only
@@ -148,6 +161,18 @@ def test_package_update(watcher: Watcher, package_ahriman: Package, mocker: Mock
     watcher.package_update(package_ahriman, BuildStatusEnum.Unknown)
     assert watcher.packages
     cache_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(int))
+
+
+def test_package_update_preserves_hold(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must preserve hold status on package update
+    """
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_update")
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus(is_held=True))}
+
+    watcher.package_update(package_ahriman, BuildStatusEnum.Success)
+    _, status = watcher._known[package_ahriman.base]
+    assert status.is_held is True
 
 
 def test_status_update(watcher: Watcher) -> None:
