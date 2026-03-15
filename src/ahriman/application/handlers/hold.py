@@ -43,7 +43,7 @@ class Hold(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        client = Application(repository_id, configuration, report=report).reporter
+        client = Application(repository_id, configuration, report=True).reporter
 
         match args.action:
             case Action.Remove:
