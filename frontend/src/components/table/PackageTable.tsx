@@ -107,7 +107,8 @@ export default function PackageTable({ autoRefreshIntervals }: PackageTableProps
                 width: 120,
                 align: "center",
                 headerAlign: "center",
-                renderCell: (params: GridRenderCellParams<PackageRow>) => <StatusCell status={params.row.status} />,
+                renderCell: (params: GridRenderCellParams<PackageRow>) =>
+                    <StatusCell status={params.row.status} isHeld={params.row.isHeld} />,
             },
         ],
         [],

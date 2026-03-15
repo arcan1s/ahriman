@@ -130,6 +130,19 @@ export default function PackageInfoDialog({
         }
     };
 
+    const handleHoldToggle: () => Promise<void> = async () => {
+        if (!localPackageBase || !currentRepository) {
+            return;
+        }
+        try {
+            const newHeldStatus = !(status?.is_held ?? false);
+            await client.service.servicePackageHoldUpdate(localPackageBase, currentRepository, newHeldStatus);
+            void queryClient.invalidateQueries({ queryKey: QueryKeys.package(localPackageBase, currentRepository) });
+        } catch (exception) {
+            showError("Action failed", `Could not update hold status: ${ApiError.errorDetail(exception)}`);
+        }
+    };
+
     const handleDeletePatch: (key: string) => Promise<void> = async key => {
         if (!localPackageBase) {
             return;
@@ -189,6 +202,8 @@ export default function PackageInfoDialog({
             isAuthorized={isAuthorized}
             refreshDatabase={refreshDatabase}
             onRefreshDatabaseChange={setRefreshDatabase}
+            isHeld={status?.is_held ?? false}
+            onHoldToggle={() => void handleHoldToggle()}
             onUpdate={() => void handleUpdate()}
             onRemove={() => void handleRemove()}
             autoRefreshIntervals={autoRefreshIntervals}

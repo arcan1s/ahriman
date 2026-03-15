@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 import { Chip } from "@mui/material";
 import type { BuildStatus } from "models/BuildStatus";
 import type React from "react";
@@ -24,10 +25,12 @@ import { StatusColors } from "theme/StatusColors";
 
 interface StatusCellProps {
     status: BuildStatus;
+    isHeld?: boolean;
 }
 
-export default function StatusCell({ status }: StatusCellProps): React.JSX.Element {
+export default function StatusCell({ status, isHeld }: StatusCellProps): React.JSX.Element {
     return <Chip
+        icon={isHeld ? <PauseCircleIcon /> : undefined}
         label={status}
         size="small"
         sx={{
