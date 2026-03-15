@@ -1,7 +1,6 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig, type Plugin } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 function rename(oldName: string, newName: string): Plugin {
     return {
@@ -16,8 +15,11 @@ function rename(oldName: string, newName: string): Plugin {
 }
 
 export default defineConfig({
-    plugins: [react(), tsconfigPaths(), rename("index.html", "build-status.jinja2")],
+    plugins: [react(), rename("index.html", "build-status.jinja2")],
     base: "/",
+    resolve: {
+        tsconfigPaths: true,
+    },
     build: {
         chunkSizeWarningLimit: 10000,
         emptyOutDir: false,
