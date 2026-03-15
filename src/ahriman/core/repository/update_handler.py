@@ -58,7 +58,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                     continue
             raise UnknownPackageError(package.base)
 
-        ignore_list = self.ignore_list + [
+        ignore_list = self._ignore_list + [
             package.base for package, status in self.reporter.package_get(None) if status.is_held
         ]
 

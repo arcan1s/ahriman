@@ -42,7 +42,6 @@ class RepositoryProperties(EventLogger, LazyLogging):
     Attributes:
         configuration(Configuration): configuration instance
         database(SQLite): database instance
-        ignore_list(list[str]): package bases which will be ignored during auto updates
         pacman(Pacman): alpm wrapper instance
         paths(RepositoryPaths): repository paths instance
         repo(Repo): repo commands wrapper instance
@@ -69,7 +68,7 @@ class RepositoryProperties(EventLogger, LazyLogging):
 
         self.paths: RepositoryPaths = configuration.repository_paths  # additional workaround for pycharm typing
 
-        self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
+        self._ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(repository_id, configuration, refresh_database=refresh_pacman_database)
         self.sign = GPG(configuration)
         self.repo = Repo(self.repository_id.name, self.paths, self.sign.repository_sign_args)
