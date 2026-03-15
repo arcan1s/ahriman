@@ -51,10 +51,12 @@ class BuildStatus:
     Attributes:
         status(BuildStatusEnum): build status
         timestamp(int): build status update time
+        is_held(bool | None): whether package held or not
     """
 
     status: BuildStatusEnum = BuildStatusEnum.Unknown
     timestamp: int = field(default_factory=lambda: int(utcnow().timestamp()))
+    is_held: bool | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
         """
@@ -83,7 +85,7 @@ class BuildStatus:
         Returns:
             str: print-friendly string
         """
-        return f"{self.status.value} ({pretty_datetime(self.timestamp)})"
+        return f"{self.status.value} ({pretty_datetime(self.timestamp)}){" (held)" if self.is_held else ""}"
 
     def view(self) -> dict[str, Any]:
         """
@@ -94,5 +96,6 @@ class BuildStatus:
         """
         return {
             "status": self.status.value,
-            "timestamp": self.timestamp
+            "timestamp": self.timestamp,
+            "is_held": self.is_held,
         }

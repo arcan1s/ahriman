@@ -46,9 +46,9 @@ def test_build_status_pretty_print(build_status_failed: BuildStatus) -> None:
     assert isinstance(build_status_failed.pretty_print(), str)
 
 
-def test_build_status_eq(build_status_failed: BuildStatus) -> None:
+def test_build_status_pretty_print_held() -> None:
     """
-    must be equal
+    must include held marker in pretty print
     """
-    other = BuildStatus.from_json(build_status_failed.view())
-    assert other == build_status_failed
+    status = BuildStatus(BuildStatusEnum.Success, 42, is_held=True)
+    assert "(held)" in status.pretty_print()

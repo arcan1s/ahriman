@@ -28,6 +28,14 @@ ahriman.web.views.v1.packages.dependencies module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.v1.packages.hold module
+-----------------------------------------
+
+.. automodule:: ahriman.web.views.v1.packages.hold
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.v1.packages.logs module
 -----------------------------------------
 

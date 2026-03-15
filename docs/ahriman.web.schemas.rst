@@ -116,6 +116,14 @@ ahriman.web.schemas.file\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.hold\_schema module
+---------------------------------------
+
+.. automodule:: ahriman.web.schemas.hold_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.info\_schema module
 ---------------------------------------
 

@@ -84,6 +84,14 @@ ahriman.application.handlers.help module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.hold module
+----------------------------------------
+
+.. automodule:: ahriman.application.handlers.hold
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.key\_import module
 -----------------------------------------------
 

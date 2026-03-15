@@ -42,7 +42,7 @@ class LocalClient(Client):
         """
         Args:
             repository_id(RepositoryId): repository unique identifier
-            database(SQLite): database instance:
+            database(SQLite): database instance
         """
         self.database = database
         self.repository_id = repository_id
@@ -142,6 +142,16 @@ class LocalClient(Client):
         if package_base is None:
             return packages
         return [(package, status) for package, status in packages if package.base == package_base]
+
+    def package_hold_update(self, package_base: str, *, enabled: bool) -> None:
+        """
+        update package hold status
+
+        Args:
+            package_base(str): package base name
+            enabled(bool): new hold status
+        """
+        self.database.package_hold_update(package_base, self.repository_id, enabled=enabled)
 
     def package_logs_add(self, log_record: LogRecord) -> None:
         """

@@ -78,6 +78,14 @@ export class ServiceClient {
         return this.client.request("/api/v1/service/pgp", { method: "POST", json: data });
     }
 
+    async servicePackageHoldUpdate(packageBase: string, repository: RepositoryId, isHeld: boolean): Promise<void> {
+        return this.client.request(`/api/v1/packages/${encodeURIComponent(packageBase)}/hold`, {
+            method: "POST",
+            query: repository.toQuery(),
+            json: { is_held: isHeld },
+        });
+    }
+
     async serviceRebuild(repository: RepositoryId, packages: string[]): Promise<void> {
         return this.client.request("/api/v1/service/rebuild", {
             method: "POST",

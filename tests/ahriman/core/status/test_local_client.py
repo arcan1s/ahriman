@@ -106,6 +106,15 @@ def test_package_get_package(local_client: LocalClient, package_ahriman: Package
     package_mock.assert_called_once_with(local_client.repository_id)
 
 
+def test_package_hold_update(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must update package hold status
+    """
+    hold_mock = mocker.patch("ahriman.core.database.SQLite.package_hold_update")
+    local_client.package_hold_update(package_ahriman.base, enabled=True)
+    hold_mock.assert_called_once_with(package_ahriman.base, local_client.repository_id, enabled=True)
+
+
 def test_package_logs_add(local_client: LocalClient, package_ahriman: Package, log_record: logging.LogRecord,
                           mocker: MockerFixture) -> None:
     """

@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from collections.abc import Callable
+from dataclasses import replace
 from threading import Lock
 from typing import Any, Self
 
@@ -128,6 +129,19 @@ class Watcher(LazyLogging):
     package_logs_get: Callable[[str, str | None, str | None, int, int], list[LogRecord]]
 
     package_logs_remove: Callable[[str, str | None], None]
+
+    def package_hold_update(self, package_base: str, *, enabled: bool) -> None:
+        """
+        update package hold status
+
+        Args:
+            package_base(str): package base name
+            enabled(bool): new hold status
+        """
+        package, status = self.package_get(package_base)
+        with self._lock:
+            self._known[package_base] = (package, replace(status, is_held=enabled))
+        self.client.package_hold_update(package_base, enabled=enabled)
 
     package_patches_get: Callable[[str, str | None], list[PkgbuildPatch]]
 

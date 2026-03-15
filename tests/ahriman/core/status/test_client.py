@@ -167,6 +167,14 @@ def test_package_get(client: Client, package_ahriman: Package) -> None:
         assert client.package_get(package_ahriman.base)
 
 
+def test_package_hold_update(client: Client, package_ahriman: Package) -> None:
+    """
+    must raise not implemented on hold update
+    """
+    with pytest.raises(NotImplementedError):
+        client.package_hold_update(package_ahriman.base, enabled=True)
+
+
 def test_package_logs_add(client: Client, package_ahriman: Package, log_record: logging.LogRecord) -> None:
     """
     must process log record addition without exception

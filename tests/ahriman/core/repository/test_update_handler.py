@@ -6,7 +6,7 @@ from typing import Any
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.update_handler import UpdateHandler
-from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -114,7 +114,8 @@ def test_updates_aur_ignore(update_handler: UpdateHandler, package_ahriman: Pack
     """
     must skip ignore packages
     """
-    update_handler.ignore_list = [package_ahriman.base]
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_get",
+                 return_value=[(package_ahriman, BuildStatus(is_held=True))])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
 

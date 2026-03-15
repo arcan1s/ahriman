@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import DeleteIcon from "@mui/icons-material/Delete";
+import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import { Button, Checkbox, DialogActions, FormControlLabel } from "@mui/material";
 import AutoRefreshControl from "components/common/AutoRefreshControl";
 import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
@@ -26,6 +28,8 @@ import type React from "react";
 
 interface PackageInfoActionsProps {
     isAuthorized: boolean;
+    isHeld: boolean;
+    onHoldToggle: () => void;
     refreshDatabase: boolean;
     onRefreshDatabaseChange: (checked: boolean) => void;
     onUpdate: () => void;
@@ -39,6 +43,8 @@ export default function PackageInfoActions({
     isAuthorized,
     refreshDatabase,
     onRefreshDatabaseChange,
+    isHeld,
+    onHoldToggle,
     onUpdate,
     onRemove,
     autoRefreshIntervals,
@@ -52,6 +58,9 @@ export default function PackageInfoActions({
                     control={<Checkbox checked={refreshDatabase} onChange={(_, checked) => onRefreshDatabaseChange(checked)} size="small" />}
                     label="update pacman databases"
                 />
+                <Button onClick={onHoldToggle} variant="outlined" color="warning" startIcon={isHeld ? <PlayCircleIcon /> : <PauseCircleIcon />} size="small">
+                    {isHeld ? "unhold" : "hold"}
+                </Button>
                 <Button onClick={onUpdate} variant="contained" color="success" startIcon={<PlayArrowIcon />} size="small">
                     update
                 </Button>

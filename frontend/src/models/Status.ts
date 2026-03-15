@@ -22,4 +22,5 @@ import type { BuildStatus } from "models/BuildStatus";
 export interface Status {
     status: BuildStatus;
     timestamp: number;
+    is_held?: boolean;
 }

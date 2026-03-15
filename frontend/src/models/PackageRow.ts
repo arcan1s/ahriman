@@ -32,6 +32,7 @@ export class PackageRow {
     timestamp: string;
     timestampValue: number;
     status: BuildStatus;
+    isHeld: boolean;
 
     constructor(descriptor: PackageStatus) {
         this.id = descriptor.package.base;
@@ -45,6 +46,7 @@ export class PackageRow {
         this.timestamp = new Date(descriptor.status.timestamp * 1000).toISOStringShort();
         this.timestampValue = descriptor.status.timestamp;
         this.status = descriptor.status.status;
+        this.isHeld = descriptor.status.is_held ?? false;
     }
 
     private static extractListProperties(pkg: PackageStatus["package"], property: "groups" | "licenses"): string[] {

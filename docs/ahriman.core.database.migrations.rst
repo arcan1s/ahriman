@@ -148,6 +148,14 @@ ahriman.core.database.migrations.m017\_pkgbuild module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m018\_package\_hold module
+-----------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m018_package_hold
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
