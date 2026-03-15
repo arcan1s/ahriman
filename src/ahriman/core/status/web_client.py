@@ -314,6 +314,18 @@ class WebClient(Client, SyncAhrimanClient):
 
         return []
 
+    def package_hold_update(self, package_base: str, *, enabled: bool) -> None:
+        """
+        update package hold status
+
+        Args:
+            package_base(str): package base name
+            enabled(bool): new hold status
+        """
+        with contextlib.suppress(Exception):
+            self.make_request("POST", f"{self.address}/api/v1/packages/{url_encode(package_base)}/hold",
+                              params=self.repository_id.query(), json={"is_held": enabled})
+
     def package_logs_add(self, log_record: LogRecord) -> None:
         """
         post log record

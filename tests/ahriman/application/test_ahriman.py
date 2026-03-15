@@ -464,6 +464,30 @@ def test_subparsers_package_status_update_package_status_remove(parser: argparse
     assert dir(args) == dir(reference_args)
 
 
+def test_subparsers_package_hold(parser: argparse.ArgumentParser) -> None:
+    """
+    package-hold command must imply action, lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["package-hold", "ahriman"])
+    assert args.action == Action.Update
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.unsafe
+
+
+def test_subparsers_package_unhold(parser: argparse.ArgumentParser) -> None:
+    """
+    package-unhold command must imply action, lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["package-unhold", "ahriman"])
+    assert args.action == Action.Remove
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.unsafe
+
+
 def test_subparsers_patch_add(parser: argparse.ArgumentParser) -> None:
     """
     patch-add command must imply action, architecture list, exit code, lock, report and repository

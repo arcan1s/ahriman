@@ -17,22 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.models.build_status import BuildStatusEnum
-from ahriman.web.apispec import Schema, fields
+__all__ = ["steps"]
 
 
-class StatusSchema(Schema):
-    """
-    request and response status schema
-    """
-
-    status = fields.Enum(BuildStatusEnum, by_value=True, required=True, metadata={
-        "description": "Current status",
-    })
-    timestamp = fields.Integer(metadata={
-        "description": "Last update timestamp",
-        "example": 1680537091,
-    })
-    is_held = fields.Boolean(metadata={
-        "description": "Package hold status",
-    })
+steps = [
+    """alter table package_statuses add column is_held integer not null default 0""",
+]

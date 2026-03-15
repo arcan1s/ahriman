@@ -211,12 +211,36 @@ class PackageOperations(Operations):
             dict[str, BuildStatus]: map of the package base to its status
         """
         return {
-            row["package_base"]: BuildStatus.from_json({"status": row["status"], "timestamp": row["last_updated"]})
+            row["package_base"]: BuildStatus(row["status"], row["last_updated"], is_held=bool(row["is_held"]))
             for row in connection.execute(
                 """select * from package_statuses where repository = :repository""",
                 {"repository": repository_id.id}
             )
         }
+
+    def package_hold_update(self, package_base: str, repository_id: RepositoryId | None = None, *,
+                            enabled: bool) -> None:
+        """
+        update package hold status
+
+        Args:
+            package_base(str): package base name
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            enabled(bool): new hold status
+        """
+        repository_id = repository_id or self._repository_id
+
+        def run(connection: Connection) -> None:
+            connection.execute(
+                """update package_statuses set is_held = :is_held
+                where package_base = :package_base and repository = :repository""",
+                {
+                    "is_held": int(enabled),
+                    "package_base": package_base,
+                    "repository": repository_id.id,
+                })
+
+        return self.with_connection(run, commit=True)
 
     def package_remove(self, package_base: str, repository_id: RepositoryId | None = None) -> None:
         """

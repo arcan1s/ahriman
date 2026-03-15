@@ -31,6 +31,7 @@ from ahriman.web.schemas.error_schema import ErrorSchema
 from ahriman.web.schemas.event_schema import EventSchema
 from ahriman.web.schemas.event_search_schema import EventSearchSchema
 from ahriman.web.schemas.file_schema import FileSchema
+from ahriman.web.schemas.hold_schema import HoldSchema
 from ahriman.web.schemas.info_schema import InfoSchema
 from ahriman.web.schemas.info_v2_schema import InfoV2Schema
 from ahriman.web.schemas.internal_status_schema import InternalStatusSchema

@@ -58,12 +58,18 @@ class UpdateHandler(PackageInfo, Cleaner):
                     continue
             raise UnknownPackageError(package.base)
 
+        ignore_list = self.ignore_list + [
+            package.base for package, status in self.reporter.package_get(None) if status.is_held
+        ]
+
         result: list[Package] = []
         for local in self.packages(filter_packages):
             with self.in_package_context(local.base, local.version):
                 if not local.remote.is_remote:
+                    self.logger.info("package %s has local source, skip update check", local.base)
                     continue  # avoid checking local packages
-                if local.base in self.ignore_list:
+                if local.base in ignore_list:
+                    self.logger.info("package %s is held, skip update check", local.base)
                     continue
 
                 try:

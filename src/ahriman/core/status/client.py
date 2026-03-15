@@ -199,6 +199,19 @@ class Client:
         """
         raise NotImplementedError
 
+    def package_hold_update(self, package_base: str, *, enabled: bool) -> None:
+        """
+        update package hold status
+
+        Args:
+            package_base(str): package base name
+            enabled(bool): new hold status
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
+
     def package_logs_add(self, log_record: LogRecord) -> None:
         """
         post log record

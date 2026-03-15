@@ -75,6 +75,27 @@ def test_package_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
         watcher.package_get(package_ahriman.base)
 
 
+def test_package_hold_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must update package hold status
+    """
+    cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_hold_update")
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
+
+    watcher.package_hold_update(package_ahriman.base, enabled=True)
+    cache_mock.assert_called_once_with(package_ahriman.base, enabled=True)
+    _, status = watcher._known[package_ahriman.base]
+    assert status.is_held is True
+
+
+def test_package_hold_update_unknown(watcher: Watcher, package_ahriman: Package) -> None:
+    """
+    must fail on unknown package hold update
+    """
+    with pytest.raises(UnknownPackageError):
+        watcher.package_hold_update(package_ahriman.base, enabled=True)
+
+
 def test_package_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must remove package base

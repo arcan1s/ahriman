@@ -103,6 +103,33 @@ def test_packages_get_select_statuses(database: SQLite, connection: Connection) 
     connection.execute(pytest.helpers.anyvar(str, strict=True))
 
 
+def test_package_hold_update(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must update package hold status
+    """
+    database.package_update(package_ahriman)
+    database.status_update(package_ahriman.base, BuildStatus())
+
+    database.package_hold_update(package_ahriman.base, enabled=True)
+    assert next(status.is_held for _, status in database.packages_get())
+
+    database.package_hold_update(package_ahriman.base, enabled=False)
+    assert not next(status.is_held for _, status in database.packages_get())
+
+
+def test_package_hold_update_preserves_on_package_update(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must preserve hold status on regular package update
+    """
+    database.package_update(package_ahriman)
+    database.status_update(package_ahriman.base, BuildStatus())
+    database.package_hold_update(package_ahriman.base, enabled=True)
+
+    package_ahriman.version = "1.0.0"
+    database.package_update(package_ahriman)
+    assert next(status.is_held for _, status in database.packages_get())
+
+
 def test_package_remove(database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must totally remove package from the database
@@ -156,8 +183,9 @@ def test_package_update_get(database: SQLite, package_ahriman: Package) -> None:
     status = BuildStatus()
     database.package_update(package_ahriman)
     database.status_update(package_ahriman.base, status)
+    expected = BuildStatus(status.status, status.timestamp, is_held=False)
     assert next((db_package, db_status)
-                for db_package, db_status in database.packages_get()) == (package_ahriman, status)
+                for db_package, db_status in database.packages_get()) == (package_ahriman, expected)
 
 
 def test_package_update_remove_get(database: SQLite, package_ahriman: Package) -> None:
@@ -189,7 +217,8 @@ def test_status_update(database: SQLite, package_ahriman: Package) -> None:
 
     database.package_update(package_ahriman)
     database.status_update(package_ahriman.base, status)
-    assert database.packages_get() == [(package_ahriman, status)]
+    expected = BuildStatus(status.status, status.timestamp, is_held=False)
+    assert database.packages_get() == [(package_ahriman, expected)]
 
 
 def test_status_update_skip_same_status(database: SQLite, package_ahriman: Package) -> None:

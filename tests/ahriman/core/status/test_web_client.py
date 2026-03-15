@@ -643,6 +643,34 @@ def test_package_get_single(web_client: WebClient, package_ahriman: Package, moc
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
 
 
+def test_package_hold_update(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must update hold status
+    """
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+
+    web_client.package_hold_update(package_ahriman.base, enabled=True)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(), json={"is_held": True})
+
+
+def test_package_hold_update_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during hold update
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception)
+    web_client.package_hold_update(package_ahriman.base, enabled=True)
+
+
+def test_package_hold_update_failed_http_error(web_client: WebClient, package_ahriman: Package,
+                                               mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during hold update
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
+    web_client.package_hold_update(package_ahriman.base, enabled=True)
+
+
 def test_package_logs_add(web_client: WebClient, log_record: logging.LogRecord, package_ahriman: Package,
                           mocker: MockerFixture) -> None:
     """
