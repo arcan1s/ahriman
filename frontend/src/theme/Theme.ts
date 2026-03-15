@@ -21,16 +21,24 @@ import { createTheme, type Theme } from "@mui/material/styles";
 
 export function createAppTheme(mode: "light" | "dark"): Theme {
     return createTheme({
-        palette: {
-            mode,
-        },
         components: {
-            MuiDialog: {
-                defaultProps: {
-                    maxWidth: "lg",
-                    fullWidth: true,
+            MuiButton: {
+                styleOverrides: {
+                    startIcon: {
+                        alignItems: "center",
+                        display: "flex",
+                    },
                 },
             },
+            MuiDialog: {
+                defaultProps: {
+                    fullWidth: true,
+                    maxWidth: "lg",
+                },
+            },
+        },
+        palette: {
+            mode,
         },
     });
 }
