@@ -30,10 +30,11 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.core.status import Client
-from ahriman.core.utils import package_like
+from ahriman.core.utils import list_flatmap, package_like
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class PackageInfo(LazyLogging):
@@ -43,12 +44,14 @@ class PackageInfo(LazyLogging):
     Attributes:
         configuration(Configuration): configuration instance
         pacman(Pacman): alpm wrapper instance
+        paths(RepositoryPaths): repository paths instance
         reporter(Client): build status reporter instance
         repository_id(RepositoryId): repository unique identifier
     """
 
     configuration: Configuration
     pacman: Pacman
+    paths: RepositoryPaths
     reporter: Client
     repository_id: RepositoryId
 
@@ -130,11 +133,9 @@ class PackageInfo(LazyLogging):
         Returns:
             list[Package]: list of packages belonging to this base, sorted by version by ascension
         """
-        paths = self.configuration.repository_paths
-
         packages: dict[tuple[str, str], Package] = {}
         # we can't use here load_archives, because it ignores versions
-        for full_path in filter(package_like, paths.archive_for(package_base).iterdir()):
+        for full_path in filter(package_like, self.paths.archive_for(package_base).iterdir()):
             local = Package.from_archive(full_path)
             if not local.supports_architecture(self.repository_id.architecture):
                 continue
@@ -142,6 +143,34 @@ class PackageInfo(LazyLogging):
 
         comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)
         return sorted(packages.values(), key=cmp_to_key(comparator))
+
+    def package_archives_lookup(self, package: Package) -> list[Path]:
+        """
+        check if there is a rebuilt package already
+
+        Args:
+            package(Package): package to check
+
+        Returns:
+            list[Path]: list of built packages and signatures if available, empty list otherwise
+        """
+        archive = self.paths.archive_for(package.base)
+        if not archive.is_dir():
+            return []
+
+        for path in filter(package_like, archive.iterdir()):
+            # check if package version is the same
+            built = Package.from_archive(path)
+            if built.version != package.version:
+                continue
+
+            # all packages must be either any or same architecture
+            if not built.supports_architecture(self.repository_id.architecture):
+                continue
+
+            return list_flatmap(built.packages.values(), lambda single: archive.glob(f"{single.filename}*"))
+
+        return []
 
     def package_changes(self, package: Package, last_commit_sha: str) -> Changes | None:
         """
@@ -157,7 +186,7 @@ class PackageInfo(LazyLogging):
         with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
             dir_path = Path(dir_name)
             patches = self.reporter.package_patches_get(package.base, None)
-            current_commit_sha = Sources.load(dir_path, package, patches, self.configuration.repository_paths)
+            current_commit_sha = Sources.load(dir_path, package, patches, self.paths)
 
             if current_commit_sha != last_commit_sha:
                 return Sources.changes(dir_path, last_commit_sha)
@@ -173,7 +202,7 @@ class PackageInfo(LazyLogging):
         Returns:
             list[Package]: list of packages properties
         """
-        packages = self.load_archives(filter(package_like, self.configuration.repository_paths.repository.iterdir()))
+        packages = self.load_archives(filter(package_like, self.paths.repository.iterdir()))
         if filter_packages:
             packages = [package for package in packages if package.base in filter_packages]
 
@@ -186,7 +215,7 @@ class PackageInfo(LazyLogging):
         Returns:
             list[Path]: list of filenames from the directory
         """
-        return list(filter(package_like, self.configuration.repository_paths.packages.iterdir()))
+        return list(filter(package_like, self.paths.packages.iterdir()))
 
     def packages_depend_on(self, packages: list[Package], depends_on: Iterable[str] | None) -> list[Package]:
         """
