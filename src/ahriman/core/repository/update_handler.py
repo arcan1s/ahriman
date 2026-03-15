@@ -66,7 +66,6 @@ class UpdateHandler(PackageInfo, Cleaner):
         for local in self.packages(filter_packages):
             with self.in_package_context(local.base, local.version):
                 if not local.remote.is_remote:
-                    self.logger.info("package %s has local source, skip update check", local.base)
                     continue  # avoid checking local packages
                 if local.base in ignore_list:
                     self.logger.info("package %s is held, skip update check", local.base)
