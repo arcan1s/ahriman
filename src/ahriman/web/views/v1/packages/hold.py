@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound
 from typing import ClassVar
 
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
 from ahriman.web.schemas import HoldSchema, PackageNameSchema, RepositoryIdSchema
@@ -44,7 +45,7 @@ class HoldView(StatusViewGuard, BaseView):
         description="Set package hold status",
         permission=POST_PERMISSION,
         error_400_enabled=True,
-        error_404_description="Repository is unknown",
+        error_404_description="Package base and/or repository are unknown",
         match_schema=PackageNameSchema,
         query_schema=RepositoryIdSchema,
         body_schema=HoldSchema,
@@ -56,6 +57,7 @@ class HoldView(StatusViewGuard, BaseView):
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
+            HTTPNotFound: if no package was found
         """
         package_base = self.request.match_info["package"]
 
@@ -65,6 +67,9 @@ class HoldView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service(package_base=package_base).package_hold_update(package_base, enabled=is_held)
+        try:
+            self.service().package_hold_update(package_base, enabled=is_held)
+        except UnknownPackageError:
+            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
         raise HTTPNoContent

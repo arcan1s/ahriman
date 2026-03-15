@@ -38,6 +38,17 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     assert response.status == 204
 
 
+async def test_post_not_found(client: TestClient, package_ahriman: Package) -> None:
+    """
+    must return Not Found for unknown package
+    """
+    response_schema = pytest.helpers.schema_response(HoldView.post, code=404)
+
+    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/hold", json={"is_held": False})
+    assert response.status == 404
+    assert not response_schema.validate(await response.json())
+
+
 async def test_post_exception(client: TestClient, package_ahriman: Package) -> None:
     """
     must raise exception on invalid payload
