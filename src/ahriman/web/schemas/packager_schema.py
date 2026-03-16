@@ -17,18 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.web.apispec import fields
-from ahriman.web.schemas.packager_schema import PackagerSchema
+from ahriman.web.apispec import Schema, fields
 
 
-class BuildOptionsSchema(PackagerSchema):
+class PackagerSchema(Schema):
     """
-    request build options schema
+    request packager schema
     """
 
-    increment = fields.Boolean(dump_default=True, metadata={
-        "description": "Increment pkgrel on conflicts",
-    })
-    refresh = fields.Boolean(dump_default=True, metadata={
-        "description": "Refresh pacman database"
+    packager = fields.String(metadata={
+        "description": "Packager identity if applicable",
     })

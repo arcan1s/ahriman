@@ -48,22 +48,7 @@ class Update(Handler):
         """
         application = Application(repository_id, configuration, report=report, refresh_pacman_database=args.refresh)
         application.on_start()
-
-        packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
-                                       check_files=args.check_files)
-        if args.changes:  # generate changes if requested
-            application.changes(packages)
-
-        if args.dry_run:  # exit from application if no build requested
-            Update.check_status(args.exit_code, packages)  # status code check
-            return
-
-        packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
-        packagers = Packagers(args.username, {package.base: package.packager for package in packages})
-
-        application.print_updates(packages, log_fn=application.logger.info)
-        result = application.update(packages, packagers, bump_pkgrel=args.increment)
-        Update.check_status(args.exit_code, not result.is_empty)
+        Update.perform_action(application, args)
 
     @staticmethod
     def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
@@ -152,6 +137,31 @@ class Update(Handler):
         def inner(line: str) -> None:
             return print(line) if dry_run else application.logger.info(line)  # pylint: disable=bad-builtin
         return inner
+
+    @staticmethod
+    def perform_action(application: Application, args: argparse.Namespace) -> None:
+        """
+        perform update action
+
+        Args:
+            application(Application): application instance
+            args(argparse.Namespace): command line args
+        """
+        packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
+                                       check_files=args.check_files)
+        if args.changes:  # generate changes if requested
+            application.changes(packages)
+
+        if args.dry_run:  # exit from application if no build requested
+            Update.check_status(args.exit_code, packages)  # status code check
+            return
+
+        packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
+        packagers = Packagers(args.username, {package.base: package.packager for package in packages})
+
+        application.print_updates(packages, log_fn=application.logger.info)
+        result = application.update(packages, packagers, bump_pkgrel=args.increment)
+        Update.check_status(args.exit_code, not result.is_empty)
 
     arguments = [
         _set_repo_check_parser,

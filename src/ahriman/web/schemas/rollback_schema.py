@@ -17,18 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from ahriman import __version__
 from ahriman.web.apispec import fields
 from ahriman.web.schemas.packager_schema import PackagerSchema
 
 
-class BuildOptionsSchema(PackagerSchema):
+class RollbackSchema(PackagerSchema):
     """
-    request build options schema
+    request schema for package rollback
     """
 
-    increment = fields.Boolean(dump_default=True, metadata={
-        "description": "Increment pkgrel on conflicts",
+    hold = fields.Boolean(dump_default=True, metadata={
+        "description": "Hold package after rollback",
     })
-    refresh = fields.Boolean(dump_default=True, metadata={
-        "description": "Refresh pacman database"
+    package = fields.String(required=True, metadata={
+        "description": "Package name",
+        "example": "ahriman",
+    })
+    version = fields.String(required=True, metadata={
+        "description": "Package version",
+        "example": __version__,
     })

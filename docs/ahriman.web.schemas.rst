@@ -252,6 +252,14 @@ ahriman.web.schemas.package\_version\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.packager\_schema module
+-------------------------------------------
+
+.. automodule:: ahriman.web.schemas.packager_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.pagination\_schema module
 ---------------------------------------------
 
@@ -328,6 +336,14 @@ ahriman.web.schemas.repository\_stats\_schema module
 ----------------------------------------------------
 
 .. automodule:: ahriman.web.schemas.repository_stats_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.rollback\_schema module
+-------------------------------------------
+
+.. automodule:: ahriman.web.schemas.rollback_schema
    :members:
    :no-undoc-members:
    :show-inheritance:

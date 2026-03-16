@@ -25,7 +25,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.build_tools.package_version import PackageVersion
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -89,19 +88,21 @@ class PackageInfo(LazyLogging):
 
         return sorted(result)
 
-    def load_archives(self, packages: Iterable[Path]) -> list[Package]:
+    def load_archives(self, packages: Iterable[Path], *, latest_only: bool = True) -> list[Package]:
         """
         load packages from list of archives
 
         Args:
             packages(Iterable[Path]): paths to package archives
+            latest_only(bool, optional): filter packages with the same base, keeping only fresh packages installed
+                (Default value = True)
 
         Returns:
             list[Package]: list of read packages
         """
         sources = {package.base: package.remote for package, _, in self.reporter.package_get(None)}
 
-        result: dict[str, Package] = {}
+        result: dict[str, dict[str, Package]] = {}
         # we are iterating over bases, not single packages
         for full_path in packages:
             try:
@@ -109,17 +110,23 @@ class PackageInfo(LazyLogging):
                 if (source := sources.get(local.base)) is not None:  # update source with remote
                     local.remote = source
 
-                current = result.setdefault(local.base, local)
-                if current.version != local.version:
-                    # force version to max of them
-                    self.logger.warning("version of %s differs, found %s and %s",
-                                        current.base, current.version, local.version)
-                    if PackageVersion(current).is_outdated(local, self.configuration, calculate_version=False):
-                        current.version = local.version
+                loaded_versions = result.setdefault(local.base, {})
+                current = loaded_versions.setdefault(local.version, local)
                 current.packages.update(local.packages)
             except Exception:
                 self.logger.exception("could not load package from %s", full_path)
-        return list(result.values())
+
+        if latest_only:
+            comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)
+            for package_base, versions in result.items():
+                newest = max(versions.values(), key=cmp_to_key(comparator))
+                result[package_base] = {newest.version: newest}
+
+        return [
+            package
+            for versions in result.values()
+            for package in versions.values()
+        ]
 
     def package_archives(self, package_base: str) -> list[Package]:
         """
@@ -133,16 +140,17 @@ class PackageInfo(LazyLogging):
         Returns:
             list[Package]: list of packages belonging to this base, sorted by version by ascension
         """
-        packages: dict[tuple[str, str], Package] = {}
-        # we can't use here load_archives, because it ignores versions
-        for full_path in filter(package_like, self.paths.archive_for(package_base).iterdir()):
-            local = Package.from_archive(full_path)
-            if not local.supports_architecture(self.repository_id.architecture):
-                continue
-            packages.setdefault((local.base, local.version), local).packages.update(local.packages)
+        archive = self.paths.archive_for(package_base)
+        if not archive.is_dir():
+            return []
+
+        packages = self.load_archives(filter(package_like, archive.iterdir()), latest_only=False)
 
         comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)
-        return sorted(packages.values(), key=cmp_to_key(comparator))
+        return sorted(
+            (package for package in packages if package.supports_architecture(self.repository_id.architecture)),
+            key=cmp_to_key(comparator),
+        )
 
     def package_archives_lookup(self, package: Package) -> list[Path]:
         """
@@ -155,17 +163,9 @@ class PackageInfo(LazyLogging):
             list[Path]: list of built packages and signatures if available, empty list otherwise
         """
         archive = self.paths.archive_for(package.base)
-        if not archive.is_dir():
-            return []
 
-        for path in filter(package_like, archive.iterdir()):
-            # check if package version is the same
-            built = Package.from_archive(path)
+        for built in self.package_archives(package.base):
             if built.version != package.version:
-                continue
-
-            # all packages must be either any or same architecture
-            if not built.supports_architecture(self.repository_id.architecture):
                 continue
 
             return list_flatmap(built.packages.values(), lambda single: archive.glob(f"{single.filename}*"))

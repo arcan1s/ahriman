@@ -43,14 +43,13 @@ class UpdateView(BaseView):
         description="Run repository update process",
         permission=POST_PERMISSION,
         error_400_enabled=True,
-        error_404_description="Repository is unknown",
         schema=ProcessIdSchema,
         query_schema=RepositoryIdSchema,
         body_schema=UpdateFlagsSchema,
     )
     async def post(self) -> Response:
         """
-        run repository update. No parameters supported here
+        run repository update
 
         Returns:
             Response: 200 with spawned process id

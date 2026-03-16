@@ -44,7 +44,6 @@ class RequestView(BaseView):
         description="Request new package(s) to be added from AUR",
         permission=POST_PERMISSION,
         error_400_enabled=True,
-        error_404_description="Repository is unknown",
         schema=ProcessIdSchema,
         query_schema=RepositoryIdSchema,
         body_schema=PackagePatchSchema,

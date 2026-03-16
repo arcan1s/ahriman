@@ -21,10 +21,10 @@ import argparse
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
+from ahriman.application.handlers.update import Update
 from ahriman.core.configuration import Configuration
 from ahriman.core.utils import enum_values, extract_user
 from ahriman.models.package_source import PackageSource
-from ahriman.models.packagers import Packagers
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
 
@@ -48,26 +48,7 @@ class Add(Handler):
         """
         application = Application(repository_id, configuration, report=report, refresh_pacman_database=args.refresh)
         application.on_start()
-
-        application.add(args.package, args.source, args.username)
-        patches = [PkgbuildPatch.from_env(patch) for patch in args.variable] if args.variable is not None else []
-        for package in args.package:  # for each requested package insert patch
-            for patch in patches:
-                application.reporter.package_patches_update(package, patch)
-
-        if not args.now:
-            return
-
-        packages = application.updates(args.package, aur=False, local=False, manual=True, vcs=False, check_files=False)
-        if args.changes:  # generate changes if requested
-            application.changes(packages)
-
-        packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
-        packagers = Packagers(args.username, {package.base: package.packager for package in packages})
-
-        application.print_updates(packages, log_fn=application.logger.info)
-        result = application.update(packages, packagers, bump_pkgrel=args.increment)
-        Add.check_status(args.exit_code, not result.is_empty)
+        Add.perform_action(application, args)
 
     @staticmethod
     def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
@@ -103,14 +84,34 @@ class Add(Handler):
         parser.add_argument("--increment", help="increment package release (pkgrel) version on duplicate",
                             action=argparse.BooleanOptionalAction, default=True)
         parser.add_argument("-n", "--now", help="run update function after", action="store_true")
-        parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
-                                                    "-yy to force refresh even if up to date",
-                            action="count", default=False)
         parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
                             type=PackageSource, choices=enum_values(PackageSource), default=PackageSource.Auto)
         parser.add_argument("-u", "--username", help="build as user", default=extract_user())
         parser.add_argument("-v", "--variable", help="apply specified makepkg variables to the next build",
                             action="append")
+        parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
+                                                    "-yy to force refresh even if up to date",
+                            action="count", default=False)
+        parser.set_defaults(aur=False, check_files=False, dry_run=False, local=False, manual=True, vcs=False)
         return parser
+
+    @staticmethod
+    def perform_action(application: Application, args: argparse.Namespace) -> None:
+        """
+        perform add action
+
+        Args:
+            application(Application): application instance
+            args(argparse.Namespace): command line args
+        """
+        application.add(args.package, args.source, args.username)
+        patches = [PkgbuildPatch.from_env(patch) for patch in args.variable] if args.variable is not None else []
+        for package in args.package:  # for each requested package insert patch
+            for patch in patches:
+                application.reporter.package_patches_update(package, patch)
+
+        if not args.now:
+            return
+        Update.perform_action(application, args)
 
     arguments = [_set_package_add_parser]

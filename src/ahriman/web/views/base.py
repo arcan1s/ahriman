@@ -227,7 +227,7 @@ class BaseView(View, CorsViewMixin):
         extract repository from request
 
         Returns:
-            RepositoryIde: repository if possible to construct and first one otherwise
+            RepositoryId: repository if possible to construct and first one otherwise
         """
         architecture = self.request.query.get("architecture")
         name = self.request.query.get("repository")

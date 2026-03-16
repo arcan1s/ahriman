@@ -118,7 +118,6 @@ class UploadView(BaseView):
         permission=POST_PERMISSION,
         response_code=HTTPCreated,
         error_400_enabled=True,
-        error_404_description="Repository is unknown",
         query_schema=RepositoryIdSchema,
         body_schema=FileSchema,
         body_location="form",

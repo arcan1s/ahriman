@@ -271,6 +271,18 @@ def test_subparsers_package_add_option_variable_multiple(parser: argparse.Argume
     assert args.variable == ["var1", "var2"]
 
 
+def test_subparsers_package_add_repo_update(parser: argparse.ArgumentParser) -> None:
+    """
+    package-add must have same keys as repo-update
+    """
+    args = parser.parse_args(["package-add", "ahriman"])
+    reference_args = parser.parse_args(["repo-update"])
+    del args.now
+    del args.source
+    del args.variable
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_package_archives(parser: argparse.ArgumentParser) -> None:
     """
     package-archives command must imply action, exit code, info, lock, quiet, report and unsafe
@@ -325,6 +337,26 @@ def test_subparsers_package_changes_remove_package_changes(parser: argparse.Argu
     assert dir(args) == dir(reference_args)
 
 
+def test_subparsers_package_copy_option_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    package-copy command must correctly parse architecture list
+    """
+    args = parser.parse_args(["package-copy", "source", "ahriman"])
+    assert args.architecture is None
+    args = parser.parse_args(["-a", "x86_64", "package-copy", "source", "ahriman"])
+    assert args.architecture == "x86_64"
+
+
+def test_subparsers_package_copy_option_repository(parser: argparse.ArgumentParser) -> None:
+    """
+    package-copy command must correctly parse repository list
+    """
+    args = parser.parse_args(["package-copy", "source", "ahriman"])
+    assert args.repository is None
+    args = parser.parse_args(["-r", "repo", "package-copy", "source", "ahriman"])
+    assert args.repository == "repo"
+
+
 def test_subparsers_package_pkgbuild(parser: argparse.ArgumentParser) -> None:
     """
     package-pkgbuild command must imply action, exit code, lock, quiet, report and unsafe
@@ -363,26 +395,6 @@ def test_subparsers_package_pkgbuild_remove_package_pkgbuild(parser: argparse.Ar
     assert dir(args) == dir(reference_args)
 
 
-def test_subparsers_package_copy_option_architecture(parser: argparse.ArgumentParser) -> None:
-    """
-    package-copy command must correctly parse architecture list
-    """
-    args = parser.parse_args(["package-copy", "source", "ahriman"])
-    assert args.architecture is None
-    args = parser.parse_args(["-a", "x86_64", "package-copy", "source", "ahriman"])
-    assert args.architecture == "x86_64"
-
-
-def test_subparsers_package_copy_option_repository(parser: argparse.ArgumentParser) -> None:
-    """
-    package-copy command must correctly parse repository list
-    """
-    args = parser.parse_args(["package-copy", "source", "ahriman"])
-    assert args.repository is None
-    args = parser.parse_args(["-r", "repo", "package-copy", "source", "ahriman"])
-    assert args.repository == "repo"
-
-
 def test_subparsers_package_remove_option_architecture(parser: argparse.ArgumentParser) -> None:
     """
     package-remove command must correctly parse architecture list
@@ -401,6 +413,68 @@ def test_subparsers_package_remove_option_repository(parser: argparse.ArgumentPa
     assert args.repository is None
     args = parser.parse_args(["-r", "repo", "package-remove", "ahriman"])
     assert args.repository == "repo"
+
+
+def test_subparsers_package_rollback(parser: argparse.ArgumentParser) -> None:
+    """
+    package-rollback command must imply aur, changes, check-files, dependencies, dry-run, exit-code, increment, now,
+    local, manual, refresh, source, variable and vcs
+    """
+    args = parser.parse_args(["package-rollback", "ahriman", "1.0.0-1"])
+    assert not args.aur
+    assert not args.changes
+    assert not args.check_files
+    assert not args.dependencies
+    assert not args.dry_run
+    assert args.exit_code
+    assert not args.increment
+    assert not args.local
+    assert not args.manual
+    assert args.now
+    assert not args.refresh
+    assert not args.vcs
+    assert args.variable is None
+
+
+def test_subparsers_package_rollback_option_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    package-rollback command must correctly parse architecture list
+    """
+    args = parser.parse_args(["package-rollback", "ahriman", "1.0.0-1"])
+    assert args.architecture is None
+    args = parser.parse_args(["-a", "x86_64", "package-rollback", "ahriman", "1.0.0-1"])
+    assert args.architecture == "x86_64"
+
+
+def test_subparsers_package_rollback_option_repository(parser: argparse.ArgumentParser) -> None:
+    """
+    package-rollback command must correctly parse repository list
+    """
+    args = parser.parse_args(["package-rollback", "ahriman", "1.0.0-1"])
+    assert args.repository is None
+    args = parser.parse_args(["-r", "repo", "package-rollback", "ahriman", "1.0.0-1"])
+    assert args.repository == "repo"
+
+
+def test_subparsers_package_rollback_option_hold(parser: argparse.ArgumentParser) -> None:
+    """
+    package-rollback command must correctly parse hold option
+    """
+    args = parser.parse_args(["package-rollback", "ahriman", "1.0.0-1"])
+    assert args.hold
+    args = parser.parse_args(["package-rollback", "ahriman", "1.0.0-1", "--no-hold"])
+    assert not args.hold
+
+
+def test_subparsers_package_rollback_package_add(parser: argparse.ArgumentParser) -> None:
+    """
+    package-rollback must have same keys as package-add
+    """
+    args = parser.parse_args(["package-rollback", "ahriman", "1.0.0-1"])
+    reference_args = parser.parse_args(["package-add", "ahriman"])
+    del args.hold
+    del args.version
+    assert dir(args) == dir(reference_args)
 
 
 def test_subparsers_package_status(parser: argparse.ArgumentParser) -> None:

@@ -104,6 +104,7 @@ def _create_watcher(path: Path, repository_id: RepositoryId) -> Watcher:
     package_info = PackageInfo()
     package_info.configuration = configuration
     package_info.paths = configuration.repository_paths
+    package_info.reporter = client
     package_info.repository_id = repository_id
 
     return Watcher(client, package_info)

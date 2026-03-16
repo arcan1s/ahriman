@@ -156,11 +156,14 @@ class ApplicationRepository(ApplicationProperties):
         result = Result()
 
         # process already built packages if any
-        built_packages = self.repository.packages_built()
-        if built_packages:  # speedup a bit
+        if built_packages := self.repository.packages_built():  # speedup a bit
             build_result = self.repository.process_update(built_packages, packagers)
             self.on_result(build_result)
             result.merge(build_result)
+
+            # filter packages which were prebuilt
+            succeeded = {package.base for package in build_result.success}
+            updates = [package for package in updates if package.base not in succeeded]
 
         builder = Updater.load(self.repository_id, self.configuration, self.repository)
 
