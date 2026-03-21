@@ -43,7 +43,6 @@ class RebuildView(BaseView):
         description="Rebuild packages which depend on specified one",
         permission=POST_PERMISSION,
         error_400_enabled=True,
-        error_404_description="Repository is unknown",
         schema=ProcessIdSchema,
         query_schema=RepositoryIdSchema,
         body_schema=PackageNamesSchema,

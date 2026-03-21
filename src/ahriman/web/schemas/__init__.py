@@ -48,6 +48,7 @@ from ahriman.web.schemas.package_properties_schema import PackagePropertiesSchem
 from ahriman.web.schemas.package_schema import PackageSchema
 from ahriman.web.schemas.package_status_schema import PackageStatusSchema, PackageStatusSimplifiedSchema
 from ahriman.web.schemas.package_version_schema import PackageVersionSchema
+from ahriman.web.schemas.packager_schema import PackagerSchema
 from ahriman.web.schemas.pagination_schema import PaginationSchema
 from ahriman.web.schemas.patch_name_schema import PatchNameSchema
 from ahriman.web.schemas.patch_schema import PatchSchema
@@ -58,6 +59,7 @@ from ahriman.web.schemas.process_schema import ProcessSchema
 from ahriman.web.schemas.remote_schema import RemoteSchema
 from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
 from ahriman.web.schemas.repository_stats_schema import RepositoryStatsSchema
+from ahriman.web.schemas.rollback_schema import RollbackSchema
 from ahriman.web.schemas.search_schema import SearchSchema
 from ahriman.web.schemas.status_schema import StatusSchema
 from ahriman.web.schemas.update_flags_schema import UpdateFlagsSchema

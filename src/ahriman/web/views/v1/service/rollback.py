@@ -22,34 +22,34 @@ from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
-from ahriman.web.schemas import PackageNamesSchema, ProcessIdSchema, RepositoryIdSchema
+from ahriman.web.schemas import ProcessIdSchema, RepositoryIdSchema, RollbackSchema
 from ahriman.web.views.base import BaseView
 
 
-class RemoveView(BaseView):
+class RollbackView(BaseView):
     """
-    remove package web view
+    package rollback web view
 
     Attributes:
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
-    ROUTES = ["/api/v1/service/remove"]
+    ROUTES = ["/api/v1/service/rollback"]
 
     @apidocs(
         tags=["Actions"],
-        summary="Remove packages",
-        description="Remove specified packages from the repository",
+        summary="Rollback package",
+        description="Rollback package to specified version",
         permission=POST_PERMISSION,
         error_400_enabled=True,
         schema=ProcessIdSchema,
         query_schema=RepositoryIdSchema,
-        body_schema=PackageNamesSchema,
+        body_schema=RollbackSchema,
     )
     async def post(self) -> Response:
         """
-        remove existing packages
+        run package rollback
 
         Returns:
             Response: 200 with spawned process id
@@ -59,11 +59,19 @@ class RemoveView(BaseView):
         """
         try:
             data = await self.request.json()
-            packages = self.get_non_empty(lambda key: [package for package in data[key] if package], "packages")
+            package = self.get_non_empty(lambda key: data[key], "package")
+            version = self.get_non_empty(lambda key: data[key], "version")
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
         repository_id = self.repository_id()
-        process_id = self.spawner.packages_remove(repository_id, packages)
+        username = await self.username()
+        process_id = self.spawner.packages_rollback(
+            repository_id,
+            package,
+            version,
+            username,
+            hold=data.get("hold", True),
+        )
 
         return self.json_response({"process_id": process_id})

@@ -23,6 +23,7 @@ import type { PackageActionRequest } from "models/PackageActionRequest";
 import type { PGPKey } from "models/PGPKey";
 import type { PGPKeyRequest } from "models/PGPKeyRequest";
 import type { RepositoryId } from "models/RepositoryId";
+import type { RollbackRequest } from "models/RollbackRequest";
 
 export class ServiceClient {
 
@@ -39,6 +40,14 @@ export class ServiceClient {
     async servicePackagePatchRemove(packageBase: string, key: string): Promise<void> {
         return this.client.request(`/api/v1/packages/${encodeURIComponent(packageBase)}/patches/${encodeURIComponent(key)}`, {
             method: "DELETE",
+        });
+    }
+
+    async servicePackageRollback(repository: RepositoryId, data: RollbackRequest): Promise<void> {
+        return this.client.request("/api/v1/service/rollback", {
+            method: "POST",
+            query: repository.toQuery(),
+            json: data,
         });
     }
 

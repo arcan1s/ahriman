@@ -68,6 +68,14 @@ ahriman.web.views.v1.service.request module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.v1.service.rollback module
+--------------------------------------------
+
+.. automodule:: ahriman.web.views.v1.service.rollback
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.v1.service.search module
 ------------------------------------------
 

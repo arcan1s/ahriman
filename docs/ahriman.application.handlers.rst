@@ -164,6 +164,14 @@ ahriman.application.handlers.restore module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.rollback module
+--------------------------------------------
+
+.. automodule:: ahriman.application.handlers.rollback
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.run module
 ---------------------------------------
 

@@ -196,6 +196,26 @@ def test_packages_remove(spawner: Spawn, repository_id: RepositoryId, mocker: Mo
     spawn_mock.assert_called_once_with(repository_id, "package-remove", "ahriman", "linux")
 
 
+def test_packages_rollback(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call package rollback
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_rollback(repository_id, "ahriman", "1.0.0-1", "packager", hold=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-rollback", "ahriman", "1.0.0-1",
+                                       **{"username": "packager", "no-hold": ""})
+
+
+def test_packages_rollback_with_hold(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call package rollback with hold
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_rollback(repository_id, "ahriman", "1.0.0-1", "packager", hold=True)
+    spawn_mock.assert_called_once_with(repository_id, "package-rollback", "ahriman", "1.0.0-1",
+                                       **{"username": "packager", "hold": ""})
+
+
 def test_packages_update(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call repo update

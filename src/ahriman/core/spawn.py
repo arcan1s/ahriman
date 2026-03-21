@@ -232,6 +232,27 @@ class Spawn(Thread, LazyLogging):
         """
         return self._spawn_process(repository_id, "package-remove", *packages)
 
+    def packages_rollback(self, repository_id: RepositoryId, package: str, version: str, username: str | None, *,
+                          hold: bool) -> str:
+        """
+        rollback package
+
+        Args:
+            repository_id(RepositoryId): repository unique identifier
+            package(str): package base to rollback
+            version(str): package version to rollback
+            username(str | None): optional override of username for build process
+            hold(bool): hold package after rollback
+
+        Returns:
+            str: spawned process identifier
+        """
+        kwargs = {
+            "username": username,
+            self.boolean_action_argument("hold", hold): "",
+        }
+        return self._spawn_process(repository_id, "package-rollback", package, version, **kwargs)
+
     def packages_update(self, repository_id: RepositoryId, username: str | None, *,
                         aur: bool, local: bool, manual: bool, increment: bool, refresh: bool) -> str:
         """
