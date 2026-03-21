@@ -24,6 +24,7 @@ import type { Event } from "models/Event";
 import type { InfoResponse } from "models/InfoResponse";
 import type { InternalStatus } from "models/InternalStatus";
 import type { LogRecord } from "models/LogRecord";
+import type { Package } from "models/Package";
 import type { PackageStatus } from "models/PackageStatus";
 import type { Patch } from "models/Patch";
 import { RepositoryId } from "models/RepositoryId";
@@ -34,6 +35,12 @@ export class FetchClient {
 
     constructor(client: Client) {
         this.client = client;
+    }
+
+    async fetchPackageArtifacts(packageBase: string, repository: RepositoryId): Promise<Package[]> {
+        return this.client.request<Package[]>(`/api/v1/packages/${encodeURIComponent(packageBase)}/archives`, {
+            query: repository.toQuery(),
+        });
     }
 
     async fetchPackage(packageBase: string, repository: RepositoryId): Promise<PackageStatus[]> {

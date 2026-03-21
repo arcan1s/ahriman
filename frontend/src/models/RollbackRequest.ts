@@ -17,12 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-export type TabKey = "logs" | "changes" | "pkgbuild" | "events" | "artifacts";
-
-export const tabs: { key: TabKey; label: string }[] = [
-    { key: "logs", label: "Build logs" },
-    { key: "changes", label: "Changes" },
-    { key: "pkgbuild", label: "PKGBUILD" },
-    { key: "events", label: "Events" },
-    { key: "artifacts", label: "Artifacts" },
-];
+export interface RollbackRequest {
+    package: string;
+    version: string;
+}

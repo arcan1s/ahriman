@@ -21,6 +21,7 @@ import { Box, Dialog, DialogContent, Tab, Tabs } from "@mui/material";
 import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "api/client/ApiError";
 import DialogHeader from "components/common/DialogHeader";
+import ArtifactsTab from "components/package/ArtifactsTab";
 import BuildLogsTab from "components/package/BuildLogsTab";
 import ChangesTab from "components/package/ChangesTab";
 import EventsTab from "components/package/EventsTab";
@@ -193,6 +194,12 @@ export default function PackageInfoDialog({
                     }
                     {activeTab === "events" && localPackageBase && currentRepository &&
                         <EventsTab packageBase={localPackageBase} repository={currentRepository} />
+                    }
+                    {activeTab === "artifacts" && localPackageBase && currentRepository &&
+                        <ArtifactsTab
+                            packageBase={localPackageBase}
+                            repository={currentRepository}
+                            currentVersion={pkg.version} />
                     }
                 </>
             }

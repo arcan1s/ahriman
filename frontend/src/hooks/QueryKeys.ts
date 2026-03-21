@@ -21,6 +21,8 @@ import type { RepositoryId } from "models/RepositoryId";
 
 export const QueryKeys = {
 
+    artifacts: (packageBase: string, repository: RepositoryId) => ["artifacts", repository.key, packageBase] as const,
+
     changes: (packageBase: string, repository: RepositoryId) => ["changes", repository.key, packageBase] as const,
 
     dependencies: (packageBase: string, repository: RepositoryId) => ["dependencies", repository.key, packageBase] as const,

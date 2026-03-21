@@ -68,12 +68,10 @@ export default function EventsTab({ packageBase, repository }: EventsTabProps): 
             rows={rows}
             columns={columns}
             density="compact"
-            initialState={{
-                sorting: { sortModel: [{ field: "timestamp", sort: "desc" }] },
-            }}
+            disableColumnSorting
+            disableRowSelectionOnClick
             pageSizeOptions={[10, 25]}
             sx={{ height: 400, mt: 1 }}
-            disableRowSelectionOnClick
         />
     </Box>;
 }
