@@ -235,6 +235,18 @@ Remove packages
 
 This flow removes package from filesystem, updates repository database and also runs synchronization and reporting methods.
 
+Rollback packages
+^^^^^^^^^^^^^^^^^
+
+This flow restores a package to a previously built version:
+
+#. Load the current package definition from the repository database.
+#. Replace its version with the requested rollback target.
+#. Search the archive directory for built artifacts (packages and signatures) matching the target version.
+#. Add the found artifacts to the repository via the same path as ``package-add`` with ``PackageSource.Archive``.
+#. Trigger an immediate update to process the added packages.
+#. If ``--hold`` is enabled (the default), mark the package as held in the database to prevent automatic updates from overriding the rollback.
+
 Check outdated packages
 ^^^^^^^^^^^^^^^^^^^^^^^
 

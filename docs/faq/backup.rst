@@ -33,3 +33,28 @@ The service provides several commands aim to do easy repository backup and resto
    .. code-block:: shell
 
       sudo -u ahriman ahriman repo-rebuild --from-database
+
+Package rollback
+================
+
+If the ``archive.keep_built_packages`` option is enabled, the service keeps previously built package files in the archive directory. These archives can be used to rollback a package to a previous successfully built version.
+
+#.
+   List available archive versions for a package:
+
+   .. code-block:: shell
+
+      ahriman package-archives ahriman
+
+#.
+   Rollback the package to the desired version:
+
+   .. code-block:: shell
+
+      sudo -u ahriman ahriman package-rollback ahriman 2.19.0-1
+
+   By default, the ``--hold`` flag is enabled, which prevents the package from being automatically updated on subsequent ``repo-update`` runs. To rollback without holding the package use:
+
+   .. code-block:: shell
+
+      sudo -u ahriman ahriman package-rollback ahriman 2.19.0-1 --no-hold
