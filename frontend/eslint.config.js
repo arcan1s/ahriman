@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
+import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
@@ -8,7 +9,11 @@ import tseslint from "typescript-eslint";
 export default tseslint.config(
     { ignores: ["dist"] },
     {
-        extends: [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked],
+        extends: [
+            js.configs.recommended,
+            react.configs.flat.recommended,
+            ...tseslint.configs.recommendedTypeChecked,
+        ],
         files: ["src/**/*.{ts,tsx}"],
         languageOptions: {
             parserOptions: {
@@ -17,13 +22,14 @@ export default tseslint.config(
             },
         },
         plugins: {
+            "@stylistic": stylistic,
             "react-hooks": reactHooks,
             "react-refresh": reactRefresh,
             "simple-import-sort": simpleImportSort,
-            "@stylistic": stylistic,
         },
         rules: {
             ...reactHooks.configs.recommended.rules,
+            "react/react-in-jsx-scope": "off",
             "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 
             // imports
@@ -33,7 +39,7 @@ export default tseslint.config(
             // core
             "curly": "error",
             "eqeqeq": "error",
-            "no-console": "error",
+            "no-console": ["warn", { allow: ["warn", "error"] }],
             "no-eval": "error",
 
             // stylistic
@@ -68,6 +74,7 @@ export default tseslint.config(
             "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
             "@typescript-eslint/explicit-function-return-type": ["error", { allowExpressions: true }],
             "@typescript-eslint/no-deprecated": "error",
+            "@typescript-eslint/no-floating-promises": "error",
             "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
             "@typescript-eslint/prefer-nullish-coalescing": "error",
             "@typescript-eslint/prefer-optional-chain": "error",
