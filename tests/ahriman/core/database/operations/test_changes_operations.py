@@ -53,3 +53,12 @@ def test_changes_insert_remove_full(database: SQLite, package_ahriman: Package,
     assert database.changes_get(package_ahriman.base).changes is None
     assert database.changes_get(package_python_schedule.base).changes is None
     assert database.changes_get(package_ahriman.base, RepositoryId("i686", database._repository_id.name)) == changes2
+
+
+def test_changes_insert_pkgbuild_preserve(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must preserve existing pkgbuild when inserting changes without pkgbuild
+    """
+    database.changes_insert(package_ahriman.base, Changes("sha1", "change1", "pkgbuild1"))
+    database.changes_insert(package_ahriman.base, Changes("sha2", "change2", None))
+    assert database.changes_get(package_ahriman.base) == Changes("sha2", "change2", "pkgbuild1")

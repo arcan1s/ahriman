@@ -416,7 +416,7 @@ class Sources(LazyLogging):
         else:
             patch.write(sources_dir / "PKGBUILD")
 
-    def read(self, sources_dir: Path, commit_sha: str, path: Path) -> str:
+    def read(self, sources_dir: Path, commit_sha: str, path: Path) -> str | None:
         """
         read file content from the specified commit
 
@@ -426,6 +426,10 @@ class Sources(LazyLogging):
             path(Path): path to file inside the repository
 
         Returns:
-            str: file content at specified commit
+            str | None: file content at specified commit if available
         """
-        return check_output(*self.git(), "show", f"{commit_sha}:{path}", cwd=sources_dir, logger=self.logger)
+        try:
+            return check_output(*self.git(), "show", f"{commit_sha}:{path}", cwd=sources_dir, logger=self.logger)
+        except CalledProcessError:
+            self.logger.exception("failed to read file %s at %s", path, commit_sha)
+            return None

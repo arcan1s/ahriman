@@ -605,3 +605,12 @@ def test_read(sources: Sources, mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="content")
     assert sources.read(Path("local"), "sha", Path("PKGBUILD")) == "content"
     check_output_mock.assert_called_once()
+
+
+def test_read_failed(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must return None in case if file cannot be read from commit
+    """
+    mocker.patch("ahriman.core.build_tools.sources.check_output",
+                 side_effect=CalledProcessError(1, ["command"], "error"))
+    assert sources.read(Path("local"), "sha", Path("PKGBUILD")) is None

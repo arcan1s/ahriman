@@ -81,7 +81,7 @@ class ChangesOperations(Operations):
                 values
                 (:package_base, :last_commit_sha, :changes, :pkgbuild, :repository)
                 on conflict (package_base, repository) do update set
-                last_commit_sha = :last_commit_sha, changes = :changes, pkgbuild = :pkgbuild
+                last_commit_sha = :last_commit_sha, changes = :changes, pkgbuild = coalesce(:pkgbuild, pkgbuild)
                 """,
                 {
                     "package_base": package_base,
