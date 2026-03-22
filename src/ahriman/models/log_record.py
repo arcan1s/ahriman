@@ -41,11 +41,11 @@ class LogRecord:
     @classmethod
     def from_json(cls, package_base: str, dump: dict[str, Any]) -> Self:
         """
-        construct log record from the json dump
+        construct log record from the JSON dump
 
         Args:
             package_base(str): package base for which log record belongs
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: log record object
@@ -63,7 +63,7 @@ class LogRecord:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json log record view
+        generate JSON log record view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

@@ -50,11 +50,11 @@ class Package(LazyLogging):
         version(str): package full version
 
     Examples:
-        Different usages of this class may generate different (incomplete) data, e.g. if instantiating class from json::
+        Different usages of this class may generate different (incomplete) data, e.g. if instantiating class from JSON::
 
             >>> package = Package.from_json(dump)
 
-        it will contain every data available in the json body. Otherwise, if generate package from local archive::
+        it will contain every data available in the JSON body. Otherwise, if generate package from local archive::
 
             >>> package = Package.from_archive(local_path, pacman)
 
@@ -273,10 +273,10 @@ class Package(LazyLogging):
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct package properties from json dump
+        construct package properties from JSON dump
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: package properties
@@ -396,7 +396,7 @@ class Package(LazyLogging):
 
     def view(self) -> dict[str, Any]:
         """
-        generate json package view
+        generate JSON package view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

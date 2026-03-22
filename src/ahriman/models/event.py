@@ -72,10 +72,10 @@ class Event:
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct event from the json dump
+        construct event from the JSON dump
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: event object
@@ -102,7 +102,7 @@ class Event:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json event view
+        generate JSON event view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

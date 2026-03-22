@@ -74,7 +74,7 @@ class Official(Remote):
         parse RPC response to package list
 
         Args:
-            response(dict[str, Any]): RPC response json
+            response(dict[str, Any]): RPC response JSON
 
         Returns:
             list[AURPackage]: list of parsed packages

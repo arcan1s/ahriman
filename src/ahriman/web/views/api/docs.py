@@ -57,7 +57,7 @@ class DocsView(BaseView):
     @aiohttp_jinja2.template("api.jinja2")
     async def get(self) -> dict[str, Any]:
         """
-        return static docs html
+        return static docs HTML
 
         Returns:
             dict[str, Any]: parameters for jinja template

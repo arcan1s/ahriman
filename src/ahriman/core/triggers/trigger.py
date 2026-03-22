@@ -34,7 +34,7 @@ class Trigger(LazyLogging):
 
     Attributes:
         CONFIGURATION_SCHEMA(ConfigurationSchema): (class attribute) configuration schema template
-        REQUIRES_REPOSITORY(bool): (class attribute) either trigger requires loaded repository or not
+        REQUIRES_REPOSITORY(bool): (class attribute) either trigger requires a repository to be loaded or not
         configuration(Configuration): configuration instance
         repository_id(RepositoryId): repository unique identifier
 

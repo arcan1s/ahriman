@@ -32,7 +32,7 @@ class OfficialSyncdb(Official):
     updates.
 
     This approach also has limitations, because we don't require superuser rights (neither going to download database
-    separately), the database file might be outdated and must be handled manually (or kind of). This behaviour might be
+    separately), the database file might be outdated and must be handled manually (or kind of). This behavior might be
     changed in the future.
 
     Still we leave search function based on the official repositories RPC.

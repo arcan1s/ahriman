@@ -62,10 +62,10 @@ class OAuth(Mapping):
     @property
     def auth_control(self) -> str:
         """
-        get authorization html control
+        get authorization HTML control
 
         Returns:
-            str: login control as html code to insert
+            str: login control as HTML code to insert
         """
         return "<a class=\"nav-link\" href=\"/api/v1/login\" title=\"login via OAuth2\"><i class=\"bi bi-box-arrow-in-right\"></i> login</a>"
 

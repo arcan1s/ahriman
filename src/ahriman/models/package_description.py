@@ -49,7 +49,7 @@ class PackageDescription:
 
     Examples:
         Unlike the :class:`ahriman.models.package.Package` class, this implementation only holds properties.
-        The recommended way to deal with it is to read data based on the source type - either json or
+        The recommended way to deal with it is to read data based on the source type - either JSON or
         :class:`pyalpm.Package` instance::
 
             >>> description = PackageDescription.from_json(dump)
@@ -126,10 +126,10 @@ class PackageDescription:
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct package properties from json dump
+        construct package properties from JSON dump
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: package properties
@@ -169,7 +169,7 @@ class PackageDescription:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json package view
+        generate JSON package view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

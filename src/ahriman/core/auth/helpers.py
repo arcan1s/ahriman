@@ -30,7 +30,13 @@ except ImportError:
 from typing import Any
 
 
-__all__ = ["authorized_userid", "check_authorized", "forget", "remember"]
+__all__ = [
+    "authorized_userid",
+    "check_authorized",
+    "forget",
+    "get_session",
+    "remember",
+]
 
 
 async def authorized_userid(*args: Any, **kwargs: Any) -> Any:

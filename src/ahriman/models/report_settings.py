@@ -28,10 +28,10 @@ class ReportSettings(StrEnum):
 
     Attributes:
         Disabled(ReportSettings): option which generates no report for testing purpose
-        HTML(ReportSettings): html report generation
+        HTML(ReportSettings): HTML report generation
         Email(ReportSettings): email report generation
         Console(ReportSettings): print result to console
-        Telegram(ReportSettings): markdown report to telegram channel
+        Telegram(ReportSettings): Markdown report to telegram channel
         RSS(ReportSettings): RSS report generation
         RemoteCall(ReportSettings): remote ahriman server call
     """

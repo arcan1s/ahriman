@@ -27,10 +27,10 @@ from ahriman.models.result import Result
 
 class HTML(Report, JinjaTemplate):
     """
-    html report generator
+    HTML report generator
 
     Attributes:
-        report_path(Path): output path to html report
+        report_path(Path): output path to HTML report
         template(Path | str): name or path to template for full package list
     """
 

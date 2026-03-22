@@ -169,7 +169,7 @@ class BaseView(View, CorsViewMixin):
         filter and convert data and return :class:`aiohttp.web.Response` object
 
         Args:
-            data(dict[str, Any] | list[Any]): response in json format
+            data(dict[str, Any] | list[Any]): response in JSON format
             **kwargs(Any): keyword arguments for :func:`aiohttp.web.json_response` function
 
         Returns:

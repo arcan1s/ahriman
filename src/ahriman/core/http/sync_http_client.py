@@ -171,7 +171,7 @@ class SyncHttpClient(LazyLogging):
             headers(dict[str, str] | None, optional): request headers (Default value = None)
             params(list[tuple[str, str]] | None, optional): request query parameters (Default value = None)
             data(Any | None, optional): request raw data parameters (Default value = None)
-            json(dict[str, Any] | None, optional): request json parameters (Default value = None)
+            json(dict[str, Any] | None, optional): request JSON parameters (Default value = None)
             files(dict[str, MultipartType] | None, optional): multipart upload (Default value = None)
             stream(bool | None, optional): handle response as stream (Default value = None)
             session(requests.Session | None, optional): session object if any (Default value = None)

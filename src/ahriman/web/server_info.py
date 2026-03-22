@@ -39,7 +39,7 @@ async def server_info(view: BaseView) -> dict[str, Any]:
         view(BaseView): view of the request
 
     Returns:
-        dict[str, Any]: server info as a json response
+        dict[str, Any]: server info as a JSON response
     """
     autorefresh_intervals = [
         {

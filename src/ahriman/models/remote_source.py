@@ -74,10 +74,10 @@ class RemoteSource:
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct remote source from the json dump (or database row)
+        construct remote source from the JSON dump (or database row)
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: remote source
@@ -102,7 +102,7 @@ class RemoteSource:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json package remote view
+        generate JSON package remote view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

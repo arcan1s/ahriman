@@ -89,7 +89,7 @@ class BuildStatus:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json status view
+        generate JSON status view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

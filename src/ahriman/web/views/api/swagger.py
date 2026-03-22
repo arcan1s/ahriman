@@ -60,7 +60,7 @@ class SwaggerView(BaseView):
         get api specification
 
         Returns:
-            Response: 200 with json api specification
+            Response: 200 with JSON api specification
         """
         spec = self.request.app["swagger_dict"]
         is_body_parameter: Callable[[dict[str, str]], bool] = lambda p: p["in"] == "body" or p["in"] == "formData"

@@ -104,7 +104,7 @@ class PkgbuildParser(shlex.shlex):
 
         # ignore substitution and extend bash symbols
         self.wordchars += "${}#:+-@!"
-        # in case of default behaviour, it will ignore, for example, segment part of url outside of quotes
+        # in case of default behavior, it will ignore, for example, segment part of url outside of quotes
         self.commenters = ""
 
     @staticmethod

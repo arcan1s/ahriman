@@ -38,10 +38,10 @@ class RepositoryStats:
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct counters from json dump
+        construct counters from JSON dump
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: status counters

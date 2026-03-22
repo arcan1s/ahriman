@@ -87,10 +87,10 @@ class PkgbuildPatch:
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct patch descriptor from the json dump
+        construct patch descriptor from the JSON dump
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: patch object
@@ -125,7 +125,7 @@ class PkgbuildPatch:
                     # the source value looks like shell array, remove brackets and parse with shlex
                     return shlex.split(shell_array[1:-1])
                 case json_array if json_array.startswith("[") and json_array.endswith("]"):
-                    # json (aka python) array, parse with json parser instead
+                    # JSON (aka python) array, parse with JSON parser instead
                     parsed: list[str] = json.loads(json_array)
                     return parsed
                 case variable:
@@ -220,7 +220,7 @@ class PkgbuildPatch:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json patch view
+        generate JSON patch view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

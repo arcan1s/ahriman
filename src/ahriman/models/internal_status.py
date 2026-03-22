@@ -50,10 +50,10 @@ class InternalStatus:
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct internal status from json dump
+        construct internal status from JSON dump
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: internal status
@@ -70,7 +70,7 @@ class InternalStatus:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json status view
+        generate JSON status view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

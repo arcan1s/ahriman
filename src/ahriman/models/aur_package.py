@@ -62,7 +62,7 @@ class AURPackage:
     Examples:
         Mainly this class must be used from class methods instead of default :func:`__init__()`::
 
-            >>> package = AURPackage.from_json(metadata)  # load package from json dump
+            >>> package = AURPackage.from_json(metadata)  # load package from JSON dump
             >>> # ...or alternatively...
             >>> package = AURPackage.from_repo(metadata)  # load package from official repository RPC
             >>> # properties of the class are built based on ones from AUR RPC, thus additional method is required
@@ -175,7 +175,7 @@ class AURPackage:
         construct package descriptor from official repository RPC properties
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: AUR package descriptor

@@ -41,10 +41,10 @@ class Changes:
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
-        construct changes from the json dump
+        construct changes from the JSON dump
 
         Args:
-            dump(dict[str, Any]): json dump body
+            dump(dict[str, Any]): JSON dump body
 
         Returns:
             Self: changes object
@@ -55,7 +55,7 @@ class Changes:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json change view
+        generate JSON change view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

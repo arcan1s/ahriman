@@ -70,7 +70,7 @@ class RepositoryId:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json package view
+        generate JSON package view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

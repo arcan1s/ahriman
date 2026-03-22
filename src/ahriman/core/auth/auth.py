@@ -50,13 +50,13 @@ class Auth(LazyLogging):
     @property
     def auth_control(self) -> str:
         """
-        This workaround is required to make different behaviour for login interface.
+        This workaround is required to make different behavior for login interface.
         In case of internal authentication it must provide an interface (modal form) to log in with button sends POST
-        request. But for an external providers behaviour can be different: e.g. OAuth provider requires sending GET
+        request. But for an external providers behavior can be different: e.g. OAuth provider requires sending GET
         request to external resource
 
         Returns:
-            str: login control as html code to insert
+            str: login control as HTML code to insert
         """
         return "<button type=\"button\" class=\"btn btn-link\" data-bs-toggle=\"modal\" data-bs-target=\"#login-modal\" style=\"text-decoration: none\"><i class=\"bi bi-box-arrow-in-right\"></i> login</button>"
 

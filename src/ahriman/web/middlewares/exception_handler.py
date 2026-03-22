@@ -42,13 +42,13 @@ __all__ = ["exception_handler"]
 
 def _is_templated_unauthorized(request: Request) -> bool:
     """
-    check if the request is eligible for rendering html template
+    check if the request is eligible for rendering HTML template
 
     Args:
         request(Request): source request to check
 
     Returns:
-        bool: ``True`` in case if response should be rendered as html and ``False`` otherwise
+        bool: ``True`` in case if response should be rendered as HTML and ``False`` otherwise
     """
     return request.path in ("/api/v1/login", "/api/v1/logout") \
         and "application/json" not in request.headers.getall("accept", [])

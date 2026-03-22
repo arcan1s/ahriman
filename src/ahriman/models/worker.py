@@ -45,7 +45,7 @@ class Worker:
 
     def view(self) -> dict[str, Any]:
         """
-        generate json patch view
+        generate JSON worker view
 
         Returns:
             dict[str, Any]: json-friendly dictionary

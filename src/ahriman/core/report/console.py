@@ -27,7 +27,7 @@ from ahriman.models.result import Result
 
 class Console(Report):
     """
-    html report generator
+    HTML report generator
 
     Attributes:
         use_utf(bool): print utf8 symbols instead of ASCII

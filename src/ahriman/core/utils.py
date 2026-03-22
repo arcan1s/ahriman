@@ -231,13 +231,13 @@ def check_user(root: Path, *, unsafe: bool) -> None:
 
 def dataclass_view(instance: Any) -> dict[str, Any]:
     """
-    convert dataclass instance to json object
+    convert dataclass instance to JSON object
 
     Args:
         instance(Any): dataclass instance
 
     Returns:
-        dict[str, Any]: json representation of the dataclass with empty field removed
+        dict[str, Any]: JSON representation of the dataclass with empty field removed
     """
     return asdict(instance, dict_factory=lambda fields: {key: value for key, value in fields if value is not None})
 
@@ -287,15 +287,15 @@ def filelock(path: Path) -> Iterator[FileLock]:
 
 def filter_json(source: T, known_fields: Iterable[str] | None = None) -> T:
     """
-    recursively filter json object removing ``None`` values and optionally filtering by known fields
+    recursively filter JSON object removing ``None`` values and optionally filtering by known fields
 
     Args:
-        source(T): raw json object (dict, list, or scalar)
+        source(T): raw JSON object (dict, list, or scalar)
         known_fields(Iterable[str] | None, optional): list of fields which have to be known for the target object
             (Default value = None)
 
     Returns:
-        T: json without ``None`` values
+        T: JSON without ``None`` values
 
     Examples:
         This wrapper is mainly used for the dataclasses, thus the flow must be something like this::

@@ -72,7 +72,7 @@ class Configuration(configparser.RawConfigParser):
     def __init__(self, allow_no_value: bool = False, allow_multi_key: bool = True) -> None:
         """
         Args:
-            allow_no_value(bool, optional): copies :class:`configparser.RawConfigParser` behaviour. In case if it is set
+            allow_no_value(bool, optional): copies :class:`configparser.RawConfigParser` behavior. In case if it is set
                 to ``True``, the keys without values will be allowed (Default value = False)
             allow_multi_key(bool, optional): if set to ``False``, then the default dictionary class will be used to
                 store keys internally. Otherwise, the special implementation will be used, which supports arrays

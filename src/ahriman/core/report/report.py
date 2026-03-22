@@ -71,7 +71,7 @@ class Report(LazyLogging):
         Args:
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
-            target(str): target to generate report aka section name (e.g. html)
+            target(str): target to generate report aka section name (e.g. HTML)
 
         Returns:
             Report: client according to current settings
