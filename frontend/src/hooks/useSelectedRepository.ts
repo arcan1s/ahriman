@@ -22,10 +22,10 @@ import type { RepositoryId } from "models/RepositoryId";
 import { useState } from "react";
 
 export interface SelectedRepositoryResult {
-    selectedKey: string;
-    setSelectedKey: (key: string) => void;
-    selectedRepository: RepositoryId | null;
     reset: () => void;
+    selectedKey: string;
+    selectedRepository: RepositoryId | null;
+    setSelectedKey: (key: string) => void;
 }
 
 export function useSelectedRepository(): SelectedRepositoryResult {
@@ -40,9 +40,9 @@ export function useSelectedRepository(): SelectedRepositoryResult {
         }
     }
 
-    const reset: () => void = () => {
+    const reset = (): void => {
         setSelectedKey("");
     };
 
-    return { selectedKey, setSelectedKey, selectedRepository, reset };
+    return { reset, selectedKey, selectedRepository, setSelectedKey };
 }

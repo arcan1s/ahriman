@@ -26,10 +26,10 @@ import { useRepository } from "hooks/useRepository";
 import type { RepositoryId } from "models/RepositoryId";
 
 export interface UsePackageActionsResult {
-    handleReload: () => void;
-    handleUpdate: () => Promise<void>;
     handleRefreshDatabase: () => Promise<void>;
+    handleReload: () => void;
     handleRemove: () => Promise<void>;
+    handleUpdate: () => Promise<void>;
 }
 
 export function usePackageActions(
@@ -63,7 +63,7 @@ export function usePackageActions(
         }
     };
 
-    const handleReload: () => void = () => {
+    const handleReload = (): void => {
         if (currentRepository !== null) {
             invalidate(currentRepository);
         }
@@ -80,11 +80,11 @@ export function usePackageActions(
 
     const handleRefreshDatabase = (): Promise<void> => performAction(async (repository): Promise<string> => {
         await client.service.servicePackageUpdate(repository, {
-            packages: [],
-            refresh: true,
             aur: false,
             local: false,
             manual: false,
+            packages: [],
+            refresh: true,
         });
         return "Pacman database update has been requested";
     }, "Could not update pacman databases");
@@ -100,9 +100,9 @@ export function usePackageActions(
     };
 
     return {
-        handleReload,
-        handleUpdate,
         handleRefreshDatabase,
+        handleReload,
         handleRemove,
+        handleUpdate,
     };
 }

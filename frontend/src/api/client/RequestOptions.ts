@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 export interface RequestOptions {
+    json?: unknown;
     method?: string;
     query?: Record<string, string | number | boolean>;
-    json?: unknown;
     timeout?: number;
 }

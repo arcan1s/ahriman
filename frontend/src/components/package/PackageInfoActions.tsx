@@ -27,29 +27,29 @@ import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type React from "react";
 
 interface PackageInfoActionsProps {
+    autoRefreshInterval: number;
+    autoRefreshIntervals: AutoRefreshInterval[];
     isAuthorized: boolean;
     isHeld: boolean;
-    onHoldToggle: () => void;
-    refreshDatabase: boolean;
-    onRefreshDatabaseChange: (checked: boolean) => void;
-    onUpdate: () => void;
-    onRemove: () => void;
-    autoRefreshIntervals: AutoRefreshInterval[];
-    autoRefreshInterval: number;
     onAutoRefreshIntervalChange: (interval: number) => void;
+    onHoldToggle: () => void;
+    onRefreshDatabaseChange: (checked: boolean) => void;
+    onRemove: () => void;
+    onUpdate: () => void;
+    refreshDatabase: boolean;
 }
 
 export default function PackageInfoActions({
-    isAuthorized,
-    refreshDatabase,
-    onRefreshDatabaseChange,
-    isHeld,
-    onHoldToggle,
-    onUpdate,
-    onRemove,
-    autoRefreshIntervals,
     autoRefreshInterval,
+    autoRefreshIntervals,
+    isAuthorized,
+    isHeld,
     onAutoRefreshIntervalChange,
+    onHoldToggle,
+    onRefreshDatabaseChange,
+    onRemove,
+    onUpdate,
+    refreshDatabase,
 }: PackageInfoActionsProps): React.JSX.Element {
     return <DialogActions sx={{ flexWrap: "wrap", gap: 1 }}>
         {isAuthorized &&
@@ -58,20 +58,20 @@ export default function PackageInfoActions({
                     control={<Checkbox checked={refreshDatabase} onChange={(_, checked) => onRefreshDatabaseChange(checked)} size="small" />}
                     label="update pacman databases"
                 />
-                <Button onClick={onHoldToggle} variant="outlined" color="warning" startIcon={isHeld ? <PlayCircleIcon /> : <PauseCircleIcon />} size="small">
+                <Button color="warning" onClick={onHoldToggle} size="small" startIcon={isHeld ? <PlayCircleIcon /> : <PauseCircleIcon />} variant="outlined">
                     {isHeld ? "unhold" : "hold"}
                 </Button>
-                <Button onClick={onUpdate} variant="contained" color="success" startIcon={<PlayArrowIcon />} size="small">
+                <Button color="success" onClick={onUpdate} size="small" startIcon={<PlayArrowIcon />} variant="contained">
                     update
                 </Button>
-                <Button onClick={onRemove} variant="contained" color="error" startIcon={<DeleteIcon />} size="small">
+                <Button color="error" onClick={onRemove} size="small" startIcon={<DeleteIcon />} variant="contained">
                     remove
                 </Button>
             </>
         }
         <AutoRefreshControl
-            intervals={autoRefreshIntervals}
             currentInterval={autoRefreshInterval}
+            intervals={autoRefreshIntervals}
             onIntervalChange={onAutoRefreshIntervalChange}
         />
     </DialogActions>;

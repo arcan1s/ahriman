@@ -43,47 +43,47 @@ export interface AutoRefreshProps {
 }
 
 export interface ToolbarActions {
-    onDashboardClick: () => void;
     onAddClick: () => void;
-    onUpdateClick: () => void;
-    onRefreshDatabaseClick: () => void;
-    onRebuildClick: () => void;
-    onRemoveClick: () => void;
-    onKeyImportClick: () => void;
-    onReloadClick: () => void;
+    onDashboardClick: () => void;
     onExportClick: () => void;
+    onKeyImportClick: () => void;
+    onRebuildClick: () => void;
+    onRefreshDatabaseClick: () => void;
+    onReloadClick: () => void;
+    onRemoveClick: () => void;
+    onUpdateClick: () => void;
 }
 
 interface PackageTableToolbarProps {
+    actions: ToolbarActions;
+    autoRefresh: AutoRefreshProps;
     hasSelection: boolean;
     isAuthorized: boolean;
-    status?: BuildStatus;
-    searchText: string;
     onSearchChange: (text: string) => void;
-    autoRefresh: AutoRefreshProps;
-    actions: ToolbarActions;
+    searchText: string;
+    status?: BuildStatus;
 }
 
 export default function PackageTableToolbar({
+    actions,
+    autoRefresh,
     hasSelection,
     isAuthorized,
-    status,
-    searchText,
     onSearchChange,
-    autoRefresh,
-    actions,
+    searchText,
+    status,
 }: PackageTableToolbarProps): React.JSX.Element {
     const [packagesAnchorEl, setPackagesAnchorEl] = useState<HTMLElement | null>(null);
 
-    return <Box sx={{ display: "flex", gap: 1, mb: 1, flexWrap: "wrap", alignItems: "center" }}>
+    return <Box sx={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
         <Tooltip title="System health">
             <IconButton
                 aria-label="System health"
                 onClick={actions.onDashboardClick}
                 sx={{
                     borderColor: status ? StatusColors[status] : undefined,
-                    borderWidth: 1,
                     borderStyle: "solid",
+                    borderWidth: 1,
                     color: status ? StatusColors[status] : undefined,
                 }}
             >
@@ -94,16 +94,16 @@ export default function PackageTableToolbar({
         {isAuthorized &&
             <>
                 <Button
-                    variant="contained"
-                    startIcon={<InventoryIcon />}
                     onClick={event => setPackagesAnchorEl(event.currentTarget)}
+                    startIcon={<InventoryIcon />}
+                    variant="contained"
                 >
                     packages
                 </Button>
                 <Menu
                     anchorEl={packagesAnchorEl}
-                    open={Boolean(packagesAnchorEl)}
                     onClose={() => setPackagesAnchorEl(null)}
+                    open={Boolean(packagesAnchorEl)}
                 >
                     <MenuItem onClick={() => {
                         setPackagesAnchorEl(null); actions.onAddClick();
@@ -126,58 +126,58 @@ export default function PackageTableToolbar({
                         <ReplayIcon fontSize="small" sx={{ mr: 1 }} /> rebuild
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={() => {
+                    <MenuItem disabled={!hasSelection} onClick={() => {
                         setPackagesAnchorEl(null); actions.onRemoveClick();
-                    }} disabled={!hasSelection}>
+                    }}>
                         <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> remove
                     </MenuItem>
                 </Menu>
 
-                <Button variant="contained" color="info" startIcon={<VpnKeyIcon />} onClick={actions.onKeyImportClick}>
+                <Button color="info" onClick={actions.onKeyImportClick} startIcon={<VpnKeyIcon />} variant="contained">
                     import key
                 </Button>
             </>
         }
 
-        <Button variant="outlined" color="secondary" startIcon={<RefreshIcon />} onClick={actions.onReloadClick}>
+        <Button color="secondary" onClick={actions.onReloadClick} startIcon={<RefreshIcon />} variant="outlined">
             reload
         </Button>
 
         <AutoRefreshControl
-            intervals={autoRefresh.autoRefreshIntervals}
             currentInterval={autoRefresh.currentInterval}
+            intervals={autoRefresh.autoRefreshIntervals}
             onIntervalChange={autoRefresh.onIntervalChange}
         />
 
         <Box sx={{ flexGrow: 1 }} />
 
         <TextField
-            size="small"
             aria-label="Search packages"
-            placeholder="search packages..."
-            value={searchText}
             onChange={event => onSearchChange(event.target.value)}
+            placeholder="search packages..."
+            size="small"
             slotProps={{
                 input: {
+                    endAdornment: searchText ?
+                        <InputAdornment position="end">
+                            <IconButton aria-label="Clear search" onClick={() => onSearchChange("")} size="small">
+                                <ClearIcon fontSize="small" />
+                            </IconButton>
+                        </InputAdornment>
+                        : undefined,
                     startAdornment:
                             <InputAdornment position="start">
                                 <SearchIcon fontSize="small" />
                             </InputAdornment>
                     ,
-                    endAdornment: searchText ?
-                        <InputAdornment position="end">
-                            <IconButton size="small" aria-label="Clear search" onClick={() => onSearchChange("")}>
-                                <ClearIcon fontSize="small" />
-                            </IconButton>
-                        </InputAdornment>
-                        : undefined,
                 },
             }}
             sx={{ minWidth: 200 }}
+            value={searchText}
         />
 
         <Tooltip title="Export CSV">
-            <IconButton size="small" aria-label="Export CSV" onClick={actions.onExportClick}>
+            <IconButton aria-label="Export CSV" onClick={actions.onExportClick} size="small">
                 <FileDownloadIcon fontSize="small" />
             </IconButton>
         </Tooltip>

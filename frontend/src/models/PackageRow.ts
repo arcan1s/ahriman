@@ -21,32 +21,31 @@ import type { BuildStatus } from "models/BuildStatus";
 import type { PackageStatus } from "models/PackageStatus";
 
 export class PackageRow {
-    id: string;
+
     base: string;
-    webUrl?: string;
-    version: string;
-    packages: string[];
     groups: string[];
+    id: string;
+    isHeld: boolean;
     licenses: string[];
     packager: string;
-    timestamp: string;
-    timestampValue: number;
+    packages: string[];
     status: BuildStatus;
-    isHeld: boolean;
+    timestamp: string;
+    version: string;
+    webUrl?: string;
 
     constructor(descriptor: PackageStatus) {
-        this.id = descriptor.package.base;
         this.base = descriptor.package.base;
-        this.webUrl = descriptor.package.remote.web_url ?? undefined;
-        this.version = descriptor.package.version;
-        this.packages = Object.keys(descriptor.package.packages).sort();
         this.groups = PackageRow.extractListProperties(descriptor.package, "groups");
+        this.id = descriptor.package.base;
+        this.isHeld = descriptor.status.is_held ?? false;
         this.licenses = PackageRow.extractListProperties(descriptor.package, "licenses");
         this.packager = descriptor.package.packager ?? "";
-        this.timestamp = new Date(descriptor.status.timestamp * 1000).toISOStringShort();
-        this.timestampValue = descriptor.status.timestamp;
+        this.packages = Object.keys(descriptor.package.packages).sort();
         this.status = descriptor.status.status;
-        this.isHeld = descriptor.status.is_held ?? false;
+        this.timestamp = new Date(descriptor.status.timestamp * 1000).toISOStringShort();
+        this.version = descriptor.package.version;
+        this.webUrl = descriptor.package.remote.web_url ?? undefined;
     }
 
     private static extractListProperties(pkg: PackageStatus["package"], property: "groups" | "licenses"): string[] {

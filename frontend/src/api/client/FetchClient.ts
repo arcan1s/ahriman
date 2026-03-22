@@ -37,14 +37,14 @@ export class FetchClient {
         this.client = client;
     }
 
-    async fetchPackageArtifacts(packageBase: string, repository: RepositoryId): Promise<Package[]> {
-        return this.client.request<Package[]>(`/api/v1/packages/${encodeURIComponent(packageBase)}/archives`, {
+    async fetchPackage(packageBase: string, repository: RepositoryId): Promise<PackageStatus[]> {
+        return this.client.request<PackageStatus[]>(`/api/v1/packages/${encodeURIComponent(packageBase)}`, {
             query: repository.toQuery(),
         });
     }
 
-    async fetchPackage(packageBase: string, repository: RepositoryId): Promise<PackageStatus[]> {
-        return this.client.request<PackageStatus[]>(`/api/v1/packages/${encodeURIComponent(packageBase)}`, {
+    async fetchPackageArtifacts(packageBase: string, repository: RepositoryId): Promise<Package[]> {
+        return this.client.request<Package[]>(`/api/v1/packages/${encodeURIComponent(packageBase)}/archives`, {
             query: repository.toQuery(),
         });
     }

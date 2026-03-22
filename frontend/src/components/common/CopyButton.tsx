@@ -40,7 +40,7 @@ export default function CopyButton({ text }: CopyButtonProps): React.JSX.Element
     };
 
     return <Tooltip title={copied ? "Copied!" : "Copy"}>
-        <IconButton size="small" aria-label={copied ? "Copied" : "Copy"} onClick={() => void handleCopy()}>
+        <IconButton aria-label={copied ? "Copied" : "Copy"} onClick={() => void handleCopy()} size="small">
             {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
         </IconButton>
     </Tooltip>;

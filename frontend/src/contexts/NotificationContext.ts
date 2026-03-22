@@ -20,8 +20,8 @@
 import { createContext } from "react";
 
 export interface NotificationContextValue {
-    showSuccess: (title: string, message: string) => void;
     showError: (title: string, message: string) => void;
+    showSuccess: (title: string, message: string) => void;
 }
 
 export const NotificationContext = createContext<NotificationContextValue | null>(null);

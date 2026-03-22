@@ -26,9 +26,9 @@ interface AuthState {
 
 export interface AuthContextValue extends AuthState {
     isAuthorized: boolean;
-    setAuthState: (state: AuthState) => void;
     login: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    setAuthState: (state: AuthState) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

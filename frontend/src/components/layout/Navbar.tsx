@@ -35,15 +35,15 @@ export default function Navbar(): React.JSX.Element | null {
 
     return <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
-            value={currentIndex >= 0 ? currentIndex : 0}
             onChange={(_, newValue: number) => {
                 const repository = repositories[newValue];
                 if (repository) {
                     setCurrentRepository(repository);
                 }
             }}
-            variant="scrollable"
             scrollButtons="auto"
+            value={currentIndex >= 0 ? currentIndex : 0}
+            variant="scrollable"
         >
             {repositories.map(repository =>
                 <Tab

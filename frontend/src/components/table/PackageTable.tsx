@@ -23,7 +23,6 @@ import {
     GRID_CHECKBOX_SELECTION_COL_DEF,
     type GridColDef,
     type GridFilterModel,
-    type GridRenderCellParams,
     type GridRowId,
     useGridApiRef,
 } from "@mui/x-data-grid";
@@ -44,8 +43,6 @@ interface PackageTableProps {
     autoRefreshIntervals: AutoRefreshInterval[];
 }
 
-const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
-
 function createListColumn(
     field: keyof PackageRow,
     headerName: string,
@@ -55,10 +52,10 @@ function createListColumn(
         field,
         headerName,
         ...options,
-        valueGetter: (value: string[]) => (value ?? []).join(" "),
-        renderCell: (params: GridRenderCellParams<PackageRow>) =>
+        renderCell: params =>
             <Box sx={{ whiteSpace: "pre-line" }}>{((params.row[field] as string[]) ?? []).join("\n")}</Box>,
         sortComparator: (left: string, right: string) => left.localeCompare(right),
+        valueGetter: (value: string[]) => (value ?? []).join(" "),
     };
 }
 
@@ -79,36 +76,30 @@ export default function PackageTable({ autoRefreshIntervals }: PackageTableProps
         () => [
             {
                 field: "base",
-                headerName: "package base",
                 flex: 1,
+                headerName: "package base",
                 minWidth: 150,
-                renderCell: (params: GridRenderCellParams<PackageRow>) =>
+                renderCell: params =>
                     params.row.webUrl ?
-                        <Link href={params.row.webUrl} target="_blank" rel="noopener noreferrer" underline="hover">
+                        <Link href={params.row.webUrl} rel="noopener noreferrer" target="_blank" underline="hover">
                             {params.value as string}
                         </Link>
                         : params.value as string,
             },
-            { field: "version", headerName: "version", width: 180, align: "right", headerAlign: "right" },
+            { align: "right", field: "version", headerAlign: "right", headerName: "version", width: 180 },
             createListColumn("packages", "packages", { flex: 1, minWidth: 120 }),
             createListColumn("groups", "groups", { width: 150 }),
             createListColumn("licenses", "licenses", { width: 150 }),
             { field: "packager", headerName: "packager", width: 150 },
+            { align: "right", field: "timestamp", headerName: "last update", headerAlign: "right", width: 180 },
             {
-                field: "timestamp",
-                headerName: "last update",
-                width: 180,
-                align: "right",
-                headerAlign: "right",
-            },
-            {
-                field: "status",
-                headerName: "status",
-                width: 120,
                 align: "center",
+                field: "status",
                 headerAlign: "center",
-                renderCell: (params: GridRenderCellParams<PackageRow>) =>
-                    <StatusCell status={params.row.status} isHeld={params.row.isHeld} />,
+                headerName: "status",
+                renderCell: params =>
+                    <StatusCell isHeld={params.row.isHeld} status={params.row.status} />,
+                width: 120,
             },
         ],
         [],
@@ -116,56 +107,42 @@ export default function PackageTable({ autoRefreshIntervals }: PackageTableProps
 
     return <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <PackageTableToolbar
-            hasSelection={table.selectionModel.length > 0}
-            isAuthorized={table.isAuthorized}
-            status={table.status}
-            searchText={table.searchText}
-            onSearchChange={table.setSearchText}
+            actions={{
+                onAddClick: () => table.setDialogOpen("add"),
+                onDashboardClick: () => table.setDialogOpen("dashboard"),
+                onExportClick: () => apiRef.current?.exportDataAsCsv(),
+                onKeyImportClick: () => table.setDialogOpen("keyImport"),
+                onRebuildClick: () => table.setDialogOpen("rebuild"),
+                onRefreshDatabaseClick: () => void table.handleRefreshDatabase(),
+                onReloadClick: table.handleReload,
+                onRemoveClick: () => void table.handleRemove(),
+                onUpdateClick: () => void table.handleUpdate(),
+            }}
             autoRefresh={{
                 autoRefreshIntervals,
                 currentInterval: table.autoRefreshInterval,
                 onIntervalChange: table.onAutoRefreshIntervalChange,
             }}
-            actions={{
-                onDashboardClick: () => table.setDialogOpen("dashboard"),
-                onAddClick: () => table.setDialogOpen("add"),
-                onUpdateClick: () => void table.handleUpdate(),
-                onRefreshDatabaseClick: () => void table.handleRefreshDatabase(),
-                onRebuildClick: () => table.setDialogOpen("rebuild"),
-                onRemoveClick: () => void table.handleRemove(),
-                onKeyImportClick: () => table.setDialogOpen("keyImport"),
-                onReloadClick: table.handleReload,
-                onExportClick: () => apiRef.current?.exportDataAsCsv(),
-            }}
+            isAuthorized={table.isAuthorized}
+            hasSelection={table.selectionModel.length > 0}
+            onSearchChange={table.setSearchText}
+            searchText={table.searchText}
+            status={table.status}
         />
 
         <DataGrid
             apiRef={apiRef}
-            rows={table.rows}
-            columns={columns}
-            loading={table.isLoading}
-            getRowHeight={() => "auto"}
             checkboxSelection
-            disableRowSelectionOnClick
-            rowSelectionModel={{ type: "include", ids: new Set<GridRowId>(table.selectionModel) }}
-            onRowSelectionModelChange={model => {
-                if (model.type === "exclude") {
-                    const excludeIds = new Set([...model.ids].map(String));
-                    table.setSelectionModel(table.rows.map(row => row.id).filter(id => !excludeIds.has(id)));
-                } else {
-                    table.setSelectionModel([...model.ids].map(String));
-                }
-            }}
-            paginationModel={table.paginationModel}
-            onPaginationModelChange={table.setPaginationModel}
-            pageSizeOptions={PAGE_SIZE_OPTIONS}
             columnVisibilityModel={table.columnVisibility}
-            onColumnVisibilityModelChange={table.setColumnVisibility}
+            columns={columns}
+            density="compact"
+            disableRowSelectionOnClick
             filterModel={effectiveFilterModel}
-            onFilterModelChange={table.setFilterModel}
+            getRowHeight={() => "auto"}
             initialState={{
                 sorting: { sortModel: [{ field: "base", sort: "asc" }] },
             }}
+            loading={table.isLoading}
             onCellClick={(params, event) => {
                 // Don't open info dialog when clicking checkbox or link
                 if (params.field === GRID_CHECKBOX_SELECTION_COL_DEF.field) {
@@ -176,22 +153,32 @@ export default function PackageTable({ autoRefreshIntervals }: PackageTableProps
                 }
                 table.setSelectedPackage(String(params.id));
             }}
-            sx={{
-                flex: 1,
-                "& .MuiDataGrid-row": { cursor: "pointer" },
+            onColumnVisibilityModelChange={table.setColumnVisibility}
+            onFilterModelChange={table.setFilterModel}
+            onPaginationModelChange={table.setPaginationModel}
+            onRowSelectionModelChange={model => {
+                if (model.type === "exclude") {
+                    const excludeIds = new Set([...model.ids].map(String));
+                    table.setSelectionModel(table.rows.map(row => row.id).filter(id => !excludeIds.has(id)));
+                } else {
+                    table.setSelectionModel([...model.ids].map(String));
+                }
             }}
-            density="compact"
+            paginationModel={table.paginationModel}
+            rowSelectionModel={{ type: "include", ids: new Set<GridRowId>(table.selectionModel) }}
+            rows={table.rows}
+            sx={{ flex: 1 }}
         />
 
-        <DashboardDialog open={table.dialogOpen === "dashboard"} onClose={() => table.setDialogOpen(null)} />
-        <PackageAddDialog open={table.dialogOpen === "add"} onClose={() => table.setDialogOpen(null)} />
-        <PackageRebuildDialog open={table.dialogOpen === "rebuild"} onClose={() => table.setDialogOpen(null)} />
-        <KeyImportDialog open={table.dialogOpen === "keyImport"} onClose={() => table.setDialogOpen(null)} />
+        <DashboardDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "dashboard"} />
+        <PackageAddDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "add"} />
+        <PackageRebuildDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "rebuild"} />
+        <KeyImportDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "keyImport"} />
         <PackageInfoDialog
-            packageBase={table.selectedPackage}
-            open={table.selectedPackage !== null}
-            onClose={() => table.setSelectedPackage(null)}
             autoRefreshIntervals={autoRefreshIntervals}
+            onClose={() => table.setSelectedPackage(null)}
+            open={table.selectedPackage !== null}
+            packageBase={table.selectedPackage}
         />
     </Box>;
 }

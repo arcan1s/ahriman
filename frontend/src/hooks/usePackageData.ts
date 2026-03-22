@@ -30,11 +30,11 @@ import { useMemo } from "react";
 import { defaultInterval } from "utils";
 
 export interface UsePackageDataResult {
-    rows: PackageRow[];
-    isLoading: boolean;
-    isAuthorized: boolean;
-    status: BuildStatus | undefined;
     autoRefresh: ReturnType<typeof useAutoRefresh>;
+    isAuthorized: boolean;
+    isLoading: boolean;
+    rows: PackageRow[];
+    status: BuildStatus | undefined;
 }
 
 export function usePackageData(autoRefreshIntervals: AutoRefreshInterval[]): UsePackageDataResult {
@@ -45,24 +45,24 @@ export function usePackageData(autoRefreshIntervals: AutoRefreshInterval[]): Use
     const autoRefresh = useAutoRefresh("table-autoreload-button", defaultInterval(autoRefreshIntervals));
 
     const { data: packages = [], isLoading } = useQuery({
-        queryKey: currentRepository ? QueryKeys.packages(currentRepository) : ["packages"],
         queryFn: currentRepository ? () => client.fetch.fetchPackages(currentRepository) : skipToken,
+        queryKey: currentRepository ? QueryKeys.packages(currentRepository) : ["packages"],
         refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const { data: status } = useQuery({
-        queryKey: currentRepository ? QueryKeys.status(currentRepository) : ["status"],
         queryFn: currentRepository ? () => client.fetch.fetchServerStatus(currentRepository) : skipToken,
+        queryKey: currentRepository ? QueryKeys.status(currentRepository) : ["status"],
         refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const rows = useMemo(() => packages.map(descriptor => new PackageRow(descriptor)), [packages]);
 
     return {
-        rows,
+        autoRefresh,
         isLoading,
         isAuthorized,
+        rows,
         status: status?.status.status,
-        autoRefresh,
     };
 }

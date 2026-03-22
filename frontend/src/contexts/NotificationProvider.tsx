@@ -55,17 +55,17 @@ export function NotificationProvider({ children }: { children: ReactNode }): Rea
         {children}
         <Box
             sx={{
-                position: "fixed",
-                top: 16,
-                left: "50%",
-                transform: "translateX(-50%)",
-                zIndex: theme => theme.zIndex.snackbar,
                 display: "flex",
                 flexDirection: "column",
                 gap: 1,
+                left: "50%",
                 maxWidth: 500,
-                width: "100%",
                 pointerEvents: "none",
+                position: "fixed",
+                top: 16,
+                transform: "translateX(-50%)",
+                width: "100%",
+                zIndex: theme => theme.zIndex.snackbar,
             }}
         >
             {notifications.map(notification =>

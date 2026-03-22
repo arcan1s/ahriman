@@ -24,22 +24,20 @@ import { useState } from "react";
 export type DialogType = "dashboard" | "add" | "rebuild" | "keyImport";
 
 export interface UseTableStateResult {
-    selectionModel: string[];
-    setSelectionModel: (model: string[]) => void;
-
-    dialogOpen: DialogType | null;
-    setDialogOpen: (dialog: DialogType | null) => void;
-    selectedPackage: string | null;
-    setSelectedPackage: (base: string | null) => void;
-
-    paginationModel: { pageSize: number; page: number };
-    setPaginationModel: (model: { pageSize: number; page: number }) => void;
     columnVisibility: Record<string, boolean>;
-    setColumnVisibility: (model: Record<string, boolean>) => void;
+    dialogOpen: DialogType | null;
     filterModel: GridFilterModel;
-    setFilterModel: (model: GridFilterModel) => void;
+    paginationModel: { pageSize: number; page: number };
     searchText: string;
+    selectedPackage: string | null;
+    selectionModel: string[];
+    setColumnVisibility: (model: Record<string, boolean>) => void;
+    setDialogOpen: (dialog: DialogType | null) => void;
+    setFilterModel: (model: GridFilterModel) => void;
+    setPaginationModel: (model: { pageSize: number; page: number }) => void;
     setSearchText: (text: string) => void;
+    setSelectedPackage: (base: string | null) => void;
+    setSelectionModel: (model: string[]) => void;
 }
 
 export function useTableState(): UseTableStateResult {
@@ -49,8 +47,8 @@ export function useTableState(): UseTableStateResult {
     const [searchText, setSearchText] = useState("");
 
     const [paginationModel, setPaginationModel] = useLocalStorage("ahriman-packages-pagination", {
-        pageSize: 10,
         page: 0,
+        pageSize: 25,
     });
     const [columnVisibility, setColumnVisibility] = useLocalStorage<Record<string, boolean>>(
         "ahriman-packages-columns",
@@ -62,21 +60,19 @@ export function useTableState(): UseTableStateResult {
     );
 
     return {
-        selectionModel,
-        setSelectionModel,
-
-        dialogOpen,
-        setDialogOpen,
-        selectedPackage,
-        setSelectedPackage,
-
-        paginationModel,
-        setPaginationModel,
         columnVisibility,
-        setColumnVisibility,
+        dialogOpen,
         filterModel,
-        setFilterModel,
+        paginationModel,
         searchText,
+        selectedPackage,
+        selectionModel,
+        setColumnVisibility,
+        setDialogOpen,
+        setFilterModel,
+        setPaginationModel,
         setSearchText,
+        setSelectedPackage,
+        setSelectionModel,
     };
 }

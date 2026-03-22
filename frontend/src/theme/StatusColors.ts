@@ -21,19 +21,19 @@ import { amber, green, grey, orange, red } from "@mui/material/colors";
 import type { BuildStatus } from "models/BuildStatus";
 
 const base: Record<BuildStatus, string> = {
-    unknown: grey[600],
-    pending: amber[700],
     building: orange[800],
     failed: red[700],
+    pending: amber[700],
     success: green[700],
+    unknown: grey[600],
 };
 
 const headerBase: Record<BuildStatus, string> = {
-    unknown: grey[600],
-    pending: amber[700],
     building: orange[600],
     failed: red[500],
+    pending: amber[700],
     success: green[600],
+    unknown: grey[600],
 };
 
 export const StatusColors = base;

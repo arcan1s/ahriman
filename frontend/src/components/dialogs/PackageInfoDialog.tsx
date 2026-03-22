@@ -45,17 +45,17 @@ import { StatusHeaderStyles } from "theme/StatusColors";
 import { defaultInterval } from "utils";
 
 interface PackageInfoDialogProps {
-    packageBase: string | null;
-    open: boolean;
-    onClose: () => void;
     autoRefreshIntervals: AutoRefreshInterval[];
+    onClose: () => void;
+    open: boolean;
+    packageBase: string | null;
 }
 
 export default function PackageInfoDialog({
-    packageBase,
-    open,
-    onClose,
     autoRefreshIntervals,
+    onClose,
+    open,
+    packageBase,
 }: PackageInfoDialogProps): React.JSX.Element {
     const client = useClient();
     const { currentRepository } = useRepository();
@@ -80,32 +80,32 @@ export default function PackageInfoDialog({
     const autoRefresh = useAutoRefresh("package-info-autoreload-button", defaultInterval(autoRefreshIntervals));
 
     const { data: packageData } = useQuery<PackageStatus[]>({
-        queryKey: localPackageBase && currentRepository ? QueryKeys.package(localPackageBase, currentRepository) : ["packages"],
+        enabled: open,
         queryFn: localPackageBase && currentRepository ?
             () => client.fetch.fetchPackage(localPackageBase, currentRepository) : skipToken,
-        enabled: open,
+        queryKey: localPackageBase && currentRepository ? QueryKeys.package(localPackageBase, currentRepository) : ["packages"],
         refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const { data: dependencies } = useQuery<Dependencies>({
-        queryKey: localPackageBase && currentRepository ? QueryKeys.dependencies(localPackageBase, currentRepository) : ["dependencies"],
+        enabled: open,
         queryFn: localPackageBase && currentRepository ?
             () => client.fetch.fetchPackageDependencies(localPackageBase, currentRepository) : skipToken,
-        enabled: open,
+        queryKey: localPackageBase && currentRepository ? QueryKeys.dependencies(localPackageBase, currentRepository) : ["dependencies"],
     });
 
     const { data: patches = [] } = useQuery<Patch[]>({
-        queryKey: localPackageBase ? QueryKeys.patches(localPackageBase) : ["patches"],
-        queryFn: localPackageBase ? () => client.fetch.fetchPackagePatches(localPackageBase) : skipToken,
         enabled: open,
+        queryFn: localPackageBase ? () => client.fetch.fetchPackagePatches(localPackageBase) : skipToken,
+        queryKey: localPackageBase ? QueryKeys.patches(localPackageBase) : ["patches"],
     });
 
-    const description: PackageStatus | undefined = packageData?.[0];
+    const description = packageData?.[0];
     const pkg = description?.package;
     const status = description?.status;
     const headerStyle = status ? StatusHeaderStyles[status.status] : {};
 
-    const handleUpdate: () => Promise<void> = async () => {
+    const handleUpdate = async (): Promise<void> => {
         if (!localPackageBase || !currentRepository) {
             return;
         }
@@ -118,7 +118,7 @@ export default function PackageInfoDialog({
         }
     };
 
-    const handleRemove: () => Promise<void> = async () => {
+    const handleRemove = async (): Promise<void> => {
         if (!localPackageBase || !currentRepository) {
             return;
         }
@@ -131,20 +131,20 @@ export default function PackageInfoDialog({
         }
     };
 
-    const handleHoldToggle: () => Promise<void> = async () => {
+    const handleHoldToggle = async (): Promise<void> => {
         if (!localPackageBase || !currentRepository) {
             return;
         }
         try {
             const newHeldStatus = !(status?.is_held ?? false);
-            await client.service.servicePackageHoldUpdate(localPackageBase, currentRepository, newHeldStatus);
+            await client.service.servicePackageHold(localPackageBase, currentRepository, newHeldStatus);
             void queryClient.invalidateQueries({ queryKey: QueryKeys.package(localPackageBase, currentRepository) });
         } catch (exception) {
             showError("Action failed", `Could not update hold status: ${ApiError.errorDetail(exception)}`);
         }
     };
 
-    const handleDeletePatch: (key: string) => Promise<void> = async key => {
+    const handleDeletePatch = async (key: string): Promise<void> => {
         if (!localPackageBase) {
             return;
         }
@@ -156,7 +156,7 @@ export default function PackageInfoDialog({
         }
     };
 
-    return <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
+    return <Dialog fullWidth maxWidth="lg" onClose={handleClose} open={open}>
         <DialogHeader onClose={handleClose} sx={headerStyle}>
             {pkg && status
                 ? `${pkg.base} ${status.status} at ${new Date(status.timestamp * 1000).toISOStringShort()}`
@@ -166,24 +166,24 @@ export default function PackageInfoDialog({
         <DialogContent>
             {pkg &&
                 <>
-                    <PackageDetailsGrid pkg={pkg} dependencies={dependencies} />
+                    <PackageDetailsGrid dependencies={dependencies} pkg={pkg} />
                     <PackagePatchesList
-                        patches={patches}
                         editable={isAuthorized}
                         onDelete={key => void handleDeletePatch(key)}
+                        patches={patches}
                     />
 
                     <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 2 }}>
-                        <Tabs value={activeTab} onChange={(_, tab: TabKey) => setActiveTab(tab)}>
-                            {tabs.map(({ key, label }) => <Tab key={key} value={key} label={label} />)}
+                        <Tabs onChange={(_, tab: TabKey) => setActiveTab(tab)} value={activeTab}>
+                            {tabs.map(({ key, label }) => <Tab key={key} label={label} value={key} />)}
                         </Tabs>
                     </Box>
 
                     {activeTab === "logs" && localPackageBase && currentRepository &&
                         <BuildLogsTab
                             packageBase={localPackageBase}
-                            repository={currentRepository}
                             refreshInterval={autoRefresh.interval}
+                            repository={currentRepository}
                         />
                     }
                     {activeTab === "changes" && localPackageBase && currentRepository &&
@@ -197,25 +197,26 @@ export default function PackageInfoDialog({
                     }
                     {activeTab === "artifacts" && localPackageBase && currentRepository &&
                         <ArtifactsTab
+                            currentVersion={pkg.version}
                             packageBase={localPackageBase}
                             repository={currentRepository}
-                            currentVersion={pkg.version} />
+                        />
                     }
                 </>
             }
         </DialogContent>
 
         <PackageInfoActions
-            isAuthorized={isAuthorized}
-            refreshDatabase={refreshDatabase}
-            onRefreshDatabaseChange={setRefreshDatabase}
-            isHeld={status?.is_held ?? false}
-            onHoldToggle={() => void handleHoldToggle()}
-            onUpdate={() => void handleUpdate()}
-            onRemove={() => void handleRemove()}
-            autoRefreshIntervals={autoRefreshIntervals}
             autoRefreshInterval={autoRefresh.interval}
+            autoRefreshIntervals={autoRefreshIntervals}
+            isAuthorized={isAuthorized}
+            isHeld={status?.is_held ?? false}
             onAutoRefreshIntervalChange={autoRefresh.setInterval}
+            onHoldToggle={() => void handleHoldToggle()}
+            onRefreshDatabaseChange={setRefreshDatabase}
+            onRemove={() => void handleRemove()}
+            onUpdate={() => void handleUpdate()}
+            refreshDatabase={refreshDatabase}
         />
     </Dialog>;
 }

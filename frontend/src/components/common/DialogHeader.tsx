@@ -28,7 +28,7 @@ interface DialogHeaderProps {
 }
 
 export default function DialogHeader({ children, onClose, sx }: DialogHeaderProps): React.JSX.Element {
-    return <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", ...sx }}>
+    return <DialogTitle sx={{ alignItems: "center", display: "flex", justifyContent: "space-between", ...sx }}>
         {children}
         <IconButton aria-label="Close" onClick={onClose} size="small" sx={{ color: "inherit" }}>
             <CloseIcon />

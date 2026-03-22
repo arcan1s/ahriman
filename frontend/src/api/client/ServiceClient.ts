@@ -37,17 +37,17 @@ export class ServiceClient {
         return this.client.request("/api/v1/service/add", { method: "POST", query: repository.toQuery(), json: data });
     }
 
-    async servicePackagePatchRemove(packageBase: string, key: string): Promise<void> {
-        return this.client.request(`/api/v1/packages/${encodeURIComponent(packageBase)}/patches/${encodeURIComponent(key)}`, {
-            method: "DELETE",
+    async servicePackageHold(packageBase: string, repository: RepositoryId, isHeld: boolean): Promise<void> {
+        return this.client.request(`/api/v1/packages/${encodeURIComponent(packageBase)}/hold`, {
+            method: "POST",
+            query: repository.toQuery(),
+            json: { is_held: isHeld },
         });
     }
 
-    async servicePackageRollback(repository: RepositoryId, data: RollbackRequest): Promise<void> {
-        return this.client.request("/api/v1/service/rollback", {
-            method: "POST",
-            query: repository.toQuery(),
-            json: data,
+    async servicePackagePatchRemove(packageBase: string, key: string): Promise<void> {
+        return this.client.request(`/api/v1/packages/${encodeURIComponent(packageBase)}/patches/${encodeURIComponent(key)}`, {
+            method: "DELETE",
         });
     }
 
@@ -61,6 +61,14 @@ export class ServiceClient {
 
     async servicePackageRequest(repository: RepositoryId, data: PackageActionRequest): Promise<void> {
         return this.client.request("/api/v1/service/request", {
+            method: "POST",
+            query: repository.toQuery(),
+            json: data,
+        });
+    }
+
+    async servicePackageRollback(repository: RepositoryId, data: RollbackRequest): Promise<void> {
+        return this.client.request("/api/v1/service/rollback", {
             method: "POST",
             query: repository.toQuery(),
             json: data,
@@ -85,14 +93,6 @@ export class ServiceClient {
 
     async servicePGPImport(data: PGPKeyRequest): Promise<void> {
         return this.client.request("/api/v1/service/pgp", { method: "POST", json: data });
-    }
-
-    async servicePackageHoldUpdate(packageBase: string, repository: RepositoryId, isHeld: boolean): Promise<void> {
-        return this.client.request(`/api/v1/packages/${encodeURIComponent(packageBase)}/hold`, {
-            method: "POST",
-            query: repository.toQuery(),
-            json: { is_held: isHeld },
-        });
     }
 
     async serviceRebuild(repository: RepositoryId, packages: string[]): Promise<void> {

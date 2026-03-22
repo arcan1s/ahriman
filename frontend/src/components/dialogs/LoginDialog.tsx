@@ -36,11 +36,11 @@ import { useNotification } from "hooks/useNotification";
 import React, { useState } from "react";
 
 interface LoginDialogProps {
-    open: boolean;
     onClose: () => void;
+    open: boolean;
 }
 
-export default function LoginDialog({ open, onClose }: LoginDialogProps): React.JSX.Element {
+export default function LoginDialog({ onClose, open }: LoginDialogProps): React.JSX.Element {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -54,7 +54,7 @@ export default function LoginDialog({ open, onClose }: LoginDialogProps): React.
         onClose();
     };
 
-    const handleSubmit: () => Promise<void> = async () => {
+    const handleSubmit = async (): Promise<void> => {
         if (!username || !password) {
             return;
         }
@@ -72,26 +72,24 @@ export default function LoginDialog({ open, onClose }: LoginDialogProps): React.
         }
     };
 
-    return <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+    return <Dialog fullWidth maxWidth="xs" onClose={handleClose} open={open}>
         <DialogHeader onClose={handleClose}>
             Login
         </DialogHeader>
 
         <DialogContent>
             <TextField
-                label="username"
-                fullWidth
-                margin="normal"
-                value={username}
-                onChange={event => setUsername(event.target.value)}
                 autoFocus
+                fullWidth
+                label="username"
+                margin="normal"
+                onChange={event => setUsername(event.target.value)}
+                value={username}
             />
             <TextField
-                label="password"
                 fullWidth
+                label="password"
                 margin="normal"
-                type={showPassword ? "text" : "password"}
-                value={password}
                 onChange={event => setPassword(event.target.value)}
                 onKeyDown={event => {
                     if (event.key === "Enter") {
@@ -102,17 +100,24 @@ export default function LoginDialog({ open, onClose }: LoginDialogProps): React.
                     input: {
                         endAdornment:
                             <InputAdornment position="end">
-                                <IconButton aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
+                                <IconButton
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    edge="end"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    size="small"
+                                >
                                     {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                                 </IconButton>
                             </InputAdornment>,
                     },
                 }}
+                type={showPassword ? "text" : "password"}
+                value={password}
             />
         </DialogContent>
 
         <DialogActions>
-            <Button onClick={() => void handleSubmit()} variant="contained" startIcon={<PersonIcon />}>login</Button>
+            <Button onClick={() => void handleSubmit()} startIcon={<PersonIcon />} variant="contained">login</Button>
         </DialogActions>
     </Dialog>;
 }

@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 export class RepositoryId {
+
     readonly architecture: string;
     readonly repository: string;
 

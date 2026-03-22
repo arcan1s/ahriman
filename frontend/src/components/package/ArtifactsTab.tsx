@@ -19,7 +19,7 @@
  */
 import RestoreIcon from "@mui/icons-material/Restore";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { DataGrid, type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "api/client/ApiError";
 import { QueryKeys } from "hooks/QueryKeys";
@@ -29,36 +29,37 @@ import { useNotification } from "hooks/useNotification";
 import type { RepositoryId } from "models/RepositoryId";
 import type React from "react";
 import { useCallback, useMemo } from "react";
+import { DETAIL_TABLE_PROPS } from "utils";
 
 interface ArtifactsTabProps {
+    currentVersion: string;
     packageBase: string;
     repository: RepositoryId;
-    currentVersion: string;
 }
 
 interface ArtifactRow {
     id: string;
-    version: string;
     packager: string;
     packages: string[];
+    version: string;
 }
 
 const staticColumns: GridColDef<ArtifactRow>[] = [
-    { field: "version", headerName: "version", flex: 1, align: "right", headerAlign: "right" },
+    { align: "right", field: "version", flex: 1, headerAlign: "right", headerName: "version" },
     {
         field: "packages",
-        headerName: "packages",
         flex: 2,
-        renderCell: (params: GridRenderCellParams<ArtifactRow>) =>
+        headerName: "packages",
+        renderCell: params =>
             <Box sx={{ whiteSpace: "pre-line" }}>{params.row.packages.join("\n")}</Box>,
     },
-    { field: "packager", headerName: "packager", flex: 1 },
+    { field: "packager", flex: 1, headerName: "packager" },
 ];
 
 export default function ArtifactsTab({
+    currentVersion,
     packageBase,
     repository,
-    currentVersion,
 }: ArtifactsTabProps): React.JSX.Element {
     const client = useClient();
     const queryClient = useQueryClient();
@@ -66,17 +67,17 @@ export default function ArtifactsTab({
     const { showSuccess, showError } = useNotification();
 
     const { data: rows = [] } = useQuery<ArtifactRow[]>({
-        queryKey: QueryKeys.artifacts(packageBase, repository),
+        enabled: !!packageBase,
         queryFn: async () => {
             const packages = await client.fetch.fetchPackageArtifacts(packageBase, repository);
             return packages.map(artifact => ({
                 id: artifact.version,
-                version: artifact.version,
                 packager: artifact.packager ?? "",
                 packages: Object.keys(artifact.packages).sort(),
+                version: artifact.version,
             })).reverse();
         },
-        enabled: !!packageBase,
+        queryKey: QueryKeys.artifacts(packageBase, repository),
     });
 
     const handleRollback = useCallback(async (version: string): Promise<void> => {
@@ -96,32 +97,23 @@ export default function ArtifactsTab({
             field: "actions",
             filterable: false,
             headerName: "",
-            width: 60,
-            renderCell: (params: GridRenderCellParams<ArtifactRow>) =>
+            renderCell: params =>
                 <Tooltip title={params.row.version === currentVersion ? "Current version" : "Rollback to this version"}>
                     <span>
                         <IconButton
-                            size="small"
                             disabled={params.row.version === currentVersion}
                             onClick={() => void handleRollback(params.row.version)}
+                            size="small"
                         >
                             <RestoreIcon fontSize="small" />
                         </IconButton>
                     </span>
                 </Tooltip>,
+            width: 60,
         } satisfies GridColDef<ArtifactRow>] : [],
     ], [isAuthorized, currentVersion, handleRollback]);
 
     return <Box sx={{ mt: 1 }}>
-        <DataGrid
-            rows={rows}
-            columns={columns}
-            density="compact"
-            disableColumnSorting
-            disableRowSelectionOnClick
-            getRowHeight={() => "auto"}
-            pageSizeOptions={[10, 25]}
-            sx={{ height: 400, mt: 1 }}
-        />
+        <DataGrid columns={columns} getRowHeight={() => "auto"} rows={rows} {...DETAIL_TABLE_PROPS} />
     </Box>;
 }

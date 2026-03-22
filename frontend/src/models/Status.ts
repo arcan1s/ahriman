@@ -20,7 +20,7 @@
 import type { BuildStatus } from "models/BuildStatus";
 
 export interface Status {
+    is_held?: boolean;
     status: BuildStatus;
     timestamp: number;
-    is_held?: boolean;
 }

@@ -29,16 +29,16 @@ import type { RepositoryId } from "models/RepositoryId";
 import React, { useEffect, useMemo, useState } from "react";
 
 interface Logs {
-    version: string;
-    processId: string;
     created: number;
     logs: string;
+    processId: string;
+    version: string;
 }
 
 interface BuildLogsTabProps {
     packageBase: string;
-    repository: RepositoryId;
     refreshInterval: number;
+    repository: RepositoryId;
 }
 
 function convertLogs(records: LogRecord[], filter?: (record: LogRecord) => boolean): string {
@@ -50,17 +50,17 @@ function convertLogs(records: LogRecord[], filter?: (record: LogRecord) => boole
 
 export default function BuildLogsTab({
     packageBase,
-    repository,
     refreshInterval,
+    repository,
 }: BuildLogsTabProps): React.JSX.Element {
     const client = useClient();
     const [selectedVersionKey, setSelectedVersionKey] = useState<string | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
     const { data: allLogs } = useQuery<LogRecord[]>({
-        queryKey: QueryKeys.logs(packageBase, repository),
-        queryFn: () => client.fetch.fetchPackageLogs(packageBase, repository),
         enabled: !!packageBase,
+        queryFn: () => client.fetch.fetchPackageLogs(packageBase, repository),
+        queryKey: QueryKeys.logs(packageBase, repository),
         refetchInterval: refreshInterval > 0 ? refreshInterval : false,
     });
 
@@ -84,13 +84,13 @@ export default function BuildLogsTab({
         return Object.values(grouped)
             .sort((left, right) => right.minCreated - left.minCreated)
             .map(record => ({
-                version: record.version,
-                processId: record.process_id,
                 created: record.minCreated,
                 logs: convertLogs(
                     allLogs,
                     right => record.version === right.version && record.process_id === right.process_id,
                 ),
+                processId: record.process_id,
+                version: record.version,
             }));
     }, [allLogs]);
 
@@ -110,13 +110,13 @@ export default function BuildLogsTab({
 
     // Refresh active version logs
     const { data: versionLogs } = useQuery<LogRecord[]>({
-        queryKey: QueryKeys.logsVersion(packageBase, repository, activeVersion?.version ?? "", activeVersion?.processId ?? ""),
+        placeholderData: keepPreviousData,
         queryFn: activeVersion
             ? () => client.fetch.fetchPackageLogs(
                 packageBase, repository, activeVersion.version, activeVersion.processId,
             )
             : skipToken,
-        placeholderData: keepPreviousData,
+        queryKey: QueryKeys.logsVersion(packageBase, repository, activeVersion?.version ?? "", activeVersion?.processId ?? ""),
         refetchInterval: refreshInterval > 0 ? refreshInterval : false,
     });
 
@@ -143,25 +143,25 @@ export default function BuildLogsTab({
     return <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
         <Box>
             <Button
-                size="small"
                 aria-label="Select version"
-                startIcon={<ListIcon />}
                 onClick={event => setAnchorEl(event.currentTarget)}
+                size="small"
+                startIcon={<ListIcon />}
             />
             <Menu
                 anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
                 onClose={() => setAnchorEl(null)}
+                open={Boolean(anchorEl)}
             >
                 {versions.map((logs, index) =>
                     <MenuItem
                         key={`${logs.version}-${logs.processId}`}
-                        selected={index === activeIndex}
                         onClick={() => {
                             setSelectedVersionKey(`${logs.version}-${logs.processId}`);
                             setAnchorEl(null);
                             resetScroll();
                         }}
+                        selected={index === activeIndex}
                     >
                         <Typography variant="body2">{new Date(logs.created * 1000).toISOStringShort()}</Typography>
                     </MenuItem>,
@@ -174,10 +174,10 @@ export default function BuildLogsTab({
 
         <Box sx={{ flex: 1 }}>
             <CodeBlock
-                preRef={preRef}
                 content={displayedLogs}
                 height={400}
                 onScroll={handleScroll}
+                preRef={preRef}
             />
         </Box>
     </Box>;

@@ -52,11 +52,11 @@ interface EnvironmentVariable {
 }
 
 interface PackageAddDialogProps {
-    open: boolean;
     onClose: () => void;
+    open: boolean;
 }
 
-export default function PackageAddDialog({ open, onClose }: PackageAddDialogProps): React.JSX.Element {
+export default function PackageAddDialog({ onClose, open }: PackageAddDialogProps): React.JSX.Element {
     const client = useClient();
     const { showSuccess, showError } = useNotification();
     const repositorySelect = useSelectedRepository();
@@ -77,9 +77,9 @@ export default function PackageAddDialog({ open, onClose }: PackageAddDialogProp
     const debouncedSearch = useDebounce(packageName, 500);
 
     const { data: searchResults = [] } = useQuery<AURPackage[]>({
-        queryKey: QueryKeys.search(debouncedSearch),
-        queryFn: () => client.service.servicePackageSearch(debouncedSearch),
         enabled: debouncedSearch.length >= 3,
+        queryFn: () => client.service.servicePackageSearch(debouncedSearch),
+        queryKey: QueryKeys.search(debouncedSearch),
     });
 
     const handleSubmit = async (action: "add" | "request"): Promise<void> => {
@@ -107,7 +107,7 @@ export default function PackageAddDialog({ open, onClose }: PackageAddDialogProp
         }
     };
 
-    return <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    return <Dialog fullWidth maxWidth="md" onClose={handleClose} open={open}>
         <DialogHeader onClose={handleClose}>
             Add new packages
         </DialogHeader>
@@ -117,20 +117,18 @@ export default function PackageAddDialog({ open, onClose }: PackageAddDialogProp
 
             <Autocomplete
                 freeSolo
-                options={searchResults.map(pkg => pkg.package)}
                 inputValue={packageName}
                 onInputChange={(_, value) => setPackageName(value)}
+                options={searchResults.map(pkg => pkg.package)}
+                renderInput={params =>
+                    <TextField {...params} label="package" margin="normal" placeholder="AUR package" />
+                }
                 renderOption={(props, option) => {
                     const pkg = searchResults.find(pkg => pkg.package === option);
-                    return (
-                        <li {...props} key={option}>
-                            {option}{pkg ? ` (${pkg.description})` : ""}
-                        </li>
-                    );
+                    return <li {...props} key={option}>
+                        {option}{pkg ? ` (${pkg.description})` : ""}
+                    </li>;
                 }}
-                renderInput={params =>
-                    <TextField {...params} label="package" placeholder="AUR package" margin="normal" />
-                }
             />
 
             <FormControlLabel
@@ -140,45 +138,50 @@ export default function PackageAddDialog({ open, onClose }: PackageAddDialogProp
 
             <Button
                 fullWidth
-                variant="outlined"
-                startIcon={<AddIcon />}
                 onClick={() => {
                     const id = variableIdCounter.current++;
                     setEnvironmentVariables(prev => [...prev, { id, key: "", value: "" }]);
                 }}
+                startIcon={<AddIcon />}
                 sx={{ mt: 1 }}
+                variant="outlined"
             >
                 add environment variable
             </Button>
 
             {environmentVariables.map(variable =>
-                <Box key={variable.id} sx={{ display: "flex", gap: 1, mt: 1, alignItems: "center" }}>
+                <Box key={variable.id} sx={{ alignItems: "center", display: "flex", gap: 1, mt: 1 }}>
                     <TextField
-                        size="small"
-                        placeholder="name"
-                        value={variable.key}
                         onChange={event => {
                             const newKey = event.target.value;
                             setEnvironmentVariables(prev =>
                                 prev.map(entry => entry.id === variable.id ? { ...entry, key: newKey } : entry),
                             );
                         }}
+                        placeholder="name"
+                        size="small"
                         sx={{ flex: 1 }}
+                        value={variable.key}
                     />
                     <Box>=</Box>
                     <TextField
-                        size="small"
                         placeholder="value"
-                        value={variable.value}
                         onChange={event => {
                             const newValue = event.target.value;
                             setEnvironmentVariables(prev =>
                                 prev.map(entry => entry.id === variable.id ? { ...entry, value: newValue } : entry),
                             );
                         }}
+                        size="small"
                         sx={{ flex: 1 }}
+                        value={variable.value}
                     />
-                    <IconButton size="small" color="error" aria-label="Remove variable" onClick={() => setEnvironmentVariables(prev => prev.filter(entry => entry.id !== variable.id))}>
+                    <IconButton
+                        aria-label="Remove variable"
+                        color="error"
+                        onClick={() => setEnvironmentVariables(prev => prev.filter(entry => entry.id !== variable.id))}
+                        size="small"
+                    >
                         <DeleteIcon />
                     </IconButton>
                 </Box>,
@@ -186,8 +189,8 @@ export default function PackageAddDialog({ open, onClose }: PackageAddDialogProp
         </DialogContent>
 
         <DialogActions>
-            <Button onClick={() => void handleSubmit("add")} variant="contained" startIcon={<PlayArrowIcon />}>add</Button>
-            <Button onClick={() => void handleSubmit("request")} variant="contained" color="success" startIcon={<AddIcon />}>request</Button>
+            <Button onClick={() => void handleSubmit("add")} startIcon={<PlayArrowIcon />} variant="contained">add</Button>
+            <Button color="success" onClick={() => void handleSubmit("request")} startIcon={<AddIcon />} variant="contained">request</Button>
         </DialogActions>
     </Dialog>;
 }

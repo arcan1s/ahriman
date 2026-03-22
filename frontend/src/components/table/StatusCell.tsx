@@ -24,11 +24,11 @@ import type React from "react";
 import { StatusColors } from "theme/StatusColors";
 
 interface StatusCellProps {
-    status: BuildStatus;
     isHeld?: boolean;
+    status: BuildStatus;
 }
 
-export default function StatusCell({ status, isHeld }: StatusCellProps): React.JSX.Element {
+export default function StatusCell({ isHeld, status }: StatusCellProps): React.JSX.Element {
     return <Chip
         icon={isHeld ? <PauseCircleIcon /> : undefined}
         label={status}

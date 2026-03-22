@@ -30,23 +30,23 @@ import type React from "react";
 import { StatusHeaderStyles } from "theme/StatusColors";
 
 interface DashboardDialogProps {
-    open: boolean;
     onClose: () => void;
+    open: boolean;
 }
 
-export default function DashboardDialog({ open, onClose }: DashboardDialogProps): React.JSX.Element {
+export default function DashboardDialog({ onClose, open }: DashboardDialogProps): React.JSX.Element {
     const client = useClient();
     const { currentRepository } = useRepository();
 
     const { data: status } = useQuery<InternalStatus>({
-        queryKey: currentRepository ? QueryKeys.status(currentRepository) : ["status"],
-        queryFn: currentRepository ? () => client.fetch.fetchServerStatus(currentRepository) : skipToken,
         enabled: open,
+        queryFn: currentRepository ? () => client.fetch.fetchServerStatus(currentRepository) : skipToken,
+        queryKey: currentRepository ? QueryKeys.status(currentRepository) : ["status"],
     });
 
     const headerStyle = status ? StatusHeaderStyles[status.status.status] : {};
 
-    return <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+    return <Dialog fullWidth maxWidth="lg" onClose={onClose} open={open}>
         <DialogHeader onClose={onClose} sx={headerStyle}>
             System health
         </DialogHeader>
@@ -55,43 +55,43 @@ export default function DashboardDialog({ open, onClose }: DashboardDialogProps)
             {status &&
                 <>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <Typography variant="body2" color="text.secondary" align="right">Repository name</Typography>
+                        <Grid size={{ md: 3, xs: 6 }}>
+                            <Typography align="right" color="text.secondary" variant="body2">Repository name</Typography>
                         </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
+                        <Grid size={{ md: 3, xs: 6 }}>
                             <Typography variant="body2">{status.repository}</Typography>
                         </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <Typography variant="body2" color="text.secondary" align="right">Repository architecture</Typography>
+                        <Grid size={{ md: 3, xs: 6 }}>
+                            <Typography align="right" color="text.secondary" variant="body2">Repository architecture</Typography>
                         </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
+                        <Grid size={{ md: 3, xs: 6 }}>
                             <Typography variant="body2">{status.architecture}</Typography>
                         </Grid>
                     </Grid>
 
                     <Grid container spacing={2} sx={{ mt: 1 }}>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <Typography variant="body2" color="text.secondary" align="right">Current status</Typography>
+                        <Grid size={{ md: 3, xs: 6 }}>
+                            <Typography align="right" color="text.secondary" variant="body2">Current status</Typography>
                         </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
+                        <Grid size={{ md: 3, xs: 6 }}>
                             <Typography variant="body2">{status.status.status}</Typography>
                         </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <Typography variant="body2" color="text.secondary" align="right">Updated at</Typography>
+                        <Grid size={{ md: 3, xs: 6 }}>
+                            <Typography align="right" color="text.secondary" variant="body2">Updated at</Typography>
                         </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
+                        <Grid size={{ md: 3, xs: 6 }}>
                             <Typography variant="body2">{new Date(status.status.timestamp * 1000).toISOStringShort()}</Typography>
                         </Grid>
                     </Grid>
 
                     <Grid container spacing={2} sx={{ mt: 2 }}>
-                        <Grid size={{ xs: 12, md: 6 }}>
+                        <Grid size={{ md: 6, xs: 12 }}>
                             <Box sx={{ height: 300 }}>
                                 <PackageCountBarChart stats={status.stats} />
                             </Box>
                         </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Box sx={{ height: 300, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <Grid size={{ md: 6, xs: 12 }}>
+                            <Box sx={{ alignItems: "center", display: "flex", height: 300, justifyContent: "center" }}>
                                 <StatusPieChart counters={status.packages} />
                             </Box>
                         </Grid>

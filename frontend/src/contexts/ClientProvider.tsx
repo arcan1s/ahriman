@@ -24,9 +24,7 @@ import React, { type ReactNode, useMemo } from "react";
 export function ClientProvider({ children }: { children: ReactNode }): React.JSX.Element {
     const client = useMemo(() => new AhrimanClient(), []);
 
-    return (
-        <ClientContext.Provider value={client}>
-            {children}
-        </ClientContext.Provider>
-    );
+    return <ClientContext.Provider value={client}>
+        {children}
+    </ClientContext.Provider>;
 }

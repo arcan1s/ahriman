@@ -23,8 +23,8 @@ import type { Status } from "models/Status";
 
 export interface InternalStatus {
     architecture: string;
-    repository: string;
     packages: Counters;
+    repository: string;
     stats: RepositoryStats;
     status: Status;
     version: string;

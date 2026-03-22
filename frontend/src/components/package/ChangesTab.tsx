@@ -30,5 +30,5 @@ interface ChangesTabProps {
 export default function ChangesTab({ packageBase, repository }: ChangesTabProps): React.JSX.Element {
     const data = usePackageChanges(packageBase, repository);
 
-    return <CodeBlock language="diff" content={data?.changes ?? ""} height={400} />;
+    return <CodeBlock content={data?.changes ?? ""} height={400} language="diff" />;
 }

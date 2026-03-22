@@ -27,9 +27,9 @@ export function usePackageChanges(packageBase: string, repository: RepositoryId)
     const client = useClient();
 
     const { data } = useQuery<Changes>({
-        queryKey: QueryKeys.changes(packageBase, repository),
-        queryFn: () => client.fetch.fetchPackageChanges(packageBase, repository),
         enabled: !!packageBase,
+        queryFn: () => client.fetch.fetchPackageChanges(packageBase, repository),
+        queryKey: QueryKeys.changes(packageBase, repository),
     });
 
     return data;

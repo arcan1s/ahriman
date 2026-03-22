@@ -26,41 +26,41 @@ import { useAuth } from "hooks/useAuth";
 import type React from "react";
 
 interface FooterProps {
-    version: string;
     docsEnabled: boolean;
     indexUrl?: string;
     onLoginClick: () => void;
+    version: string;
 }
 
-export default function Footer({ version, docsEnabled, indexUrl, onLoginClick }: FooterProps): React.JSX.Element {
+export default function Footer({ docsEnabled, indexUrl, onLoginClick, version }: FooterProps): React.JSX.Element {
     const { enabled: authEnabled, username, logout } = useAuth();
 
     return <Box
         component="footer"
         sx={{
+            alignItems: "center",
+            borderColor: "divider",
+            borderTop: 1,
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "space-between",
-            alignItems: "center",
-            borderTop: 1,
-            borderColor: "divider",
             mt: 2,
             py: 1,
         }}
     >
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <Link href="https://github.com/arcan1s/ahriman" underline="hover" color="inherit" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Box sx={{ alignItems: "center", display: "flex", gap: 2 }}>
+            <Link color="inherit" href="https://github.com/arcan1s/ahriman" sx={{ alignItems: "center", display: "flex", gap: 0.5 }} underline="hover">
                 <GitHubIcon fontSize="small" />
                 <Typography variant="body2">ahriman {version}</Typography>
             </Link>
-            <Link href="https://github.com/arcan1s/ahriman/releases" underline="hover" color="text.secondary" variant="body2">
+            <Link color="text.secondary" href="https://github.com/arcan1s/ahriman/releases" underline="hover" variant="body2">
                 releases
             </Link>
-            <Link href="https://github.com/arcan1s/ahriman/issues" underline="hover" color="text.secondary" variant="body2">
+            <Link color="text.secondary" href="https://github.com/arcan1s/ahriman/issues" underline="hover" variant="body2">
                 report a bug
             </Link>
             {docsEnabled &&
-                <Link href="/api-docs" underline="hover" color="text.secondary" variant="body2">
+                <Link color="text.secondary" href="/api-docs" underline="hover" variant="body2">
                     api
                 </Link>
             }
@@ -68,7 +68,7 @@ export default function Footer({ version, docsEnabled, indexUrl, onLoginClick }:
 
         {indexUrl &&
             <Box>
-                <Link href={indexUrl} underline="hover" color="inherit" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Link color="inherit" href={indexUrl} underline="hover" sx={{ alignItems: "center", display: "flex", gap: 0.5 }}>
                     <HomeIcon fontSize="small" />
                     <Typography variant="body2">repo index</Typography>
                 </Link>
@@ -78,11 +78,11 @@ export default function Footer({ version, docsEnabled, indexUrl, onLoginClick }:
         {authEnabled &&
             <Box>
                 {username ?
-                    <Button size="small" startIcon={<LogoutIcon />} onClick={() => void logout()} sx={{ textTransform: "none" }}>
+                    <Button onClick={() => void logout()} size="small" startIcon={<LogoutIcon />} sx={{ textTransform: "none" }}>
                         logout ({username})
                     </Button>
                     :
-                    <Button size="small" startIcon={<LoginIcon />} onClick={onLoginClick} sx={{ textTransform: "none" }}>
+                    <Button onClick={onLoginClick} size="small" startIcon={<LoginIcon />} sx={{ textTransform: "none" }}>
                         login
                     </Button>
                 }

@@ -20,10 +20,10 @@
 import { type RefObject, useCallback, useRef } from "react";
 
 interface UseAutoScrollResult {
-    preRef: RefObject<HTMLElement | null>;
     handleScroll: () => void;
-    scrollToBottom: () => void;
+    preRef: RefObject<HTMLElement | null>;
     resetScroll: () => void;
+    scrollToBottom: () => void;
 }
 
 export function useAutoScroll(): UseAutoScrollResult {
@@ -59,5 +59,5 @@ export function useAutoScroll(): UseAutoScrollResult {
         }
     }, []);
 
-    return { preRef, handleScroll, scrollToBottom, resetScroll };
+    return { handleScroll, preRef, resetScroll, scrollToBottom };
 }

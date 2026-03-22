@@ -21,10 +21,10 @@ import type { RepositoryId } from "models/RepositoryId";
 import { createContext } from "react";
 
 export interface RepositoryContextValue {
-    repositories: RepositoryId[];
     currentRepository: RepositoryId | null;
-    setRepositories: (repositories: RepositoryId[]) => void;
+    repositories: RepositoryId[];
     setCurrentRepository: (repository: RepositoryId) => void;
+    setRepositories: (repositories: RepositoryId[]) => void;
 }
 
 export const RepositoryContext = createContext<RepositoryContextValue | null>(null);

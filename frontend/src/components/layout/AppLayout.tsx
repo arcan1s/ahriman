@@ -41,8 +41,8 @@ export default function AppLayout(): React.JSX.Element {
     const [loginOpen, setLoginOpen] = useState(false);
 
     const { data: info } = useQuery<InfoResponse>({
-        queryKey: QueryKeys.info,
         queryFn: () => client.fetch.fetchServerInfo(),
+        queryKey: QueryKeys.info,
         staleTime: Infinity,
     });
 
@@ -55,9 +55,9 @@ export default function AppLayout(): React.JSX.Element {
     }, [info, setAuthState, setRepositories]);
 
     return <Container maxWidth="xl">
-        <Box sx={{ display: "flex", alignItems: "center", py: 1, gap: 1 }}>
+        <Box sx={{ alignItems: "center", display: "flex", gap: 1, py: 1 }}>
             <a href="https://ahriman.readthedocs.io/" title="logo">
-                <img src="/static/logo.svg" width={30} height={30} alt="" />
+                <img alt="" height={30} src="/static/logo.svg" width={30} />
             </a>
             <Box sx={{ flex: 1 }}>
                 <Navbar />
@@ -69,17 +69,15 @@ export default function AppLayout(): React.JSX.Element {
             </Tooltip>
         </Box>
 
-        <PackageTable
-            autoRefreshIntervals={info?.autorefresh_intervals ?? []}
-        />
+        <PackageTable autoRefreshIntervals={info?.autorefresh_intervals ?? []} />
 
         <Footer
-            version={info?.version ?? ""}
             docsEnabled={info?.docs_enabled ?? false}
             indexUrl={info?.index_url}
             onLoginClick={() => info?.auth.external ? window.location.assign("/api/v1/login") : setLoginOpen(true)}
+            version={info?.version ?? ""}
         />
 
-        <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
+        <LoginDialog onClose={() => setLoginOpen(false)} open={loginOpen} />
     </Container>;
 }

@@ -29,19 +29,19 @@ interface PackageCountBarChartProps {
 export default function PackageCountBarChart({ stats }: PackageCountBarChartProps): React.JSX.Element {
     return <Bar
         data={{
-            labels: ["packages"],
             datasets: [
                 {
-                    label: "bases",
-                    data: [stats.bases ?? 0],
                     backgroundColor: indigo[300],
+                    data: [stats.bases ?? 0],
+                    label: "bases",
                 },
                 {
-                    label: "archives",
-                    data: [stats.packages ?? 0],
                     backgroundColor: blue[500],
+                    data: [stats.packages ?? 0],
+                    label: "archives",
                 },
             ],
+            labels: ["packages"],
         }}
         options={{
             maintainAspectRatio: false,

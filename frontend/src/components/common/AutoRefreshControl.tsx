@@ -25,14 +25,14 @@ import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import React, { useState } from "react";
 
 interface AutoRefreshControlProps {
-    intervals: AutoRefreshInterval[];
     currentInterval: number;
+    intervals: AutoRefreshInterval[];
     onIntervalChange: (interval: number) => void;
 }
 
 export default function AutoRefreshControl({
-    intervals,
     currentInterval,
+    intervals,
     onIntervalChange,
 }: AutoRefreshControlProps): React.JSX.Element | null {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -46,25 +46,25 @@ export default function AutoRefreshControl({
     return <>
         <Tooltip title="Auto-refresh">
             <IconButton
-                size="small"
                 aria-label="Auto-refresh"
-                onClick={event => setAnchorEl(event.currentTarget)}
                 color={enabled ? "primary" : "default"}
+                onClick={event => setAnchorEl(event.currentTarget)}
+                size="small"
             >
                 {enabled ? <TimerIcon fontSize="small" /> : <TimerOffIcon fontSize="small" />}
             </IconButton>
         </Tooltip>
         <Menu
             anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
             onClose={() => setAnchorEl(null)}
+            open={Boolean(anchorEl)}
         >
             <MenuItem
-                selected={!enabled}
                 onClick={() => {
                     onIntervalChange(0);
                     setAnchorEl(null);
                 }}
+                selected={!enabled}
             >
                 <ListItemIcon>
                     {!enabled && <CheckIcon fontSize="small" />}
@@ -74,11 +74,11 @@ export default function AutoRefreshControl({
             {intervals.map(interval =>
                 <MenuItem
                     key={interval.interval}
-                    selected={enabled && interval.interval === currentInterval}
                     onClick={() => {
                         onIntervalChange(interval.interval);
                         setAnchorEl(null);
                     }}
+                    selected={enabled && interval.interval === currentInterval}
                 >
                     <ListItemIcon>
                         {enabled && interval.interval === currentInterval && <CheckIcon fontSize="small" />}

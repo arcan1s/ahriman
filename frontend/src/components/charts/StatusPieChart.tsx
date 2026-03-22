@@ -30,14 +30,14 @@ interface StatusPieChartProps {
 export default function StatusPieChart({ counters }: StatusPieChartProps): React.JSX.Element {
     const labels = ["unknown", "pending", "building", "failed", "success"] as BuildStatus[];
     const data = {
-        labels: labels,
         datasets: [
             {
-                label: "packages in status",
-                data: labels.map(label => counters[label]),
                 backgroundColor: labels.map(label => StatusColors[label]),
+                data: labels.map(label => counters[label]),
+                label: "packages in status",
             },
         ],
+        labels: labels,
     };
 
     return <Pie data={data} options={{ responsive: true }} />;

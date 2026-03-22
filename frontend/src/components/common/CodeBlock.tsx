@@ -46,27 +46,24 @@ export default function CodeBlock({
 
     return <Box sx={{ position: "relative" }}>
         <Box
-            ref={preRef}
             onScroll={onScroll}
+            ref={preRef}
             sx={{ overflow: "auto", height }}
         >
             <SyntaxHighlighter
+                customStyle={{
+                    borderRadius: `${theme.shape.borderRadius}px`,
+                    fontSize: "0.8rem",
+                    padding: theme.spacing(2),
+                }}
                 language={language}
                 style={mode === "dark" ? vs2015 : githubGist}
                 wrapLongLines
-                customStyle={{
-                    padding: theme.spacing(2),
-                    borderRadius: `${theme.shape.borderRadius}px`,
-                    fontSize: "0.8rem",
-                    fontFamily: "monospace",
-                    margin: 0,
-                    minHeight: "100%",
-                }}
             >
                 {content}
             </SyntaxHighlighter>
         </Box>
-        {content && <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+        {content && <Box sx={{ position: "absolute", right: 8, top: 8 }}>
             <CopyButton text={content} />
         </Box>}
     </Box>;

@@ -21,7 +21,7 @@ import type { AlertColor } from "@mui/material";
 
 export interface Notification {
     id: string;
-    title: string;
     message: string;
     severity: AlertColor;
+    title: string;
 }

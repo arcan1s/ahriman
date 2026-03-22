@@ -27,6 +27,7 @@ import type { Event } from "models/Event";
 import type { RepositoryId } from "models/RepositoryId";
 import type React from "react";
 import { useMemo } from "react";
+import { DETAIL_TABLE_PROPS } from "utils";
 
 interface EventsTabProps {
     packageBase: string;
@@ -34,44 +35,36 @@ interface EventsTabProps {
 }
 
 interface EventRow {
-    id: number;
-    timestamp: string;
     event: string;
+    id: number;
     message: string;
+    timestamp: string;
 }
 
 const columns: GridColDef<EventRow>[] = [
-    { field: "timestamp", headerName: "date", width: 180, align: "right", headerAlign: "right" },
-    { field: "event", headerName: "event", flex: 1 },
-    { field: "message", headerName: "description", flex: 2 },
+    { align: "right", field: "timestamp", headerAlign: "right", headerName: "date", width: 180 },
+    { field: "event", flex: 1, headerName: "event" },
+    { field: "message", flex: 2, headerName: "description" },
 ];
 
 export default function EventsTab({ packageBase, repository }: EventsTabProps): React.JSX.Element {
     const client = useClient();
 
     const { data: events = [] } = useQuery<Event[]>({
-        queryKey: QueryKeys.events(repository, packageBase),
-        queryFn: () => client.fetch.fetchPackageEvents(repository, packageBase, 30),
         enabled: !!packageBase,
+        queryFn: () => client.fetch.fetchPackageEvents(repository, packageBase, 30),
+        queryKey: QueryKeys.events(repository, packageBase),
     });
 
     const rows = useMemo<EventRow[]>(() => events.map((event, index) => ({
-        id: index,
-        timestamp: new Date(event.created * 1000).toISOStringShort(),
         event: event.event,
+        id: index,
         message: event.message ?? "",
+        timestamp: new Date(event.created * 1000).toISOStringShort(),
     })), [events]);
 
     return <Box sx={{ mt: 1 }}>
         <EventDurationLineChart events={events} />
-        <DataGrid
-            rows={rows}
-            columns={columns}
-            density="compact"
-            disableColumnSorting
-            disableRowSelectionOnClick
-            pageSizeOptions={[10, 25]}
-            sx={{ height: 400, mt: 1 }}
-        />
+        <DataGrid columns={columns} rows={rows} {...DETAIL_TABLE_PROPS} />
     </Box>;
 }

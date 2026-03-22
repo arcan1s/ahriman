@@ -30,9 +30,9 @@ export default function RepositorySelect({
     return <FormControl fullWidth margin="normal">
         <InputLabel>repository</InputLabel>
         <Select
-            value={repositorySelect.selectedKey || (currentRepository?.key ?? "")}
             label="repository"
             onChange={event => repositorySelect.setSelectedKey(event.target.value)}
+            value={repositorySelect.selectedKey || (currentRepository?.key ?? "")}
         >
             {repositories.map(repository =>
                 <MenuItem key={repository.key} value={repository.key}>

@@ -39,10 +39,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     const theme = useMemo(() => createAppTheme(mode), [mode]);
 
     useEffect(() => {
-        const textColor = mode === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)";
-        const gridColor = mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
-        chartDefaults.color = textColor;
-        chartDefaults.borderColor = gridColor;
+        chartDefaults.color = mode === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)";
+        chartDefaults.borderColor = mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
     }, [mode]);
 
     const value = useMemo(() => ({ mode, toggleTheme }), [mode, toggleTheme]);

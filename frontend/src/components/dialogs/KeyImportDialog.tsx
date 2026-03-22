@@ -35,11 +35,11 @@ import { useNotification } from "hooks/useNotification";
 import React, { useState } from "react";
 
 interface KeyImportDialogProps {
-    open: boolean;
     onClose: () => void;
+    open: boolean;
 }
 
-export default function KeyImportDialog({ open, onClose }: KeyImportDialogProps): React.JSX.Element {
+export default function KeyImportDialog({ onClose, open }: KeyImportDialogProps): React.JSX.Element {
     const client = useClient();
     const { showSuccess, showError } = useNotification();
 
@@ -54,7 +54,7 @@ export default function KeyImportDialog({ open, onClose }: KeyImportDialogProps)
         onClose();
     };
 
-    const handleFetch: () => Promise<void> = async () => {
+    const handleFetch = async (): Promise<void> => {
         if (!fingerprint || !server) {
             return;
         }
@@ -67,7 +67,7 @@ export default function KeyImportDialog({ open, onClose }: KeyImportDialogProps)
         }
     };
 
-    const handleImport: () => Promise<void> = async () => {
+    const handleImport = async (): Promise<void> => {
         if (!fingerprint || !server) {
             return;
         }
@@ -81,38 +81,38 @@ export default function KeyImportDialog({ open, onClose }: KeyImportDialogProps)
         }
     };
 
-    return <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
+    return <Dialog fullWidth maxWidth="lg" onClose={handleClose} open={open}>
         <DialogHeader onClose={handleClose}>
             Import key from PGP server
         </DialogHeader>
 
         <DialogContent>
             <TextField
-                label="fingerprint"
-                placeholder="PGP key fingerprint"
                 fullWidth
+                label="fingerprint"
                 margin="normal"
-                value={fingerprint}
                 onChange={event => setFingerprint(event.target.value)}
+                placeholder="PGP key fingerprint"
+                value={fingerprint}
             />
             <TextField
-                label="key server"
-                placeholder="PGP key server"
                 fullWidth
+                label="key server"
                 margin="normal"
-                value={server}
                 onChange={event => setServer(event.target.value)}
+                placeholder="PGP key server"
+                value={server}
             />
             {keyBody &&
                 <Box sx={{ mt: 2 }}>
-                    <CodeBlock content={keyBody} height={300} />
+                    <CodeBlock height={300} content={keyBody} />
                 </Box>
             }
         </DialogContent>
 
         <DialogActions>
-            <Button onClick={() => void handleImport()} variant="contained" startIcon={<PlayArrowIcon />}>import</Button>
-            <Button onClick={() => void handleFetch()} variant="contained" color="success" startIcon={<RefreshIcon />}>fetch</Button>
+            <Button onClick={() => void handleImport()} startIcon={<PlayArrowIcon />} variant="contained">import</Button>
+            <Button color="success" onClick={() => void handleFetch()} startIcon={<RefreshIcon />} variant="contained">fetch</Button>
         </DialogActions>
     </Dialog>;
 }

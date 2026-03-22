@@ -20,10 +20,10 @@
 import type { Patch } from "models/Patch";
 
 export interface PackageActionRequest {
-    packages: string[];
-    patches?: Patch[];
-    refresh?: boolean;
     aur?: boolean;
     local?: boolean;
     manual?: boolean;
+    packages: string[];
+    patches?: Patch[];
+    refresh?: boolean;
 }

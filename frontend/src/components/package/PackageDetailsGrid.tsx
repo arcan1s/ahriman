@@ -23,11 +23,11 @@ import type { Package } from "models/Package";
 import React from "react";
 
 interface PackageDetailsGridProps {
-    pkg: Package;
     dependencies?: Dependencies;
+    pkg: Package;
 }
 
-export default function PackageDetailsGrid({ pkg, dependencies }: PackageDetailsGridProps): React.JSX.Element {
+export default function PackageDetailsGrid({ dependencies, pkg }: PackageDetailsGridProps): React.JSX.Element {
     const packagesList = Object.entries(pkg.packages)
         .map(([name, properties]) => `${name}${properties.description ? ` (${properties.description})` : ""}`);
 
@@ -65,50 +65,50 @@ export default function PackageDetailsGrid({ pkg, dependencies }: PackageDetails
 
     return <>
         <Grid container spacing={1} sx={{ mt: 1 }}>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">packages</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{packagesList.unique().join("\n")}</Typography></Grid>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">version</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}><Typography variant="body2">{pkg.version}</Typography></Grid>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">packages</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{packagesList.unique().join("\n")}</Typography></Grid>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">version</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}><Typography variant="body2">{pkg.version}</Typography></Grid>
         </Grid>
 
         <Grid container spacing={1} sx={{ mt: 0.5 }}>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">packager</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}><Typography variant="body2">{pkg.packager ?? ""}</Typography></Grid>
-            <Grid size={{ xs: 4, md: 1 }} />
-            <Grid size={{ xs: 8, md: 5 }} />
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">packager</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}><Typography variant="body2">{pkg.packager ?? ""}</Typography></Grid>
+            <Grid size={{ md: 1, xs: 4 }} />
+            <Grid size={{ md: 5, xs: 8 }} />
         </Grid>
 
         <Grid container spacing={1} sx={{ mt: 0.5 }}>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">groups</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{groups.unique().join("\n")}</Typography></Grid>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">licenses</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{licenses.unique().join("\n")}</Typography></Grid>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">groups</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{groups.unique().join("\n")}</Typography></Grid>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">licenses</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{licenses.unique().join("\n")}</Typography></Grid>
         </Grid>
 
         <Grid container spacing={1} sx={{ mt: 0.5 }}>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">upstream</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">upstream</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}>
                 {upstreamUrls.map(url =>
-                    <Link key={url} href={url} target="_blank" rel="noopener noreferrer" underline="hover" display="block" variant="body2">
+                    <Link display="block" href={url} key={url} rel="noopener noreferrer" target="_blank" underline="hover" variant="body2">
                         {url}
                     </Link>,
                 )}
             </Grid>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">AUR</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">AUR</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}>
                 <Typography variant="body2">
                     {aurUrl &&
-                        <Link href={aurUrl} target="_blank" rel="noopener noreferrer" underline="hover">AUR link</Link>
+                        <Link href={aurUrl} rel="noopener noreferrer" target="_blank" underline="hover">AUR link</Link>
                     }
                 </Typography>
             </Grid>
         </Grid>
 
         <Grid container spacing={1} sx={{ mt: 0.5 }}>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">depends</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{allDepends.join("\n")}</Typography></Grid>
-            <Grid size={{ xs: 4, md: 1 }}><Typography variant="body2" color="text.secondary" align="right">implicitly depends</Typography></Grid>
-            <Grid size={{ xs: 8, md: 5 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{implicitDepends.unique().join("\n")}</Typography></Grid>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">depends</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{allDepends.join("\n")}</Typography></Grid>
+            <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">implicitly depends</Typography></Grid>
+            <Grid size={{ md: 5, xs: 8 }}><Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>{implicitDepends.unique().join("\n")}</Typography></Grid>
         </Grid>
     </>;
 }

@@ -23,9 +23,9 @@ import type { RepositoryId } from "models/RepositoryId";
 
 export interface InfoResponse {
     auth: AuthInfo;
-    repositories: RepositoryId[];
-    version: string;
     autorefresh_intervals: AutoRefreshInterval[];
     docs_enabled: boolean;
     index_url?: string;
+    repositories: RepositoryId[];
+    version: string;
 }

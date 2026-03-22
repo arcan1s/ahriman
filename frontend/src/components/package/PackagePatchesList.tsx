@@ -23,39 +23,39 @@ import type { Patch } from "models/Patch";
 import type React from "react";
 
 interface PackagePatchesListProps {
-    patches: Patch[];
     editable: boolean;
     onDelete: (key: string) => void;
+    patches: Patch[];
 }
 
 export default function PackagePatchesList({
-    patches,
     editable,
     onDelete,
+    patches,
 }: PackagePatchesListProps): React.JSX.Element | null {
     if (patches.length === 0) {
         return null;
     }
 
     return <Box sx={{ mt: 2 }}>
-        <Typography variant="h6" gutterBottom>Environment variables</Typography>
+        <Typography gutterBottom variant="h6">Environment variables</Typography>
         {patches.map(patch =>
-            <Box key={patch.key} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+            <Box key={patch.key} sx={{ alignItems: "center", display: "flex", gap: 1, mb: 0.5 }}>
                 <TextField
-                    size="small"
-                    value={patch.key}
                     disabled
+                    size="small"
                     sx={{ flex: 1 }}
+                    value={patch.key}
                 />
                 <Box>=</Box>
                 <TextField
-                    size="small"
-                    value={JSON.stringify(patch.value)}
                     disabled
+                    value={JSON.stringify(patch.value)}
+                    size="small"
                     sx={{ flex: 1 }}
                 />
                 {editable &&
-                    <IconButton size="small" color="error" aria-label="Remove patch" onClick={() => onDelete(patch.key)}>
+                    <IconButton aria-label="Remove patch" color="error" onClick={() => onDelete(patch.key)} size="small">
                         <DeleteIcon fontSize="small" />
                     </IconButton>
                 }

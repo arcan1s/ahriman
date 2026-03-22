@@ -32,11 +32,11 @@ export default function EventDurationLineChart({ events }: EventDurationLineChar
         labels: updateEvents.map(event => new Date(event.created * 1000).toISOStringShort()),
         datasets: [
             {
-                label: "update duration, s",
-                data: updateEvents.map(event => event.data?.took ?? 0),
-                borderColor: blue[500],
                 backgroundColor: blue[200],
+                borderColor: blue[500],
                 cubicInterpolationMode: "monotone" as const,
+                data: updateEvents.map(event => event.data?.took ?? 0),
+                label: "update duration, s",
                 tension: 0.4,
             },
         ],

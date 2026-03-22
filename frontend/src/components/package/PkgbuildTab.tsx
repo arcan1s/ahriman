@@ -30,5 +30,5 @@ interface PkgbuildTabProps {
 export default function PkgbuildTab({ packageBase, repository }: PkgbuildTabProps): React.JSX.Element {
     const data = usePackageChanges(packageBase, repository);
 
-    return <CodeBlock language="bash" content={data?.pkgbuild ?? ""} height={400} />;
+    return <CodeBlock content={data?.pkgbuild ?? ""} height={400} language="bash" />;
 }

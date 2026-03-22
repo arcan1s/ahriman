@@ -35,12 +35,12 @@ export default function NotificationItem({ notification, onClose }: Notification
     }, []);
 
     return (
-        <Slide direction="down" in={show} mountOnEnter unmountOnExit onExited={() => onClose(notification.id)}>
+        <Slide direction="down" in={show} mountOnEnter onExited={() => onClose(notification.id)} unmountOnExit>
             <Alert
                 onClose={() => setShow(false)}
                 severity={notification.severity}
-                variant="filled"
                 sx={{ width: "100%", pointerEvents: "auto" }}
+                variant="filled"
             >
                 <strong>{notification.title}</strong>
                 {notification.message && ` - ${notification.message}`}

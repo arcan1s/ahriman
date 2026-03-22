@@ -28,11 +28,11 @@ import { useSelectedRepository } from "hooks/useSelectedRepository";
 import React, { useState } from "react";
 
 interface PackageRebuildDialogProps {
-    open: boolean;
     onClose: () => void;
+    open: boolean;
 }
 
-export default function PackageRebuildDialog({ open, onClose }: PackageRebuildDialogProps): React.JSX.Element {
+export default function PackageRebuildDialog({ onClose, open }: PackageRebuildDialogProps): React.JSX.Element {
     const client = useClient();
     const { showSuccess, showError } = useNotification();
     const repositorySelect = useSelectedRepository();
@@ -45,7 +45,7 @@ export default function PackageRebuildDialog({ open, onClose }: PackageRebuildDi
         onClose();
     };
 
-    const handleRebuild: () => Promise<void> = async () => {
+    const handleRebuild = async (): Promise<void> => {
         if (!dependency) {
             return;
         }
@@ -63,7 +63,7 @@ export default function PackageRebuildDialog({ open, onClose }: PackageRebuildDi
         }
     };
 
-    return <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    return <Dialog fullWidth maxWidth="md" onClose={handleClose} open={open}>
         <DialogHeader onClose={handleClose}>
             Rebuild depending packages
         </DialogHeader>
@@ -72,17 +72,17 @@ export default function PackageRebuildDialog({ open, onClose }: PackageRebuildDi
             <RepositorySelect repositorySelect={repositorySelect} />
 
             <TextField
-                label="dependency"
-                placeholder="packages dependency"
                 fullWidth
+                label="dependency"
                 margin="normal"
-                value={dependency}
+                placeholder="packages dependency"
                 onChange={event => setDependency(event.target.value)}
+                value={dependency}
             />
         </DialogContent>
 
         <DialogActions>
-            <Button onClick={() => void handleRebuild()} variant="contained" startIcon={<PlayArrowIcon />}>rebuild</Button>
+            <Button onClick={() => void handleRebuild()} startIcon={<PlayArrowIcon />} variant="contained">rebuild</Button>
         </DialogActions>
     </Dialog>;
 }

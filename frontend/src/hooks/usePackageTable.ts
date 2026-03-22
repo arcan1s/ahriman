@@ -27,35 +27,30 @@ import type { PackageRow } from "models/PackageRow";
 import { useEffect } from "react";
 
 export interface UsePackageTableResult {
-    rows: PackageRow[];
-    isLoading: boolean;
-    isAuthorized: boolean;
-    status: BuildStatus | undefined;
-
-    selectionModel: string[];
-    setSelectionModel: (model: string[]) => void;
-
-    dialogOpen: "dashboard" | "add" | "rebuild" | "keyImport" | null;
-    setDialogOpen: (dialog: "dashboard" | "add" | "rebuild" | "keyImport" | null) => void;
-    selectedPackage: string | null;
-    setSelectedPackage: (base: string | null) => void;
-
-    paginationModel: { pageSize: number; page: number };
-    setPaginationModel: (model: { pageSize: number; page: number }) => void;
-    columnVisibility: Record<string, boolean>;
-    setColumnVisibility: (model: Record<string, boolean>) => void;
-    filterModel: GridFilterModel;
-    setFilterModel: (model: GridFilterModel) => void;
-    searchText: string;
-    setSearchText: (text: string) => void;
-
     autoRefreshInterval: number;
-    onAutoRefreshIntervalChange: (interval: number) => void;
-
-    handleReload: () => void;
-    handleUpdate: () => Promise<void>;
+    columnVisibility: Record<string, boolean>;
+    dialogOpen: "dashboard" | "add" | "rebuild" | "keyImport" | null;
+    filterModel: GridFilterModel;
     handleRefreshDatabase: () => Promise<void>;
+    handleReload: () => void;
     handleRemove: () => Promise<void>;
+    handleUpdate: () => Promise<void>;
+    isAuthorized: boolean;
+    isLoading: boolean;
+    onAutoRefreshIntervalChange: (interval: number) => void;
+    paginationModel: { page: number; pageSize: number };
+    rows: PackageRow[];
+    searchText: string;
+    selectedPackage: string | null;
+    selectionModel: string[];
+    setColumnVisibility: (model: Record<string, boolean>) => void;
+    setDialogOpen: (dialog: "dashboard" | "add" | "rebuild" | "keyImport" | null) => void;
+    setFilterModel: (model: GridFilterModel) => void;
+    setPaginationModel: (model: { page: number; pageSize: number }) => void;
+    setSearchText: (text: string) => void;
+    setSelectedPackage: (base: string | null) => void;
+    setSelectionModel: (model: string[]) => void;
+    status: BuildStatus | undefined;
 }
 
 export function usePackageTable(autoRefreshIntervals: AutoRefreshInterval[]): UsePackageTableResult {
@@ -71,16 +66,13 @@ export function usePackageTable(autoRefreshIntervals: AutoRefreshInterval[]): Us
     }, [isDialogOpen, setPaused]);
 
     return {
-        rows,
+        autoRefreshInterval: autoRefresh.interval,
         isLoading,
         isAuthorized,
-        status,
-
-        ...tableState,
-
-        autoRefreshInterval: autoRefresh.interval,
         onAutoRefreshIntervalChange: autoRefresh.setInterval,
-
+        rows,
+        status,
         ...actions,
+        ...tableState,
     };
 }
