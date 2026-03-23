@@ -12,6 +12,14 @@ ahriman.web.middlewares.auth\_handler module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.middlewares.etag\_handler module
+--------------------------------------------
+
+.. automodule:: ahriman.web.middlewares.etag_handler
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.middlewares.exception\_handler module
 -------------------------------------------------
 
