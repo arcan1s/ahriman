@@ -21,11 +21,18 @@ import "chartSetup";
 import "utils";
 
 import App from "App";
+import ErrorFallback from "components/common/ErrorBoundary";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { ErrorBoundary } from "react-error-boundary";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <App />
+        <ErrorBoundary
+            FallbackComponent={ErrorFallback}
+            onError={(error, info) => console.error("Uncaught error:", error, info.componentStack)}
+        >
+            <App />
+        </ErrorBoundary>
     </StrictMode>,
 );
