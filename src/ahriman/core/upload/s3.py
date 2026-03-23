@@ -62,9 +62,7 @@ class S3(Upload):
     @staticmethod
     def calculate_etag(path: Path, chunk_size: int) -> str:
         """
-        calculate amazon s3 etag
-        credits to https://teppen.io/2018/10/23/aws_s3_verify_etags/
-        For this method we have to define nosec because it is out of any security context and provided by AWS
+        calculate amazon s3 etag. Credits to https://teppen.io/2018/10/23/aws_s3_verify_etags/
 
         Args:
             path(Path): path to local file
@@ -76,14 +74,17 @@ class S3(Upload):
         md5s = []
         with path.open("rb") as local_file:
             for chunk in iter(lambda: local_file.read(chunk_size), b""):
-                md5s.append(hashlib.md5(chunk))  # nosec
+                md5s.append(hashlib.md5(chunk, usedforsecurity=False))
 
         # in case if there is only one chunk it must be just this checksum
-        # and checksum of joined digest otherwise (including empty list)
-        checksum = md5s[0] if len(md5s) == 1 else hashlib.md5(b"".join(md5.digest() for md5 in md5s))  # nosec
-        # in case if there are more than one chunk it should be appended with amount of chunks
+        if len(md5s) == 1:
+            return md5s[0].hexdigest()
+
+        # otherwise it is checksum of joined digest (including empty list)
+        md5 = hashlib.md5(b"".join(md5.digest() for md5 in md5s), usedforsecurity=False)
+        # in case if there are more (exactly) than one chunk it should be appended with amount of chunks
         suffix = f"-{len(md5s)}" if len(md5s) > 1 else ""
-        return f"{checksum.hexdigest()}{suffix}"
+        return f"{md5.hexdigest()}{suffix}"
 
     @staticmethod
     def files_remove(local_files: dict[Path, str], remote_objects: dict[Path, Any]) -> None:

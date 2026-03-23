@@ -41,7 +41,7 @@ class HttpUpload(SyncHttpClient):
             str: calculated checksum of the file
         """
         with path.open("rb") as local_file:
-            md5 = hashlib.md5(local_file.read())  # nosec
+            md5 = hashlib.md5(local_file.read(), usedforsecurity=False)
             return md5.hexdigest()
 
     @staticmethod
