@@ -187,7 +187,7 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     setup_routes(application, configuration)
 
     application.logger.info("setup CORS")
-    setup_cors(application)
+    setup_cors(application, configuration)
 
     application.logger.info("setup templates")
     loader = jinja2.FileSystemLoader(searchpath=configuration.getpathlist("web", "templates"))

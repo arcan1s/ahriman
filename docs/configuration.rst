@@ -180,6 +180,10 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 
 * ``address`` - optional address in form ``proto://host:port`` (``port`` can be omitted in case of default ``proto`` ports), will be used instead of ``http://{host}:{port}`` in case if set, string, optional. This option is required in case if ``OAuth`` provider is used.
 * ``autorefresh_intervals`` - enable page auto refresh options, space separated list of integers, optional. The first defined interval will be used as default. If no intervals set, the auto refresh buttons will be disabled. If first element of the list equals ``0``, auto refresh will be disabled by default.
+* ``cors_allow_headers`` - allowed CORS headers, space separated list of strings, optional.
+* ``cors_allow_methods`` - allowed CORS methods, space separated list of strings, optional.
+* ``cors_allow_origins`` - allowed CORS origins, space separated list of strings, optional, default ``*``.
+* ``cors_expose_headers`` - exposed CORS headers, space separated list of strings, optional.
 * ``enable_archive_upload`` - allow to upload packages via HTTP (i.e. call of ``/api/v1/service/upload`` uri), boolean, optional, default ``no``.
 * ``host`` - host to bind, string, optional.
 * ``index_url`` - full URL of the repository index page, string, optional.

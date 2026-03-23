@@ -358,6 +358,38 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                     "min": 0,
                 },
             },
+            "cors_allow_headers": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
+            },
+            "cors_allow_methods": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
+            },
+            "cors_allow_origins": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
+            },
+            "cors_expose_headers": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
+            },
             "enable_archive_upload": {
                 "type": "boolean",
                 "coerce": "boolean",

@@ -21,26 +21,34 @@ import aiohttp_cors
 
 from aiohttp.web import Application
 
+from ahriman.core.configuration import Configuration
+
 
 __all__ = ["setup_cors"]
 
 
-def setup_cors(application: Application) -> aiohttp_cors.CorsConfig:
+def setup_cors(application: Application, configuration: Configuration) -> aiohttp_cors.CorsConfig:
     """
     setup CORS for the web application
 
     Args:
         application(Application): web application instance
+        configuration(Configuration): configuration instance
 
     Returns:
         aiohttp_cors.CorsConfig: generated CORS configuration
     """
+    allow_headers = configuration.getlist("web", "cors_allow_headers", fallback=[]) or "*"
+    allow_methods = configuration.getlist("web", "cors_allow_methods", fallback=[]) or "*"
+    expose_headers = configuration.getlist("web", "cors_expose_headers", fallback=[]) or "*"
+
     cors = aiohttp_cors.setup(application, defaults={
-        "*": aiohttp_cors.ResourceOptions(  # type: ignore[no-untyped-call]
-            expose_headers="*",
-            allow_headers="*",
-            allow_methods="*",
+        origin: aiohttp_cors.ResourceOptions(  # type: ignore[no-untyped-call]
+            expose_headers=expose_headers,
+            allow_headers=allow_headers,
+            allow_methods=allow_methods,
         )
+        for origin in configuration.getlist("web", "cors_allow_origins", fallback=["*"])
     })
     for route in application.router.routes():
         cors.add(route)
