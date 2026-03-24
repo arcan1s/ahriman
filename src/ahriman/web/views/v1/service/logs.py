@@ -59,6 +59,6 @@ class LogsView(BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().logs_rotate(keep_last_records)
+        await self.service().logs_rotate(keep_last_records)
 
         raise HTTPNoContent

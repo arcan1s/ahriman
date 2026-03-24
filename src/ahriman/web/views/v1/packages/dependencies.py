@@ -63,7 +63,7 @@ class DependenciesView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
 
-        dependencies = self.service(package_base=package_base).package_dependencies_get(package_base)
+        dependencies = await self.service(package_base=package_base).package_dependencies_get(package_base)
 
         return self.json_response(dependencies.view())
 
@@ -95,6 +95,6 @@ class DependenciesView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service(package_base=package_base).package_dependencies_update(package_base, dependencies)
+        await self.service(package_base=package_base).package_dependencies_update(package_base, dependencies)
 
         raise HTTPNoContent

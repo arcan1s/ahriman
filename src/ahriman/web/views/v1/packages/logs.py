@@ -62,7 +62,7 @@ class LogsView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
         version = self.request.query.get("version")
-        self.service().package_logs_remove(package_base, version)
+        await self.service().package_logs_remove(package_base, version)
 
         raise HTTPNoContent
 
@@ -89,8 +89,8 @@ class LogsView(StatusViewGuard, BaseView):
         package_base = self.request.match_info["package"]
 
         try:
-            _, status = self.service().package_get(package_base)
-            logs = self.service(package_base=package_base).package_logs_get(package_base, None, None, -1, 0)
+            _, status = await self.service().package_get(package_base)
+            logs = await self.service(package_base=package_base).package_logs_get(package_base, None, None, -1, 0)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
@@ -127,6 +127,6 @@ class LogsView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().package_logs_add(log_record)
+        await self.service().package_logs_add(log_record)
 
         raise HTTPNoContent

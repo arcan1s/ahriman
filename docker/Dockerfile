@@ -29,17 +29,16 @@ RUN pacman -S --noconfirm --asdeps \
         python-filelock \
         python-inflection \
         python-pyelftools \
-        python-requests \
-        && \
-    pacman -S --noconfirm --asdeps \
+        python-requests
+RUN pacman -S --noconfirm --asdeps \
         base-devel \
         python-build \
         python-flit \
         python-installer \
+        python-setuptools \
         python-tox \
-        python-wheel \
-        && \
-    pacman -S --noconfirm --asdeps \
+        python-wheel
+RUN pacman -S --noconfirm --asdeps \
         git \
         python-aiohttp \
         python-aiohttp-openmetrics \
@@ -48,9 +47,8 @@ RUN pacman -S --noconfirm --asdeps \
         python-cryptography \
         python-jinja \
         python-systemd \
-        rsync \
-        && \
-    runuser -u build -- install-aur-package \
+        rsync
+RUN runuser -u build -- install-aur-package \
         python-aioauth-client \
         python-sphinx-typlog-theme \
         python-webargs \
@@ -59,6 +57,7 @@ RUN pacman -S --noconfirm --asdeps \
         python-aiohttp-jinja2 \
         python-aiohttp-session \
         python-aiohttp-security \
+        python-aiohttp-sse-git \
         python-requests-unixsocket2
 
 # install ahriman

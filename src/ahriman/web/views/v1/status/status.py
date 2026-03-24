@@ -62,7 +62,7 @@ class StatusView(StatusViewGuard, BaseView):
             Response: 200 with service status object
         """
         repository_id = self.repository_id()
-        packages = self.service(repository_id).packages
+        packages = await self.service(repository_id).packages()
         counters = Counters.from_packages(packages)
         stats = RepositoryStats.from_packages([package for package, _ in packages])
 
@@ -101,6 +101,6 @@ class StatusView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().status_update(status)
+        await self.service().status_update(status)
 
         raise HTTPNoContent
