@@ -37,6 +37,7 @@ RUN pacman -S --noconfirm --asdeps \
         python-build \
         python-flit \
         python-installer \
+        python-setuptools \
         python-tox \
         python-wheel
 RUN pacman -S --noconfirm --asdeps \
@@ -58,6 +59,7 @@ RUN runuser -u build -- install-aur-package \
         python-aiohttp-jinja2 \
         python-aiohttp-session \
         python-aiohttp-security \
+        python-aiohttp-sse-git \
         python-requests-unixsocket2
 
 # install ahriman

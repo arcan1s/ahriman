@@ -58,6 +58,7 @@ web = [
     "aiohttp",
     "aiohttp_cors",
     "aiohttp_jinja2",
+    "aiohttp_sse",
 ]
 web-auth = [
     "ahriman[web]",

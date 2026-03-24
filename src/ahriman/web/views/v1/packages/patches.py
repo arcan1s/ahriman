@@ -57,7 +57,7 @@ class PatchesView(StatusViewGuard, BaseView):
             Response: 200 with package patches on success
         """
         package_base = self.request.match_info["package"]
-        patches = self.service().package_patches_get(package_base, None)
+        patches = await self.service().package_patches_get(package_base, None)
 
         response = [patch.view() for patch in patches]
         return self.json_response(response)
@@ -88,6 +88,6 @@ class PatchesView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().package_patches_update(package_base, PkgbuildPatch.parse(key, value))
+        await self.service().package_patches_update(package_base, PkgbuildPatch.parse(key, value))
 
         raise HTTPNoContent

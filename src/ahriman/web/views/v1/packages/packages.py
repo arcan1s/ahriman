@@ -67,7 +67,7 @@ class PackagesView(StatusViewGuard, BaseView):
         stop = offset + limit if limit >= 0 else None
 
         repository_id = self.repository_id()
-        packages = self.service(repository_id).packages
+        packages = await self.service(repository_id).packages()
 
         comparator: Callable[[tuple[Package, BuildStatus]], Comparable] = lambda items: items[0].base
         response = [
@@ -95,6 +95,6 @@ class PackagesView(StatusViewGuard, BaseView):
         Raises:
             HTTPNoContent: on success response
         """
-        self.service().load()
+        await self.service().load()
 
         raise HTTPNoContent
