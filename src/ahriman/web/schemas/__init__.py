@@ -28,6 +28,7 @@ from ahriman.web.schemas.configuration_schema import ConfigurationSchema
 from ahriman.web.schemas.counters_schema import CountersSchema
 from ahriman.web.schemas.dependencies_schema import DependenciesSchema
 from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.event_bus_filter_schema import EventBusFilterSchema
 from ahriman.web.schemas.event_schema import EventSchema
 from ahriman.web.schemas.event_search_schema import EventSearchSchema
 from ahriman.web.schemas.file_schema import FileSchema
@@ -61,6 +62,7 @@ from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
 from ahriman.web.schemas.repository_stats_schema import RepositoryStatsSchema
 from ahriman.web.schemas.rollback_schema import RollbackSchema
 from ahriman.web.schemas.search_schema import SearchSchema
+from ahriman.web.schemas.sse_schema import SSESchema
 from ahriman.web.schemas.status_schema import StatusSchema
 from ahriman.web.schemas.update_flags_schema import UpdateFlagsSchema
 from ahriman.web.schemas.worker_schema import WorkerSchema

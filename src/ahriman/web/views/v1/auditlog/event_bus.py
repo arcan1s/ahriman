@@ -28,7 +28,7 @@ from ahriman.core.status.event_bus import SSEvent
 from ahriman.models.event import EventType
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
-from ahriman.web.schemas import EventSchema, RepositoryIdSchema
+from ahriman.web.schemas import EventBusFilterSchema, SSESchema
 from ahriman.web.views.base import BaseView
 
 
@@ -70,8 +70,8 @@ class EventBusView(BaseView):
         description="Stream live updates via SSE",
         permission=GET_PERMISSION,
         error_404_description="Repository is unknown",
-        schema=EventSchema(many=True),
-        query_schema=RepositoryIdSchema,
+        schema=SSESchema(many=True),
+        query_schema=EventBusFilterSchema,
     )
     async def get(self) -> StreamResponse:
         """
@@ -81,15 +81,16 @@ class EventBusView(BaseView):
             StreamResponse: 200 with streaming updates
         """
         topics = [EventType(event) for event in self.request.query.getall("event", [])] or None
+        event_bus = self.service().event_bus
 
         async with sse_response(self.request) as response:
-            subscription_id, queue = await self.service().event_bus.subscribe(topics)
+            subscription_id, queue = await event_bus.subscribe(topics)
 
             try:
                 await self._run(response, queue)
             except (ConnectionResetError, QueueShutDown):
                 pass
             finally:
-                await self.service().event_bus.unsubscribe(subscription_id)
+                await event_bus.unsubscribe(subscription_id)
 
         return response
