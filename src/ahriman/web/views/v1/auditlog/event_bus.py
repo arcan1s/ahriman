@@ -19,7 +19,7 @@
 #
 import json
 
-from aiohttp.web import StreamResponse
+from aiohttp.web import HTTPBadRequest, StreamResponse
 from aiohttp_sse import EventSourceResponse, sse_response
 from asyncio import Queue, QueueShutDown, wait_for
 from typing import ClassVar
@@ -69,6 +69,7 @@ class EventBusView(BaseView):
         summary="Live updates",
         description="Stream live updates via SSE",
         permission=GET_PERMISSION,
+        error_400_enabled=True,
         error_404_description="Repository is unknown",
         schema=SSESchema(many=True),
         query_schema=EventBusFilterSchema,
@@ -79,8 +80,14 @@ class EventBusView(BaseView):
 
         Returns:
             StreamResponse: 200 with streaming updates
+
+        Raises:
+            HTTPBadRequest: if invalid event type is supplied
         """
-        topics = [EventType(event) for event in self.request.query.getall("event", [])] or None
+        try:
+            topics = [EventType(event) for event in self.request.query.getall("event", [])] or None
+        except ValueError as ex:
+            raise HTTPBadRequest(reason=str(ex))
         event_bus = self.service().event_bus
 
         async with sse_response(self.request) as response:

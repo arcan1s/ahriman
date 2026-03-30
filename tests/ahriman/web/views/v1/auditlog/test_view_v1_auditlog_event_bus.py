@@ -33,8 +33,9 @@ async def test_get_permission() -> None:
     """
     must return correct permission for the request
     """
-    request = pytest.helpers.request("", "", "GET")
-    assert await EventBusView.get_permission(request) == UserAccess.Full
+    for method in ("GET",):
+        request = pytest.helpers.request("", "", method)
+        assert await EventBusView.get_permission(request) == UserAccess.Full
 
 
 def test_routes() -> None:
@@ -98,6 +99,17 @@ async def test_get_with_topic_filter(client: TestClient, package_ahriman: Packag
     assert EventType.PackageRemoved not in body
 
 
+async def test_get_bad_request(client: TestClient) -> None:
+    """
+    must return bad request for invalid event type
+    """
+    response_schema = pytest.helpers.schema_response(EventBusView.get, code=400)
+
+    response = await client.get("/api/v1/events/stream", params={"event": "invalid"})
+    assert response.status == 400
+    assert not response_schema.validate(await response.json())
+
+
 async def test_get_not_found(client: TestClient) -> None:
     """
     must return not found for unknown repository
@@ -114,6 +126,5 @@ async def test_get_connection_reset(client: TestClient, mocker: MockerFixture) -
     must handle connection reset
     """
     mocker.patch.object(EventBusView, "_run", side_effect=ConnectionResetError)
-
     response = await client.get("/api/v1/events/stream")
     assert response.status == 200
