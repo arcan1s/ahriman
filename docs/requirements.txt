@@ -7,9 +7,12 @@ aiohttp==3.11.18
     #   ahriman (pyproject.toml)
     #   aiohttp-cors
     #   aiohttp-jinja2
+    #   aiohttp-sse
 aiohttp-cors==0.8.1
     # via ahriman (pyproject.toml)
 aiohttp-jinja2==1.6
+    # via ahriman (pyproject.toml)
+aiohttp-sse==2.2.0
     # via ahriman (pyproject.toml)
 aiosignal==1.3.2
     # via aiohttp
