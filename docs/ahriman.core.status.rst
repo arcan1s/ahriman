@@ -12,6 +12,14 @@ ahriman.core.status.client module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.status.event\_bus module
+-------------------------------------
+
+.. automodule:: ahriman.core.status.event_bus
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.status.local\_client module
 ----------------------------------------
 
