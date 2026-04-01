@@ -188,6 +188,7 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 * ``host`` - host to bind, string, optional.
 * ``index_url`` - full URL of the repository index page, string, optional.
 * ``max_body_size`` - max body size in bytes to be validated for archive upload, integer, optional. If not set, validation will be disabled.
+* ``max_queue_size`` - max queue size for server sent event streams, integer, optional, default ``0``. If set to ``0``, queue is unlimited.
 * ``port`` - port to bind, integer, optional.
 * ``service_only`` - disable status routes (including logs), boolean, optional, default ``no``.
 * ``static_path`` - path to directory with static files, string, required.
@@ -195,7 +196,7 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 * ``templates`` - path to templates directories, space separated list of paths, required.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
-* ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, integer, optional.
+* ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, integer, optional. If set to ``0``, wait infinitely.
 
 ``archive`` group
 -----------------
