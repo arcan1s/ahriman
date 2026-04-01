@@ -23,7 +23,7 @@ def event_bus() -> EventBus:
     fixture for event bus
 
     Returns:
-        EventBus: even bus test instance
+        EventBus: event bus test instance
     """
     return EventBus(0)
 
