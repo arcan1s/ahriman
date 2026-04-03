@@ -209,8 +209,8 @@ class BaseView(View, CorsViewMixin):
             HTTPBadRequest: if supplied parameters are invalid
         """
         try:
-            limit = int(self.request.query.get("limit", default=-1))
-            offset = int(self.request.query.get("offset", default=0))
+            limit = int(self.request.query.get("limit", -1))
+            offset = int(self.request.query.get("offset", 0))
         except ValueError as ex:
             raise HTTPBadRequest(reason=str(ex))
 

@@ -150,6 +150,6 @@ class ShellTemplate(Template):
                         break
 
         kwargs.update(mapping)
-        substituted = dict(generator(kwargs))
+        kwargs.update(dict(generator(kwargs)))
 
-        return self.safe_substitute(kwargs | substituted)
+        return self.safe_substitute(kwargs)

@@ -80,7 +80,7 @@ class Configuration(configparser.RawConfigParser):
         """
         configparser.RawConfigParser.__init__(
             self,
-            dict_type=ConfigurationMultiDict if allow_multi_key else dict,  # type: ignore[arg-type]
+            dict_type=ConfigurationMultiDict if allow_multi_key else dict,
             allow_no_value=allow_no_value,
             strict=False,
             empty_lines_in_values=not allow_multi_key,
