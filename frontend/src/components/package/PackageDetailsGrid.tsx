@@ -98,7 +98,7 @@ export default function PackageDetailsGrid({ dependencies, pkg }: PackageDetails
             <Grid size={{ md: 5, xs: 8 }}>
                 <Typography variant="body2">
                     {aurUrl &&
-                        <Link href={aurUrl} rel="noopener noreferrer" target="_blank" underline="hover">AUR link</Link>
+                        <Link href={aurUrl} rel="noopener noreferrer" target="_blank" underline="hover">{aurUrl}</Link>
                     }
                 </Typography>
             </Grid>
