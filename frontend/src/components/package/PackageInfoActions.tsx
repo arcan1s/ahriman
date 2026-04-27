@@ -22,16 +22,11 @@ import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import { Button, Checkbox, DialogActions, FormControlLabel } from "@mui/material";
-import AutoRefreshControl from "components/common/AutoRefreshControl";
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type React from "react";
 
 interface PackageInfoActionsProps {
-    autoRefreshInterval: number;
-    autoRefreshIntervals: AutoRefreshInterval[];
     isAuthorized: boolean;
     isHeld: boolean;
-    onAutoRefreshIntervalChange: (interval: number) => void;
     onHoldToggle: () => void;
     onRefreshDatabaseChange: (checked: boolean) => void;
     onRemove: () => void;
@@ -40,11 +35,8 @@ interface PackageInfoActionsProps {
 }
 
 export default function PackageInfoActions({
-    autoRefreshInterval,
-    autoRefreshIntervals,
     isAuthorized,
     isHeld,
-    onAutoRefreshIntervalChange,
     onHoldToggle,
     onRefreshDatabaseChange,
     onRemove,
@@ -69,10 +61,5 @@ export default function PackageInfoActions({
                 </Button>
             </>
         }
-        <AutoRefreshControl
-            currentInterval={autoRefreshInterval}
-            intervals={autoRefreshIntervals}
-            onIntervalChange={onAutoRefreshIntervalChange}
-        />
     </DialogActions>;
 }

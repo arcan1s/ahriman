@@ -82,13 +82,40 @@ async def test_subscribe(event_bus: EventBus) -> None:
     assert subscriber_id in event_bus._subscribers
 
 
+async def test_broadcast_with_object_id(event_bus: EventBus, package_ahriman: Package) -> None:
+    """
+    must broadcast event to subscribers with matching object_id
+    """
+    _, queue = await event_bus.subscribe(object_id=package_ahriman.base)
+    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    assert not queue.empty()
+
+
+async def test_broadcast_object_id_isolation(event_bus: EventBus, package_ahriman: Package) -> None:
+    """
+    must not broadcast event to subscribers with non-matching object_id
+    """
+    _, queue = await event_bus.subscribe(object_id="other-package")
+    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    assert queue.empty()
+
+
 async def test_subscribe_with_topics(event_bus: EventBus) -> None:
     """
     must register subscriber with topic filter
     """
     subscriber_id, _ = await event_bus.subscribe([EventType.BuildLog])
-    topics, _ = event_bus._subscribers[subscriber_id]
+    topics, _, _ = event_bus._subscribers[subscriber_id]
     assert topics == [EventType.BuildLog]
+
+
+async def test_subscribe_with_object_id(event_bus: EventBus, package_ahriman: Package) -> None:
+    """
+    must register subscriber with object_id filter
+    """
+    subscriber_id, _ = await event_bus.subscribe(object_id=package_ahriman.base)
+    _, object_id, _ = event_bus._subscribers[subscriber_id]
+    assert object_id == package_ahriman.base
 
 
 async def test_unsubscribe(event_bus: EventBus) -> None:

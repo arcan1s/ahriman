@@ -17,8 +17,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
-
 export const DETAIL_TABLE_PROPS = {
     density: "compact" as const,
     disableColumnSorting: true,
@@ -26,10 +24,6 @@ export const DETAIL_TABLE_PROPS = {
     paginationModel: { page: 0, pageSize: 25 },
     sx: { height: 400, mt: 1 },
 };
-
-export function defaultInterval(intervals: AutoRefreshInterval[]): number {
-    return intervals.find(interval => interval.is_active)?.interval ?? 0;
-}
 
 declare global {
     interface Array<T> {

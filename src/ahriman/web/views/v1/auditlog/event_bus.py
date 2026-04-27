@@ -88,10 +88,11 @@ class EventBusView(BaseView):
             topics = [EventType(event) for event in self.request.query.getall("event", [])] or None
         except ValueError as ex:
             raise HTTPBadRequest(reason=str(ex))
+        object_id = self.request.query.get("object_id")
         event_bus = self.service().event_bus
 
         async with sse_response(self.request) as response:
-            subscription_id, queue = await event_bus.subscribe(topics)
+            subscription_id, queue = await event_bus.subscribe(topics, object_id=object_id)
 
             try:
                 await self._run(response, queue)

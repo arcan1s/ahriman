@@ -35,13 +35,8 @@ import PackageTableToolbar from "components/table/PackageTableToolbar";
 import StatusCell from "components/table/StatusCell";
 import { useDebounce } from "hooks/useDebounce";
 import { usePackageTable } from "hooks/usePackageTable";
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type { PackageRow } from "models/PackageRow";
 import React, { useMemo } from "react";
-
-interface PackageTableProps {
-    autoRefreshIntervals: AutoRefreshInterval[];
-}
 
 function createListColumn(
     field: keyof PackageRow,
@@ -59,8 +54,8 @@ function createListColumn(
     };
 }
 
-export default function PackageTable({ autoRefreshIntervals }: PackageTableProps): React.JSX.Element {
-    const table = usePackageTable(autoRefreshIntervals);
+export default function PackageTable(): React.JSX.Element {
+    const table = usePackageTable();
     const apiRef = useGridApiRef();
     const debouncedSearch = useDebounce(table.searchText, 300);
 
@@ -118,11 +113,6 @@ export default function PackageTable({ autoRefreshIntervals }: PackageTableProps
                 onRemoveClick: () => void table.handleRemove(),
                 onUpdateClick: () => void table.handleUpdate(),
             }}
-            autoRefresh={{
-                autoRefreshIntervals,
-                currentInterval: table.autoRefreshInterval,
-                onIntervalChange: table.onAutoRefreshIntervalChange,
-            }}
             isAuthorized={table.isAuthorized}
             hasSelection={table.selectionModel.length > 0}
             onSearchChange={table.setSearchText}
@@ -175,7 +165,6 @@ export default function PackageTable({ autoRefreshIntervals }: PackageTableProps
         <PackageRebuildDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "rebuild"} />
         <KeyImportDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "keyImport"} />
         <PackageInfoDialog
-            autoRefreshIntervals={autoRefreshIntervals}
             onClose={() => table.setSelectedPackage(null)}
             open={table.selectedPackage !== null}
             packageBase={table.selectedPackage}

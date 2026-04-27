@@ -18,12 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import type { AuthInfo } from "models/AuthInfo";
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type { RepositoryId } from "models/RepositoryId";
 
 export interface InfoResponse {
     auth: AuthInfo;
-    autorefresh_intervals: AutoRefreshInterval[];
     docs_enabled: boolean;
     index_url?: string;
     repositories: RepositoryId[];

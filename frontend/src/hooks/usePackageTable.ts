@@ -21,13 +21,10 @@ import type { GridFilterModel } from "@mui/x-data-grid";
 import { usePackageActions } from "hooks/usePackageActions";
 import { usePackageData } from "hooks/usePackageData";
 import { useTableState } from "hooks/useTableState";
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type { BuildStatus } from "models/BuildStatus";
 import type { PackageRow } from "models/PackageRow";
-import { useEffect } from "react";
 
 export interface UsePackageTableResult {
-    autoRefreshInterval: number;
     columnVisibility: Record<string, boolean>;
     dialogOpen: "dashboard" | "add" | "rebuild" | "keyImport" | null;
     filterModel: GridFilterModel;
@@ -37,7 +34,6 @@ export interface UsePackageTableResult {
     handleUpdate: () => Promise<void>;
     isAuthorized: boolean;
     isLoading: boolean;
-    onAutoRefreshIntervalChange: (interval: number) => void;
     paginationModel: { page: number; pageSize: number };
     rows: PackageRow[];
     searchText: string;
@@ -53,23 +49,14 @@ export interface UsePackageTableResult {
     status: BuildStatus | undefined;
 }
 
-export function usePackageTable(autoRefreshIntervals: AutoRefreshInterval[]): UsePackageTableResult {
-    const { rows, isLoading, isAuthorized, status, autoRefresh } = usePackageData(autoRefreshIntervals);
+export function usePackageTable(): UsePackageTableResult {
+    const { rows, isLoading, isAuthorized, status } = usePackageData();
     const tableState = useTableState();
     const actions = usePackageActions(tableState.selectionModel, tableState.setSelectionModel);
 
-    // Pause auto-refresh when dialog is open
-    const isDialogOpen = tableState.dialogOpen !== null || tableState.selectedPackage !== null;
-    const setPaused = autoRefresh.setPaused;
-    useEffect(() => {
-        setPaused(isDialogOpen);
-    }, [isDialogOpen, setPaused]);
-
     return {
-        autoRefreshInterval: autoRefresh.interval,
         isLoading,
         isAuthorized,
-        onAutoRefreshIntervalChange: autoRefresh.setInterval,
         rows,
         status,
         ...actions,

@@ -99,6 +99,23 @@ async def test_get_with_topic_filter(client: TestClient, package_ahriman: Packag
     assert EventType.PackageRemoved not in body
 
 
+async def test_get_with_object_id_filter(client: TestClient, package_ahriman: Package) -> None:
+    """
+    must filter events by object_id
+    """
+    watcher = next(iter(client.app[WatcherKey].values()))
+    asyncio.create_task(_producer(watcher, package_ahriman))
+    request_schema = pytest.helpers.schema_request(EventBusView.get, location="querystring")
+
+    payload = {"object_id": "non-existent-package"}
+    assert not request_schema.validate(payload)
+    response = await client.get("/api/v1/events/stream", params=payload)
+    assert response.status == 200
+
+    body = await response.text()
+    assert "ahriman" not in body
+
+
 async def test_get_bad_request(client: TestClient) -> None:
     """
     must return bad request for invalid event type

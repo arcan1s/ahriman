@@ -23,6 +23,7 @@ import { keepPreviousData, skipToken, useQuery } from "@tanstack/react-query";
 import CodeBlock from "components/common/CodeBlock";
 import { QueryKeys } from "hooks/QueryKeys";
 import { useAutoScroll } from "hooks/useAutoScroll";
+import { useBuildLogStream } from "hooks/useBuildLogStream";
 import { useClient } from "hooks/useClient";
 import type { LogRecord } from "models/LogRecord";
 import type { RepositoryId } from "models/RepositoryId";
@@ -37,7 +38,6 @@ interface Logs {
 
 interface BuildLogsTabProps {
     packageBase: string;
-    refreshInterval: number;
     repository: RepositoryId;
 }
 
@@ -50,10 +50,10 @@ function convertLogs(records: LogRecord[], filter?: (record: LogRecord) => boole
 
 export default function BuildLogsTab({
     packageBase,
-    refreshInterval,
     repository,
 }: BuildLogsTabProps): React.JSX.Element {
     const client = useClient();
+    useBuildLogStream(packageBase, repository);
     const [selectedVersionKey, setSelectedVersionKey] = useState<string | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -61,7 +61,6 @@ export default function BuildLogsTab({
         enabled: !!packageBase,
         queryFn: () => client.fetch.fetchPackageLogs(packageBase, repository),
         queryKey: QueryKeys.logs(packageBase, repository),
-        refetchInterval: refreshInterval > 0 ? refreshInterval : false,
     });
 
     // Build version selectors from all logs
@@ -117,7 +116,6 @@ export default function BuildLogsTab({
             )
             : skipToken,
         queryKey: QueryKeys.logsVersion(packageBase, repository, activeVersion?.version ?? "", activeVersion?.processId ?? ""),
-        refetchInterval: refreshInterval > 0 ? refreshInterval : false,
     });
 
     // Derive displayed logs: prefer fresh polled data when available

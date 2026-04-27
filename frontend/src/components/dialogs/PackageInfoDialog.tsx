@@ -32,27 +32,22 @@ import PkgbuildTab from "components/package/PkgbuildTab";
 import { type TabKey, tabs } from "components/package/TabKey";
 import { QueryKeys } from "hooks/QueryKeys";
 import { useAuth } from "hooks/useAuth";
-import { useAutoRefresh } from "hooks/useAutoRefresh";
 import { useClient } from "hooks/useClient";
 import { useNotification } from "hooks/useNotification";
 import { useRepository } from "hooks/useRepository";
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type { Dependencies } from "models/Dependencies";
 import type { PackageStatus } from "models/PackageStatus";
 import type { Patch } from "models/Patch";
 import React, { useState } from "react";
 import { StatusHeaderStyles } from "theme/StatusColors";
-import { defaultInterval } from "utils";
 
 interface PackageInfoDialogProps {
-    autoRefreshIntervals: AutoRefreshInterval[];
     onClose: () => void;
     open: boolean;
     packageBase: string | null;
 }
 
 export default function PackageInfoDialog({
-    autoRefreshIntervals,
     onClose,
     open,
     packageBase,
@@ -77,14 +72,11 @@ export default function PackageInfoDialog({
         onClose();
     };
 
-    const autoRefresh = useAutoRefresh("package-info-autoreload-button", defaultInterval(autoRefreshIntervals));
-
     const { data: packageData } = useQuery<PackageStatus[]>({
         enabled: open,
         queryFn: localPackageBase && currentRepository ?
             () => client.fetch.fetchPackage(localPackageBase, currentRepository) : skipToken,
         queryKey: localPackageBase && currentRepository ? QueryKeys.package(localPackageBase, currentRepository) : ["packages"],
-        refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const { data: dependencies } = useQuery<Dependencies>({
@@ -182,7 +174,6 @@ export default function PackageInfoDialog({
                     {activeTab === "logs" && localPackageBase && currentRepository &&
                         <BuildLogsTab
                             packageBase={localPackageBase}
-                            refreshInterval={autoRefresh.interval}
                             repository={currentRepository}
                         />
                     }
@@ -207,11 +198,8 @@ export default function PackageInfoDialog({
         </DialogContent>
 
         <PackageInfoActions
-            autoRefreshInterval={autoRefresh.interval}
-            autoRefreshIntervals={autoRefreshIntervals}
             isAuthorized={isAuthorized}
             isHeld={status?.is_held ?? false}
-            onAutoRefreshIntervalChange={autoRefresh.setInterval}
             onHoldToggle={() => void handleHoldToggle()}
             onRefreshDatabaseChange={setRefreshDatabase}
             onRemove={() => void handleRemove()}
