@@ -17,15 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Callable
+# pylint: disable=too-many-public-methods
+from asyncio import Lock
 from dataclasses import replace
-from threading import Lock
-from typing import Any, Self
+from typing import Self
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.log import LazyLogging
 from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.status import Client
+from ahriman.core.status.event_bus import EventBus
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
@@ -41,51 +42,74 @@ class Watcher(LazyLogging):
 
     Attributes:
         client(Client): reporter instance
+        event_bus(EventBus): event bus instance
         package_info(PackageInfo): package info instance
         status(BuildStatus): daemon status
     """
 
-    def __init__(self, client: Client, package_info: PackageInfo) -> None:
+    def __init__(self, client: Client, package_info: PackageInfo, event_bus: EventBus) -> None:
         """
         Args:
             client(Client): reporter instance
             package_info(PackageInfo): package info instance
+            event_bus(EventBus): event bus instance
         """
         self.client = client
         self.package_info = package_info
+        self.event_bus = event_bus
 
         self._lock = Lock()
         self._known: dict[str, tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()
 
-    @property
-    def packages(self) -> list[tuple[Package, BuildStatus]]:
+    async def event_add(self, event: Event) -> None:
         """
-        get current known packages list
+        create new event
+
+        Args:
+            event(Event): audit log event
+        """
+        self.client.event_add(event)
+
+    async def event_get(self, event: str | EventType | None, object_id: str | None,
+                        from_date: int | float | None = None, to_date: int | float | None = None,
+                        limit: int = -1, offset: int = 0) -> list[Event]:
+        """
+        retrieve list of events
+
+        Args:
+            event(str | EventType | None): filter by event type
+            object_id(str | None): filter by event object
+            from_date(int | float | None, optional): minimal creation date, inclusive (Default value = None)
+            to_date(int | float | None, optional): maximal creation date, exclusive (Default value = None)
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            list[tuple[Package, BuildStatus]]: list of packages together with their statuses
+            list[Event]: list of audit log events
         """
-        with self._lock:
-            return list(self._known.values())
+        return self.client.event_get(event, object_id, from_date, to_date, limit, offset)
 
-    event_add: Callable[[Event], None]
-
-    event_get: Callable[[str | EventType | None, str | None, int | None, int | None, int, int], list[Event]]
-
-    def load(self) -> None:
+    async def load(self) -> None:
         """
         load packages from local database
         """
-        with self._lock:
+        async with self._lock:
             self._known = {
                 package.base: (package, status)
                 for package, status in self.client.package_get(None)
             }
 
-    logs_rotate: Callable[[int], None]
+    async def logs_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older logs from storage
 
-    def package_archives(self, package_base: str) -> list[Package]:
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+        self.client.logs_rotate(keep_last_records)
+
+    async def package_archives(self, package_base: str) -> list[Package]:
         """
         get known package archives
 
@@ -97,15 +121,51 @@ class Watcher(LazyLogging):
         """
         return self.package_info.package_archives(package_base)
 
-    package_changes_get: Callable[[str], Changes]
+    async def package_changes_get(self, package_base: str) -> Changes:
+        """
+        get package changes
 
-    package_changes_update: Callable[[str, Changes], None]
+        Args:
+            package_base(str): package base to retrieve
 
-    package_dependencies_get: Callable[[str], Dependencies]
+        Returns:
+            Changes: package changes if available and empty object otherwise
+        """
+        return self.client.package_changes_get(package_base)
 
-    package_dependencies_update: Callable[[str, Dependencies], None]
+    async def package_changes_update(self, package_base: str, changes: Changes) -> None:
+        """
+        update package changes
 
-    def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
+        Args:
+            package_base(str): package base to update
+            changes(Changes): changes descriptor
+        """
+        self.client.package_changes_update(package_base, changes)
+
+    async def package_dependencies_get(self, package_base: str) -> Dependencies:
+        """
+        get package dependencies
+
+        Args:
+            package_base(str): package base to retrieve
+
+        Returns:
+            list[Dependencies]: package implicit dependencies if available
+        """
+        return self.client.package_dependencies_get(package_base)
+
+    async def package_dependencies_update(self, package_base: str, dependencies: Dependencies) -> None:
+        """
+        update package dependencies
+
+        Args:
+            package_base(str): package base to update
+            dependencies(Dependencies): dependencies descriptor
+        """
+        self.client.package_dependencies_update(package_base, dependencies)
+
+    async def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
         """
         get current package base build status
 
@@ -119,18 +179,12 @@ class Watcher(LazyLogging):
             UnknownPackageError: if no package found
         """
         try:
-            with self._lock:
+            async with self._lock:
                 return self._known[package_base]
         except KeyError:
             raise UnknownPackageError(package_base) from None
 
-    package_logs_add: Callable[[LogRecord], None]
-
-    package_logs_get: Callable[[str, str | None, str | None, int, int], list[LogRecord]]
-
-    package_logs_remove: Callable[[str, str | None], None]
-
-    def package_hold_update(self, package_base: str, *, enabled: bool) -> None:
+    async def package_hold_update(self, package_base: str, *, enabled: bool) -> None:
         """
         update package hold status
 
@@ -138,29 +192,98 @@ class Watcher(LazyLogging):
             package_base(str): package base name
             enabled(bool): new hold status
         """
-        package, status = self.package_get(package_base)
-        with self._lock:
+        package, status = await self.package_get(package_base)
+        async with self._lock:
             self._known[package_base] = (package, replace(status, is_held=enabled))
         self.client.package_hold_update(package_base, enabled=enabled)
 
-    package_patches_get: Callable[[str, str | None], list[PkgbuildPatch]]
+        await self.event_bus.broadcast(EventType.PackageHeld, package_base, is_held=enabled)
 
-    package_patches_remove: Callable[[str, str], None]
+    async def package_logs_add(self, log_record: LogRecord) -> None:
+        """
+        post log record
 
-    package_patches_update: Callable[[str, PkgbuildPatch], None]
+        Args:
+            log_record(LogRecord): log record
+        """
+        self.client.package_logs_add(log_record)
 
-    def package_remove(self, package_base: str) -> None:
+        await self.event_bus.broadcast(EventType.BuildLog, log_record.log_record_id.package_base, **log_record.view())
+
+    async def package_logs_get(self, package_base: str, version: str | None = None, process_id: str | None = None,
+                               limit: int = -1, offset: int = 0) -> list[LogRecord]:
+        """
+        get package logs
+
+        Args:
+            package_base(str): package base
+            version(str | None, optional): package version to search (Default value = None)
+            process_id(str | None, optional): process identifier to search (Default value = None)
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
+
+        Returns:
+            list[LogRecord]: package logs
+        """
+        return self.client.package_logs_get(package_base, version, process_id, limit, offset)
+
+    async def package_logs_remove(self, package_base: str, version: str | None) -> None:
+        """
+        remove package logs
+
+        Args:
+            package_base(str): package base
+            version(str | None): package version to remove logs. If ``None`` is set, all logs will be removed
+        """
+        self.client.package_logs_remove(package_base, version)
+
+    async def package_patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
+        """
+        get package patches
+
+        Args:
+            package_base(str): package base to retrieve
+            variable(str | None): optional filter by patch variable
+
+        Returns:
+            list[PkgbuildPatch]: list of patches for the specified package
+        """
+        return self.client.package_patches_get(package_base, variable)
+
+    async def package_patches_remove(self, package_base: str, variable: str | None) -> None:
+        """
+        remove package patch
+
+        Args:
+            package_base(str): package base to update
+            variable(str | None): patch name. If ``None`` is set, all patches will be removed
+        """
+        self.client.package_patches_remove(package_base, variable)
+
+    async def package_patches_update(self, package_base: str, patch: PkgbuildPatch) -> None:
+        """
+        create or update package patch
+
+        Args:
+            package_base(str): package base to update
+            patch(PkgbuildPatch): package patch
+        """
+        self.client.package_patches_update(package_base, patch)
+
+    async def package_remove(self, package_base: str) -> None:
         """
         remove package base from known list if any
 
         Args:
             package_base(str): package base
         """
-        with self._lock:
+        async with self._lock:
             self._known.pop(package_base, None)
         self.client.package_remove(package_base)
 
-    def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
+        await self.event_bus.broadcast(EventType.PackageRemoved, package_base)
+
+    async def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
         update package status
 
@@ -168,12 +291,14 @@ class Watcher(LazyLogging):
             package_base(str): package base to update
             status(BuildStatusEnum): new build status
         """
-        package, current_status = self.package_get(package_base)
-        with self._lock:
+        package, current_status = await self.package_get(package_base)
+        async with self._lock:
             self._known[package_base] = (package, BuildStatus(status, is_held=current_status.is_held))
         self.client.package_status_update(package_base, status)
 
-    def package_update(self, package: Package, status: BuildStatusEnum) -> None:
+        await self.event_bus.broadcast(EventType.PackageStatusChanged, package_base, status=status.value)
+
+    async def package_update(self, package: Package, status: BuildStatusEnum) -> None:
         """
         update package
 
@@ -181,12 +306,32 @@ class Watcher(LazyLogging):
             package(Package): package description
             status(BuildStatusEnum): new build status
         """
-        with self._lock:
+        async with self._lock:
             _, current_status = self._known.get(package.base, (package, BuildStatus()))
             self._known[package.base] = (package, BuildStatus(status, is_held=current_status.is_held))
         self.client.package_update(package, status)
 
-    def status_update(self, status: BuildStatusEnum) -> None:
+        await self.event_bus.broadcast(
+            EventType.PackageUpdated, package.base, status=status.value, version=package.version,
+        )
+
+    async def packages(self) -> list[tuple[Package, BuildStatus]]:
+        """
+        get current known packages list
+
+        Returns:
+            list[tuple[Package, BuildStatus]]: list of packages together with their statuses
+        """
+        async with self._lock:
+            return list(self._known.values())
+
+    async def shutdown(self) -> None:
+        """
+        gracefully shutdown watcher
+        """
+        await self.event_bus.shutdown()
+
+    async def status_update(self, status: BuildStatusEnum) -> None:
         """
         update service status
 
@@ -194,6 +339,8 @@ class Watcher(LazyLogging):
             status(BuildStatusEnum): new service status
         """
         self.status = BuildStatus(status)
+
+        await self.event_bus.broadcast(EventType.ServiceStatusChanged, None, status=status.value)
 
     def __call__(self, package_base: str | None) -> Self:
         """
@@ -204,24 +351,11 @@ class Watcher(LazyLogging):
 
         Returns:
             Self: instance of self to pass calls to the client
-        """
-        if package_base is not None:
-            _ = self.package_get(package_base)
-        return self
-
-    def __getattr__(self, item: str) -> Any:
-        """
-        proxy methods for reporter client
-
-        Args:
-            item(str): property name
-
-        Returns:
-            Any: attribute by its name
 
         Raises:
-            AttributeError: in case if no such attribute found
+            UnknownPackageError: if no package found
         """
-        if (method := getattr(self.client, item, None)) is not None:
-            return method
-        raise AttributeError(f"'{self.__class__.__qualname__}' object has no attribute '{item}'")
+        # keep check here instead of calling package_get to keep this method synchronized
+        if package_base is not None and package_base not in self._known:
+            raise UnknownPackageError(package_base)
+        return self

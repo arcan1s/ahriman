@@ -20,46 +20,37 @@
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "hooks/QueryKeys";
 import { useAuth } from "hooks/useAuth";
-import { useAutoRefresh } from "hooks/useAutoRefresh";
 import { useClient } from "hooks/useClient";
 import { useRepository } from "hooks/useRepository";
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type { BuildStatus } from "models/BuildStatus";
 import { PackageRow } from "models/PackageRow";
 import { useMemo } from "react";
-import { defaultInterval } from "utils";
 
 export interface UsePackageDataResult {
-    autoRefresh: ReturnType<typeof useAutoRefresh>;
     isAuthorized: boolean;
     isLoading: boolean;
     rows: PackageRow[];
     status: BuildStatus | undefined;
 }
 
-export function usePackageData(autoRefreshIntervals: AutoRefreshInterval[]): UsePackageDataResult {
+export function usePackageData(): UsePackageDataResult {
     const client = useClient();
     const { currentRepository } = useRepository();
     const { isAuthorized } = useAuth();
 
-    const autoRefresh = useAutoRefresh("table-autoreload-button", defaultInterval(autoRefreshIntervals));
-
     const { data: packages = [], isLoading } = useQuery({
         queryFn: currentRepository ? () => client.fetch.fetchPackages(currentRepository) : skipToken,
         queryKey: currentRepository ? QueryKeys.packages(currentRepository) : ["packages"],
-        refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const { data: status } = useQuery({
         queryFn: currentRepository ? () => client.fetch.fetchServerStatus(currentRepository) : skipToken,
         queryKey: currentRepository ? QueryKeys.status(currentRepository) : ["status"],
-        refetchInterval: autoRefresh.interval > 0 ? autoRefresh.interval : false,
     });
 
     const rows = useMemo(() => packages.map(descriptor => new PackageRow(descriptor)), [packages]);
 
     return {
-        autoRefresh,
         isLoading,
         isAuthorized,
         rows,

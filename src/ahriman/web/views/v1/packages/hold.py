@@ -68,7 +68,7 @@ class HoldView(StatusViewGuard, BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         try:
-            self.service().package_hold_update(package_base, enabled=is_held)
+            await self.service().package_hold_update(package_base, enabled=is_held)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 

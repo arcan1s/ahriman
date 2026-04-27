@@ -33,6 +33,7 @@ from ahriman.core.exceptions import InitializeError
 from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.spawn import Spawn
 from ahriman.core.status import Client
+from ahriman.core.status.event_bus import EventBus
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
 from ahriman.web.apispec.info import setup_apispec
@@ -108,7 +109,9 @@ def _create_watcher(path: Path, repository_id: RepositoryId) -> Watcher:
     package_info.reporter = client
     package_info.repository_id = repository_id
 
-    return Watcher(client, package_info)
+    event_bus = EventBus(configuration.getint("web", "max_queue_size", fallback=0))
+
+    return Watcher(client, package_info, event_bus)
 
 
 async def _on_shutdown(application: Application) -> None:
@@ -118,6 +121,8 @@ async def _on_shutdown(application: Application) -> None:
     Args:
         application(Application): web application instance
     """
+    for watcher in application[WatcherKey].values():
+        await watcher.shutdown()
     application.logger.warning("server terminated")
 
 
@@ -135,7 +140,7 @@ async def _on_startup(application: Application) -> None:
 
     try:
         for watcher in application[WatcherKey].values():
-            watcher.load()
+            await watcher.load()
     except Exception:
         message = "could not load packages"
         application.logger.exception(message)

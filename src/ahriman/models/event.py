@@ -28,16 +28,24 @@ class EventType(StrEnum):
     predefined event types
 
     Attributes:
+        BuildLog(EventType): new build log line
+        PackageHeld(EventType): package hold status has been changed
         PackageOutdated(EventType): package has been marked as out-of-date
         PackageRemoved(EventType): package has been removed
+        PackageStatusChanged(EventType): package build status has been changed
         PackageUpdateFailed(EventType): package update has been failed
         PackageUpdated(EventType): package has been updated
+        ServiceStatusChanged(EventType): service status has been changed
     """
 
+    BuildLog = "build-log"
+    PackageHeld = "package-held"
     PackageOutdated = "package-outdated"
     PackageRemoved = "package-removed"
+    PackageStatusChanged = "package-status-changed"
     PackageUpdateFailed = "package-update-failed"
     PackageUpdated = "package-updated"
+    ServiceStatusChanged = "service-status-changed"
 
 
 class Event:

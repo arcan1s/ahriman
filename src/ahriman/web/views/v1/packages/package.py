@@ -66,7 +66,7 @@ class PackageView(StatusViewGuard, BaseView):
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        self.service().package_remove(package_base)
+        await self.service().package_remove(package_base)
 
         raise HTTPNoContent
 
@@ -94,7 +94,7 @@ class PackageView(StatusViewGuard, BaseView):
         repository_id = self.repository_id()
 
         try:
-            package, status = self.service(repository_id).package_get(package_base)
+            package, status = await self.service(repository_id).package_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
@@ -137,9 +137,9 @@ class PackageView(StatusViewGuard, BaseView):
 
         try:
             if package is None:
-                self.service().package_status_update(package_base, status)
+                await self.service().package_status_update(package_base, status)
             else:
-                self.service().package_update(package, status)
+                await self.service().package_update(package, status)
         except UnknownPackageError:
             raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
 

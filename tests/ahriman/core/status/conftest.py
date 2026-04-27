@@ -2,6 +2,7 @@ import pytest
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.status import Client
+from ahriman.core.status.event_bus import EventBus
 from ahriman.core.status.web_client import WebClient
 
 
@@ -14,6 +15,17 @@ def client() -> Client:
         Client: dummy client test instance
     """
     return Client()
+
+
+@pytest.fixture
+def event_bus() -> EventBus:
+    """
+    fixture for event bus
+
+    Returns:
+        EventBus: event bus test instance
+    """
+    return EventBus(0)
 
 
 @pytest.fixture
