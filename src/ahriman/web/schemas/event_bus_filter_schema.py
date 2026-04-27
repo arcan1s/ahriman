@@ -31,3 +31,7 @@ class EventBusFilterSchema(RepositoryIdSchema):
         "description": "Event type filter",
         "example": [EventType.PackageUpdated],
     })
+    object_id = fields.String(metadata={
+        "description": "Object identifier filter",
+        "example": "ahriman",
+    })

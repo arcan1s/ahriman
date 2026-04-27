@@ -21,6 +21,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppLayout from "components/layout/AppLayout";
 import { AuthProvider } from "contexts/AuthProvider";
 import { ClientProvider } from "contexts/ClientProvider";
+import { EventStreamProvider } from "contexts/EventStreamProvider";
 import { NotificationProvider } from "contexts/NotificationProvider";
 import { RepositoryProvider } from "contexts/RepositoryProvider";
 import { ThemeProvider } from "contexts/ThemeProvider";
@@ -42,7 +43,9 @@ export default function App(): React.JSX.Element {
                 <ClientProvider>
                     <AuthProvider>
                         <RepositoryProvider>
-                            <AppLayout />
+                            <EventStreamProvider>
+                                <AppLayout />
+                            </EventStreamProvider>
                         </RepositoryProvider>
                     </AuthProvider>
                 </ClientProvider>

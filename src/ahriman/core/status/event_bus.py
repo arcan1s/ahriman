@@ -45,7 +45,7 @@ class EventBus(LazyLogging):
         self.max_size = max_size
 
         self._lock = Lock()
-        self._subscribers: dict[str, tuple[list[EventType] | None, Queue[SSEvent | None]]] = {}
+        self._subscribers: dict[str, tuple[list[EventType] | None, str | None, Queue[SSEvent | None]]] = {}
 
     async def broadcast(self, event_type: EventType, object_id: str | None, **kwargs: Any) -> None:
         """
@@ -60,8 +60,10 @@ class EventBus(LazyLogging):
         event.update(kwargs)
 
         async with self._lock:
-            for subscriber_id, (topics, queue) in self._subscribers.items():
+            for subscriber_id, (topics, filter_object_id, queue) in self._subscribers.items():
                 if topics is not None and event_type not in topics:
+                    continue
+                if filter_object_id is not None and object_id != filter_object_id:
                     continue
                 try:
                     queue.put_nowait((event_type, event))
@@ -73,20 +75,23 @@ class EventBus(LazyLogging):
         gracefully shutdown all subscribers
         """
         async with self._lock:
-            for _, queue in self._subscribers.values():
+            for _, _, queue in self._subscribers.values():
                 try:
                     queue.put_nowait(None)
                 except QueueFull:
                     pass
                 queue.shutdown()
 
-    async def subscribe(self, topics: list[EventType] | None = None) -> tuple[str, Queue[SSEvent | None]]:
+    async def subscribe(self, topics: list[EventType] | None = None,
+                        object_id: str | None = None) -> tuple[str, Queue[SSEvent | None]]:
         """
         register new subscriber
 
         Args:
             topics(list[EventType] | None, optional): list of event types to filter by. If ``None`` is set,
                 all events will be delivered (Default value = None)
+            object_id(str | None, optional): object identifier to filter by. If ``None`` is set,
+                events for all objects will be delivered (Default value = None)
 
         Returns:
             tuple[str, Queue[SSEvent | None]]: subscriber identifier and associated queue
@@ -95,7 +100,7 @@ class EventBus(LazyLogging):
         queue: Queue[SSEvent | None] = Queue(self.max_size)
 
         async with self._lock:
-            self._subscribers[subscriber_id] = (topics, queue)
+            self._subscribers[subscriber_id] = (topics, object_id, queue)
 
         return subscriber_id, queue
 
@@ -109,5 +114,5 @@ class EventBus(LazyLogging):
         async with self._lock:
             result = self._subscribers.pop(subscriber_id, None)
         if result is not None:
-            _, queue = result
+            _, _, queue = result
             queue.shutdown()
