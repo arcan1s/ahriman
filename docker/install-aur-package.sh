@@ -7,8 +7,10 @@ for PACKAGE in "$@"; do
     # clone the remote source
     git clone https://aur.archlinux.org/"$PACKAGE".git "$BUILD_DIR"
     cd "$BUILD_DIR"
+    # FIXME monkey patch PKGBUILD for python
+    sed -i 's/python -m build/python -m build --skip-dependency-check/g' "PKGBUILD"
     # checkout to the image date
-    git checkout "$(git rev-list -1 --before="$(stat -c "%y" "/var/lib/pacman" | cut -d " " -f 1)" master)"
+    git checkout "$(git rev-list -1 --before="$BUILD_DATE" master)"
     # build and install the package
     makepkg --nocheck --noconfirm --install --rmdeps --syncdeps
     cd /

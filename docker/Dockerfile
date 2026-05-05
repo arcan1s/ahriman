@@ -1,13 +1,15 @@
 # build image
 FROM archlinux:base AS build
 
+ARG BUILD_DATE
+
 # install environment
 ## create build user
 RUN useradd -m -d "/home/build" -s "/usr/bin/nologin" build
 
 ## extract container creation date and set mirror for this timestamp, set PKGEXT and refresh database next
-RUN echo "Server = https://archive.archlinux.org/repos/$(stat -c "%y" "/var/lib/pacman" | cut -d " " -f 1 | sed "s,-,/,g")/\$repo/os/\$arch" > "/etc/pacman.d/mirrorlist" && \
-    pacman -Sy
+RUN echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE//-/\/}/\$repo/os/\$arch" > "/etc/pacman.d/mirrorlist" && \
+    pacman -Syyuu --noconfirm
 ## setup package cache
 RUN runuser -u build -- mkdir "/tmp/pkg" && \
     echo "PKGDEST=/tmp/pkg" >> "/etc/makepkg.conf" && \
@@ -29,17 +31,15 @@ RUN pacman -S --noconfirm --asdeps \
         python-filelock \
         python-inflection \
         python-pyelftools \
-        python-requests \
-        && \
-    pacman -S --noconfirm --asdeps \
+        python-requests
+RUN pacman -S --noconfirm --asdeps \
         base-devel \
         python-build \
         python-flit \
         python-installer \
         python-tox \
-        python-wheel \
-        && \
-    pacman -S --noconfirm --asdeps \
+        python-wheel
+RUN pacman -S --noconfirm --asdeps \
         git \
         python-aiohttp \
         python-aiohttp-openmetrics \
@@ -48,9 +48,8 @@ RUN pacman -S --noconfirm --asdeps \
         python-cryptography \
         python-jinja \
         python-systemd \
-        rsync \
-        && \
-    runuser -u build -- install-aur-package \
+        rsync
+RUN runuser -u build -- install-aur-package \
         python-aioauth-client \
         python-sphinx-typlog-theme \
         python-webargs \
@@ -109,7 +108,7 @@ RUN cp "/etc/pacman.d/mirrorlist" "/etc/pacman.d/mirrorlist.orig" && \
     echo "Server = file:///var/cache/pacman/pkg" > "/etc/pacman.d/mirrorlist" && \
     cp "/etc/pacman.conf" "/etc/pacman.conf.orig" && \
     sed -i "s/SigLevel *=.*/SigLevel = Optional/g" "/etc/pacman.conf" && \
-    pacman -Sy
+    pacman -Syyuu --noconfirm
 ## install package and its optional dependencies
 RUN pacman -S --noconfirm ahriman
 RUN pacman -S --noconfirm --asdeps \
