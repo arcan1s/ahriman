@@ -1,5 +1,7 @@
 import pytest
 
+from asyncio import QueueShutDown
+
 from ahriman.core.status.event_bus import EventBus
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -49,15 +51,25 @@ async def test_broadcast_queue_full(event_bus: EventBus, package_ahriman: Packag
     assert queue.qsize() == 1
 
 
+async def test_broadcast_queue_shutdown(event_bus: EventBus, package_ahriman: Package) -> None:
+    """
+    must skip subscriber whose queue was shutdown concurrently
+    """
+    _, queue = await event_bus.subscribe()
+    queue.shutdown()
+
+    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+
+
 async def test_shutdown(event_bus: EventBus) -> None:
     """
-    must send sentinel to all subscribers on shutdown
+    must shutdown all subscriber queues on shutdown
     """
     _, queue = await event_bus.subscribe()
 
     await event_bus.shutdown()
-    message = queue.get_nowait()
-    assert message is None
+    with pytest.raises(QueueShutDown):
+        queue.get_nowait()
 
 
 async def test_shutdown_queue_full(event_bus: EventBus, package_ahriman: Package) -> None:
@@ -105,8 +117,7 @@ async def test_subscribe_with_topics(event_bus: EventBus) -> None:
     must register subscriber with topic filter
     """
     subscriber_id, _ = await event_bus.subscribe([EventType.BuildLog])
-    topics, _, _ = event_bus._subscribers[subscriber_id]
-    assert topics == [EventType.BuildLog]
+    assert event_bus._subscribers[subscriber_id].topics == [EventType.BuildLog]
 
 
 async def test_subscribe_with_object_id(event_bus: EventBus, package_ahriman: Package) -> None:
@@ -114,8 +125,7 @@ async def test_subscribe_with_object_id(event_bus: EventBus, package_ahriman: Pa
     must register subscriber with object_id filter
     """
     subscriber_id, _ = await event_bus.subscribe(object_id=package_ahriman.base)
-    _, object_id, _ = event_bus._subscribers[subscriber_id]
-    assert object_id == package_ahriman.base
+    assert event_bus._subscribers[subscriber_id].object_id == package_ahriman.base
 
 
 async def test_unsubscribe(event_bus: EventBus) -> None:

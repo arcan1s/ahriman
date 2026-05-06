@@ -53,7 +53,7 @@ async def test_run_timeout() -> None:
 
     async def _shutdown() -> None:
         await asyncio.sleep(0.05)
-        await queue.put(None)
+        queue.shutdown()
 
     response = AsyncMock()
     response.is_connected = lambda: True

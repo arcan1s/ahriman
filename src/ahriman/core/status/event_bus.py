@@ -19,7 +19,8 @@
 #
 import uuid
 
-from asyncio import Lock, Queue, QueueFull
+from asyncio import Lock, Queue, QueueFull, QueueShutDown
+from dataclasses import dataclass
 from typing import Any
 
 from ahriman.core.log import LazyLogging
@@ -27,6 +28,22 @@ from ahriman.models.event import EventType
 
 
 SSEvent = tuple[str, dict[str, Any]]
+
+
+@dataclass(frozen=True)
+class _Subscription:
+    """
+    internal event bus subscription record
+
+    Attributes:
+        topics(list[EventType] | None): event type filter, ``None`` means all
+        object_id(str | None): object identifier filter, ``None`` means all
+        queue(Queue[SSEvent]): per-subscriber event queue
+    """
+
+    topics: list[EventType] | None
+    object_id: str | None
+    queue: Queue[SSEvent]
 
 
 class EventBus(LazyLogging):
@@ -45,7 +62,7 @@ class EventBus(LazyLogging):
         self.max_size = max_size
 
         self._lock = Lock()
-        self._subscribers: dict[str, tuple[list[EventType] | None, str | None, Queue[SSEvent | None]]] = {}
+        self._subscribers: dict[str, _Subscription] = {}
 
     async def broadcast(self, event_type: EventType, object_id: str | None, **kwargs: Any) -> None:
         """
@@ -60,30 +77,31 @@ class EventBus(LazyLogging):
         event.update(kwargs)
 
         async with self._lock:
-            for subscriber_id, (topics, filter_object_id, queue) in self._subscribers.items():
-                if topics is not None and event_type not in topics:
-                    continue
-                if filter_object_id is not None and object_id != filter_object_id:
-                    continue
-                try:
-                    queue.put_nowait((event_type, event))
-                except QueueFull:
-                    self.logger.warning("discard message to slow subscriber %s", subscriber_id)
+            snapshot = list(self._subscribers.items())
+
+        for subscriber_id, subscription in snapshot:
+            if subscription.topics is not None and event_type not in subscription.topics:
+                continue
+            if subscription.object_id is not None and object_id != subscription.object_id:
+                continue
+
+            try:
+                subscription.queue.put_nowait((event_type, event))
+            except QueueFull:
+                self.logger.warning("discard message to slow subscriber %s", subscriber_id)
+            except QueueShutDown:
+                pass
 
     async def shutdown(self) -> None:
         """
         gracefully shutdown all subscribers
         """
         async with self._lock:
-            for _, _, queue in self._subscribers.values():
-                try:
-                    queue.put_nowait(None)
-                except QueueFull:
-                    pass
-                queue.shutdown()
+            for subscription in self._subscribers.values():
+                subscription.queue.shutdown()
 
     async def subscribe(self, topics: list[EventType] | None = None,
-                        object_id: str | None = None) -> tuple[str, Queue[SSEvent | None]]:
+                        object_id: str | None = None) -> tuple[str, Queue[SSEvent]]:
         """
         register new subscriber
 
@@ -94,13 +112,13 @@ class EventBus(LazyLogging):
                 events for all objects will be delivered (Default value = None)
 
         Returns:
-            tuple[str, Queue[SSEvent | None]]: subscriber identifier and associated queue
+            tuple[str, Queue[SSEvent]]: subscriber identifier and associated queue
         """
         subscriber_id = str(uuid.uuid4())
-        queue: Queue[SSEvent | None] = Queue(self.max_size)
+        queue: Queue[SSEvent] = Queue(self.max_size)
 
         async with self._lock:
-            self._subscribers[subscriber_id] = (topics, object_id, queue)
+            self._subscribers[subscriber_id] = _Subscription(topics=topics, object_id=object_id, queue=queue)
 
         return subscriber_id, queue
 
@@ -112,7 +130,6 @@ class EventBus(LazyLogging):
             subscriber_id(str): subscriber unique identifier
         """
         async with self._lock:
-            result = self._subscribers.pop(subscriber_id, None)
-        if result is not None:
-            _, _, queue = result
-            queue.shutdown()
+            subscription = self._subscribers.pop(subscriber_id, None)
+        if subscription is not None:
+            subscription.queue.shutdown()

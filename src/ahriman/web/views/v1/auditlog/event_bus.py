@@ -44,23 +44,21 @@ class EventBusView(BaseView):
     ROUTES = ["/api/v1/events/stream"]
 
     @staticmethod
-    async def _run(response: EventSourceResponse, queue: Queue[SSEvent | None]) -> None:
+    async def _run(response: EventSourceResponse, queue: Queue[SSEvent]) -> None:
         """
         read events from queue and send them to the client
 
         Args:
             response(EventSourceResponse): SSE response instance
-            queue(Queue[SSEvent | None]): subscriber queue
+            queue(Queue[SSEvent]): subscriber queue
         """
         while response.is_connected():
             try:
-                message = await wait_for(queue.get(), timeout=response.ping_interval)
+                event_type, data = await wait_for(queue.get(), timeout=response.ping_interval)
             except TimeoutError:
                 continue
-
-            if message is None:
-                break  # terminate queue on sentinel event
-            event_type, data = message
+            except QueueShutDown:
+                break
 
             await response.send(json.dumps(data), event=event_type)
 
