@@ -63,7 +63,7 @@ class ChangesView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
 
-        changes = self.service(package_base=package_base).package_changes_get(package_base)
+        changes = await self.service(package_base=package_base).package_changes_get(package_base)
 
         return self.json_response(changes.view())
 
@@ -97,6 +97,6 @@ class ChangesView(StatusViewGuard, BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         changes = Changes(last_commit_sha, change, pkgbuild)
-        self.service().package_changes_update(package_base, changes)
+        await self.service().package_changes_update(package_base, changes)
 
         raise HTTPNoContent

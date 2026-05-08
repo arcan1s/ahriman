@@ -69,7 +69,7 @@ export default function AppLayout(): React.JSX.Element {
             </Tooltip>
         </Box>
 
-        <PackageTable autoRefreshIntervals={info?.autorefresh_intervals ?? []} />
+        <PackageTable />
 
         <Footer
             docsEnabled={info?.docs_enabled ?? false}

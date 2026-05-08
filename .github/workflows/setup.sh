@@ -16,7 +16,7 @@ pacman -S --noconfirm --asdeps base-devel python-build python-flit python-instal
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
     # web server
-    pacman -S --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
+    pacman -S --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-aiohttp-sse-git python-cryptography python-jinja
     # additional features
     pacman -S --noconfirm gnupg ipython python-boto3 python-cerberus python-matplotlib rsync
 fi

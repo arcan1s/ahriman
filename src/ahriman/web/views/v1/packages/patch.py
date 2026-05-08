@@ -57,7 +57,7 @@ class PatchView(StatusViewGuard, BaseView):
         package_base = self.request.match_info["package"]
         variable = self.request.match_info["patch"]
 
-        self.service().package_patches_remove(package_base, variable)
+        await self.service().package_patches_remove(package_base, variable)
 
         raise HTTPNoContent
 
@@ -83,7 +83,7 @@ class PatchView(StatusViewGuard, BaseView):
         package_base = self.request.match_info["package"]
         variable = self.request.match_info["patch"]
 
-        patches = self.service().package_patches_get(package_base, variable)
+        patches = await self.service().package_patches_get(package_base, variable)
 
         selected = next((patch for patch in patches if patch.key == variable), None)
         if selected is None:

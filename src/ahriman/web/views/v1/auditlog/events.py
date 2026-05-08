@@ -67,7 +67,7 @@ class EventsView(BaseView):
         except ValueError as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        events = self.service().event_get(event, object_id, from_date, to_date, limit, offset)
+        events = await self.service().event_get(event, object_id, from_date, to_date, limit, offset)
         response = [event.view() for event in events]
 
         return self.json_response(response)
@@ -94,6 +94,6 @@ class EventsView(BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().event_add(event)
+        await self.service().event_add(event)
 
         raise HTTPNoContent

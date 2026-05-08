@@ -30,17 +30,9 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import SearchIcon from "@mui/icons-material/Search";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import { Box, Button, Divider, IconButton, InputAdornment, Menu, MenuItem, TextField, Tooltip } from "@mui/material";
-import AutoRefreshControl from "components/common/AutoRefreshControl";
-import type { AutoRefreshInterval } from "models/AutoRefreshInterval";
 import type { BuildStatus } from "models/BuildStatus";
 import React, { useState } from "react";
 import { StatusColors } from "theme/StatusColors";
-
-export interface AutoRefreshProps {
-    autoRefreshIntervals: AutoRefreshInterval[];
-    currentInterval: number;
-    onIntervalChange: (interval: number) => void;
-}
 
 export interface ToolbarActions {
     onAddClick: () => void;
@@ -56,7 +48,6 @@ export interface ToolbarActions {
 
 interface PackageTableToolbarProps {
     actions: ToolbarActions;
-    autoRefresh: AutoRefreshProps;
     hasSelection: boolean;
     isAuthorized: boolean;
     onSearchChange: (text: string) => void;
@@ -66,7 +57,6 @@ interface PackageTableToolbarProps {
 
 export default function PackageTableToolbar({
     actions,
-    autoRefresh,
     hasSelection,
     isAuthorized,
     onSearchChange,
@@ -142,12 +132,6 @@ export default function PackageTableToolbar({
         <Button color="secondary" onClick={actions.onReloadClick} startIcon={<RefreshIcon />} variant="outlined">
             reload
         </Button>
-
-        <AutoRefreshControl
-            currentInterval={autoRefresh.currentInterval}
-            intervals={autoRefresh.autoRefreshIntervals}
-            onIntervalChange={autoRefresh.onIntervalChange}
-        />
 
         <Box sx={{ flexGrow: 1 }} />
 

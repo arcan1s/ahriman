@@ -60,6 +60,6 @@ class Archives(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
 
-        archives = self.service(package_base=package_base).package_archives(package_base)
+        archives = await self.service(package_base=package_base).package_archives(package_base)
 
         return self.json_response([archive.view() for archive in archives])

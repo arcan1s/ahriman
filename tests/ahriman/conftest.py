@@ -19,6 +19,7 @@ from ahriman.core.repository import Repository
 from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.spawn import Spawn
 from ahriman.core.status import Client
+from ahriman.core.status.event_bus import EventBus
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -690,4 +691,5 @@ def watcher(local_client: Client) -> Watcher:
         Watcher: package status watcher test instance
     """
     package_info = PackageInfo()
-    return Watcher(local_client, package_info)
+    event_bus = EventBus(0)
+    return Watcher(local_client, package_info, event_bus)

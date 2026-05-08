@@ -67,7 +67,7 @@ class LogsView(StatusViewGuard, BaseView):
         version = self.request.query.get("version", None)
         process = self.request.query.get("process_id", None)
 
-        logs = self.service(package_base=package_base).package_logs_get(package_base, version, process, limit, offset)
+        logs = await self.service(package_base=package_base).package_logs_get(package_base, version, process, limit, offset)
 
         head = self.request.query.get("head", "false")
         # pylint: disable=protected-access

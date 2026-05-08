@@ -17,8 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-export interface AutoRefreshInterval {
-    interval: number;
-    is_active: boolean;
-    text: string;
+import { useQueryClient } from "@tanstack/react-query";
+import { useEventStream } from "hooks/useEventStream";
+import { useRepository } from "hooks/useRepository";
+import type { ReactNode } from "react";
+
+export function EventStreamProvider({ children }: { children: ReactNode }): ReactNode {
+    const queryClient = useQueryClient();
+    const { currentRepository } = useRepository();
+
+    useEventStream(queryClient, currentRepository);
+
+    return children;
 }

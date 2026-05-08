@@ -92,6 +92,14 @@ ahriman.web.schemas.error\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.event\_bus\_filter\_schema module
+-----------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.event_bus_filter_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.event\_schema module
 ----------------------------------------
 
@@ -352,6 +360,14 @@ ahriman.web.schemas.search\_schema module
 -----------------------------------------
 
 .. automodule:: ahriman.web.schemas.search_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.sse\_schema module
+--------------------------------------
+
+.. automodule:: ahriman.web.schemas.sse_schema
    :members:
    :no-undoc-members:
    :show-inheritance:
