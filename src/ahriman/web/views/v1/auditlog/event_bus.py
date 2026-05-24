@@ -19,7 +19,7 @@
 #
 import json
 
-from aiohttp.web import HTTPBadRequest, StreamResponse
+from aiohttp.web import HTTPBadRequest, Request, StreamResponse
 from aiohttp_sse import EventSourceResponse, sse_response
 from asyncio import Queue, QueueShutDown, wait_for
 from typing import ClassVar
@@ -37,11 +37,47 @@ class EventBusView(BaseView):
     event bus SSE view
 
     Attributes:
-        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        READ_EVENTS(set[EventType]): (class attribute) events which are allowed for read-only users
     """
 
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
+    READ_EVENTS: ClassVar[set[EventType]] = {
+        EventType.PackageHeld,
+        EventType.PackageOutdated,
+        EventType.PackageRemoved,
+        EventType.PackageStatusChanged,
+        EventType.PackageUpdateFailed,
+        EventType.PackageUpdated,
+        EventType.ServiceStatusChanged,
+    }
     ROUTES = ["/api/v1/events/stream"]
+
+    @classmethod
+    async def get_permission(cls, request: Request) -> UserAccess:
+        """
+        retrieve user permission from the request
+
+        Args:
+            request(Request): request object
+
+        Returns:
+            UserAccess: extracted permission
+        """
+        if request.method.upper() not in ("GET", "HEAD"):
+            return await BaseView.get_permission(request)
+
+        permission = UserAccess.Full
+        event_filter = request.query.getall("event", []) if request.query is not None else []
+
+        if event_filter:
+            try:
+                topics = {EventType(event) for event in event_filter}
+            except ValueError:
+                pass
+            else:
+                if topics.issubset(cls.READ_EVENTS):
+                    permission = UserAccess.Read
+
+        return permission
 
     @staticmethod
     async def _run(response: EventSourceResponse, queue: Queue[SSEvent]) -> None:
@@ -66,7 +102,7 @@ class EventBusView(BaseView):
         tags=["Audit log"],
         summary="Live updates",
         description="Stream live updates via SSE",
-        permission=GET_PERMISSION,
+        permission=UserAccess.Full,
         error_400_enabled=True,
         error_404_description="Repository is unknown",
         schema=SSESchema(many=True),

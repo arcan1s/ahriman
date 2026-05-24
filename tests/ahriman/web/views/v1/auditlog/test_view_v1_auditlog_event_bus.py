@@ -3,6 +3,7 @@ import pytest
 
 from aiohttp.test_utils import TestClient
 from asyncio import Queue
+from multidict import MultiDict
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
@@ -11,6 +12,7 @@ from ahriman.models.event import EventType
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
 from ahriman.web.keys import WatcherKey
+from ahriman.web.views.base import BaseView
 from ahriman.web.views.v1.auditlog.event_bus import EventBusView
 
 
@@ -36,6 +38,51 @@ async def test_get_permission() -> None:
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
         assert await EventBusView.get_permission(request) == UserAccess.Full
+
+
+async def test_get_permission_build_log() -> None:
+    """
+    must return full permission for build log stream
+    """
+    request = pytest.helpers.request("", "", "GET", params=MultiDict(event=EventType.BuildLog))
+    assert await EventBusView.get_permission(request) == UserAccess.Full
+
+
+async def test_get_permission_build_log_with_read_events() -> None:
+    """
+    must return full permission for mixed build log and read event stream
+    """
+    request = pytest.helpers.request("", "", "GET", params=MultiDict([
+        ("event", EventType.BuildLog),
+        ("event", EventType.PackageUpdated),
+    ]))
+    assert await EventBusView.get_permission(request) == UserAccess.Full
+
+
+async def test_get_permission_invalid_event() -> None:
+    """
+    must return full permission for invalid event type
+    """
+    request = pytest.helpers.request("", "", "GET", params=MultiDict(event="invalid"))
+    assert await EventBusView.get_permission(request) == UserAccess.Full
+
+
+async def test_get_permission_post() -> None:
+    """
+    must use default permission for non-get requests
+    """
+    request = pytest.helpers.request("", "", "POST", params=MultiDict(event=EventType.PackageUpdated))
+    assert await EventBusView.get_permission(request) == await BaseView.get_permission(request)
+
+
+async def test_get_permission_read_events() -> None:
+    """
+    must return read permission for package and status streams
+    """
+    request = pytest.helpers.request("", "", "GET", params=MultiDict(
+        ("event", event_type) for event_type in EventBusView.READ_EVENTS
+    ))
+    assert await EventBusView.get_permission(request) == UserAccess.Read
 
 
 def test_routes() -> None:
