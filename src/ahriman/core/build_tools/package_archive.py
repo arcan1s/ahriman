@@ -72,17 +72,17 @@ class PackageArchive:
             if not PackageArchive.is_elf(binary_file):
                 return []
 
-            elf_file = ELFFile(binary_file)  # type: ignore[no-untyped-call]
+            elf_file = ELFFile(binary_file)
             dynamic_section = next(
-                (section for section in elf_file.iter_sections()  # type: ignore[no-untyped-call]
+                (section for section in elf_file.iter_sections()
                  if isinstance(section, DynamicSection)),
                 None)
             if dynamic_section is None:
                 return []
 
             return [
-                tag.needed
-                for tag in dynamic_section.iter_tags()  # type: ignore[no-untyped-call]
+                tag.needed  # type: ignore[attr-defined]
+                for tag in dynamic_section.iter_tags()
                 if tag.entry.d_tag == "DT_NEEDED"
             ]
 
