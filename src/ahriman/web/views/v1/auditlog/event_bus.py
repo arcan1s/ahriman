@@ -101,7 +101,9 @@ class EventBusView(BaseView):
     @apidocs(
         tags=["Audit log"],
         summary="Live updates",
-        description="Stream live updates via SSE",
+        description="Stream live updates via SSE. Read-only users may subscribe only when all requested event filters "
+                    "belong to read-safe package and service status events; build log or unfiltered streams require "
+                    "full access. Streams are live-only and do not replay missed events after reconnect.",
         permission=UserAccess.Full,
         error_400_enabled=True,
         error_404_description="Repository is unknown",

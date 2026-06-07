@@ -65,9 +65,10 @@ async def test_shutdown(event_bus: EventBus) -> None:
     """
     must shutdown all subscriber queues on shutdown
     """
-    _, queue = await event_bus.subscribe()
+    subscriber_id, queue = await event_bus.subscribe()
 
     await event_bus.shutdown()
+    assert subscriber_id not in event_bus._subscribers
     with pytest.raises(QueueShutDown):
         queue.get_nowait()
 

@@ -99,6 +99,7 @@ class EventBus(LazyLogging):
         async with self._lock:
             for subscription in self._subscribers.values():
                 subscription.queue.shutdown()
+            self._subscribers.clear()
 
     async def subscribe(self, topics: list[EventType] | None = None,
                         object_id: str | None = None) -> tuple[str, Queue[SSEvent]]:
