@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import type { QueryClient } from "@tanstack/react-query";
+import { useNotification } from "hooks/useNotification";
 import type { RepositoryId } from "models/RepositoryId";
 import { useEffect } from "react";
 
@@ -62,6 +63,12 @@ function invalidateForEvent(
     }
 }
 
+function invalidateRepository(queryClient: QueryClient, repositoryKey: string): void {
+    void queryClient.invalidateQueries({ queryKey: ["packages", repositoryKey] });
+    void queryClient.invalidateQueries({ queryKey: ["status", repositoryKey] });
+    void queryClient.invalidateQueries({ queryKey: ["events", repositoryKey] });
+}
+
 export function buildEventStreamUrl(
     repository: RepositoryId,
     events?: readonly string[],
@@ -80,22 +87,41 @@ export function buildEventStreamUrl(
 }
 
 export function useEventStream(queryClient: QueryClient, repository: RepositoryId | null): void {
+    const { showError } = useNotification();
+
     useEffect(() => {
         if (!repository) {
             return;
         }
 
         const source = new EventSource(buildEventStreamUrl(repository, GLOBAL_EVENT_TYPES));
+        let needsRefresh = false;
+
+        source.addEventListener("error", () => {
+            needsRefresh = true;
+        });
+
+        source.addEventListener("open", () => {
+            if (needsRefresh) {
+                invalidateRepository(queryClient, repository.key);
+                needsRefresh = false;
+            }
+        });
 
         for (const eventType of GLOBAL_EVENT_TYPES) {
             source.addEventListener(eventType, (event: MessageEvent<string>) => {
-                const data = JSON.parse(event.data) as { object_id?: string };
-                invalidateForEvent(queryClient, repository.key, eventType, data.object_id ?? undefined);
+                try {
+                    const data = JSON.parse(event.data) as { object_id?: string };
+                    invalidateForEvent(queryClient, repository.key, eventType, data.object_id ?? undefined);
+                } catch {
+                    showError("Live updates failed", "Could not parse server event; refreshing data.");
+                    invalidateRepository(queryClient, repository.key);
+                }
             });
         }
 
         return () => {
             source.close();
         };
-    }, [queryClient, repository]);
+    }, [queryClient, repository, showError]);
 }

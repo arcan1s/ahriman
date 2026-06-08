@@ -17,8 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+import type { QueryClient } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { buildEventStreamUrl } from "hooks/useEventStream";
+import { useNotification } from "hooks/useNotification";
 import type { LogRecord } from "models/LogRecord";
 import type { RepositoryId } from "models/RepositoryId";
 import { useEffect } from "react";
@@ -34,14 +36,38 @@ function appendLogRecord(existing: LogRecord[] | undefined, record: LogRecord): 
     return [...existing ?? [], record];
 }
 
+function invalidateLogs(queryClient: QueryClient, repository: RepositoryId, packageBase: string): void {
+    void queryClient.invalidateQueries({ queryKey: ["logs", repository.key, packageBase] });
+}
+
 export function useBuildLogStream(packageBase: string, repository: RepositoryId): void {
     const queryClient = useQueryClient();
+    const { showError } = useNotification();
 
     useEffect(() => {
         const source = new EventSource(buildEventStreamUrl(repository, ["build-log"], packageBase));
+        let needsRefresh = false;
+
+        source.addEventListener("error", () => {
+            needsRefresh = true;
+        });
+
+        source.addEventListener("open", () => {
+            if (needsRefresh) {
+                invalidateLogs(queryClient, repository, packageBase);
+                needsRefresh = false;
+            }
+        });
 
         source.addEventListener("build-log", (event: MessageEvent<string>) => {
-            const data = JSON.parse(event.data) as BuildLogEvent;
+            let data: BuildLogEvent;
+            try {
+                data = JSON.parse(event.data) as BuildLogEvent;
+            } catch {
+                showError("Live updates failed", "Could not parse build log event; refreshing logs.");
+                invalidateLogs(queryClient, repository, packageBase);
+                return;
+            }
 
             const record: LogRecord = {
                 created: data.created,
@@ -66,5 +92,5 @@ export function useBuildLogStream(packageBase: string, repository: RepositoryId)
         return () => {
             source.close();
         };
-    }, [queryClient, packageBase, repository]);
+    }, [queryClient, packageBase, repository, showError]);
 }
