@@ -8,8 +8,7 @@ name = "ahriman"
 description = "ArcH linux ReposItory MANager"
 readme = "README.md"
 
-# Actually we are using features from the latest python, however, ubuntu, which is used for CI doesn't have it
-requires-python = ">=3"
+requires-python = ">=3.13"
 
 license = {file = "COPYING"}
 authors = [
