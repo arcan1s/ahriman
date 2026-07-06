@@ -19,7 +19,7 @@
 #
 import json
 
-from aiohttp.web import HTTPBadRequest, Request, StreamResponse
+from aiohttp.web import HTTPBadRequest, Request, Response, StreamResponse
 from aiohttp_sse import EventSourceResponse, sse_response
 from asyncio import Queue, QueueShutDown, wait_for
 from typing import ClassVar
@@ -66,16 +66,13 @@ class EventBusView(BaseView):
             return await BaseView.get_permission(request)
 
         permission = UserAccess.Full
-        event_filter = request.query.getall("event", []) if request.query is not None else []
+        try:
+            topics = cls(request)._topics()
+        except HTTPBadRequest:
+            topics = None
 
-        if event_filter:
-            try:
-                topics = {EventType(event) for event in event_filter}
-            except ValueError:
-                pass
-            else:
-                if topics.issubset(cls.READ_EVENTS):
-                    permission = UserAccess.Read
+        if topics is not None and set(topics).issubset(cls.READ_EVENTS):
+            permission = UserAccess.Read
 
         return permission
 
@@ -98,6 +95,24 @@ class EventBusView(BaseView):
 
             await response.send(json.dumps(data), event=event_type)
 
+    def _topics(self) -> list[EventType] | None:
+        """
+        parse event filter from request query
+
+        Returns:
+            list[EventType] | None: event filter if any
+
+        Raises:
+            HTTPBadRequest: if invalid event type is supplied
+        """
+        if self.request.query is None:
+            return None
+
+        try:
+            return [EventType(event) for event in self.request.query.getall("event", [])] or None
+        except ValueError as ex:
+            raise HTTPBadRequest(reason=str(ex))
+
     @apidocs(
         tags=["Audit log"],
         summary="Live updates",
@@ -116,14 +131,8 @@ class EventBusView(BaseView):
 
         Returns:
             StreamResponse: 200 with streaming updates
-
-        Raises:
-            HTTPBadRequest: if invalid event type is supplied
         """
-        try:
-            topics = [EventType(event) for event in self.request.query.getall("event", [])] or None
-        except ValueError as ex:
-            raise HTTPBadRequest(reason=str(ex))
+        topics = self._topics()
         object_id = self.request.query.get("object_id")
         event_bus = self.service().event_bus
 
@@ -138,3 +147,18 @@ class EventBusView(BaseView):
                 await event_bus.unsubscribe(subscription_id)
 
         return response
+
+    async def head(self) -> StreamResponse:
+        """
+        HEAD method implementation based on the result of GET method
+
+        Returns:
+            StreamResponse: generated response for the request
+        """
+        self._topics()
+        self.service()
+
+        return Response(headers={
+            "Cache-Control": "no-cache",
+            "Content-Type": "text/event-stream",
+        })

@@ -2,6 +2,7 @@ import asyncio
 import pytest
 
 from aiohttp.test_utils import TestClient
+from aiohttp.web import HTTPBadRequest
 from asyncio import Queue
 from multidict import MultiDict
 from pytest_mock import MockerFixture
@@ -110,6 +111,37 @@ async def test_run_timeout() -> None:
     await EventBusView._run(response, queue)
 
 
+def test_topics() -> None:
+    """
+    must parse event filters
+    """
+    request = pytest.helpers.request("", "", "GET", params=MultiDict([
+        ("event", EventType.PackageUpdated),
+        ("event", EventType.PackageRemoved),
+    ]))
+
+    assert EventBusView(request)._topics() == [EventType.PackageUpdated, EventType.PackageRemoved]
+
+
+def test_topics_empty() -> None:
+    """
+    must return None for missing event filters
+    """
+    request = pytest.helpers.request("", "", "GET", params=MultiDict())
+
+    assert EventBusView(request)._topics() is None
+
+
+def test_topics_invalid() -> None:
+    """
+    must raise bad request for invalid event filters
+    """
+    request = pytest.helpers.request("", "", "GET", params=MultiDict(event="invalid"))
+
+    with pytest.raises(HTTPBadRequest):
+        EventBusView(request)._topics()
+
+
 async def test_get(client: TestClient, package_ahriman: Package) -> None:
     """
     must stream events via SSE
@@ -192,3 +224,31 @@ async def test_get_connection_reset(client: TestClient, mocker: MockerFixture) -
     mocker.patch.object(EventBusView, "_run", side_effect=ConnectionResetError)
     response = await client.get("/api/v1/events/stream")
     assert response.status == 200
+
+
+async def test_head(client: TestClient) -> None:
+    """
+    must check stream availability without opening SSE stream
+    """
+    response = await client.head("/api/v1/events/stream", params={"event": EventType.PackageUpdated})
+    assert response.status == 200
+    assert response.headers["Content-Type"] == "text/event-stream"
+    assert not await response.text()
+
+
+async def test_head_bad_request(client: TestClient) -> None:
+    """
+    must return bad request for invalid event type
+    """
+    response = await client.head("/api/v1/events/stream", params={"event": "invalid"})
+    assert response.status == 400
+    assert not await response.text()
+
+
+async def test_head_not_found(client: TestClient) -> None:
+    """
+    must return not found for unknown repository
+    """
+    response = await client.head("/api/v1/events/stream", params={"architecture": "unknown", "repository": "unknown"})
+    assert response.status == 404
+    assert not await response.text()
