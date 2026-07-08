@@ -26,7 +26,7 @@ jobs:
 
       - name: Extract version
         id: version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
       - name: Create changelog
         id: changelog
@@ -38,7 +38,7 @@ jobs:
       - name: Create archive
         run: tox -e archive
         env:
-          VERSION: ${{ steps.version.outputs.VERSION }}
+          VERSION: ${{ steps.version.outputs.version }}
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
