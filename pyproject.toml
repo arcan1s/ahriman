@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_core"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "ahriman"
@@ -112,21 +112,32 @@ tests = [
     "pytest-spec",
 ]
 
-[tool.flit.sdist]
+[tool.hatch.version]
+path = "src/ahriman/__init__.py"
+
+[tool.hatch.build.targets.sdist]
 include = [
-    "AUTHORS",
-    "CONTRIBUTING.md",
-    "SECURITY.md",
-    "package",
-    "frontend",
-    "subpackages.py",
-    "web.png",
+    "/AUTHORS",
+    "/CONTRIBUTING.md",
+    "/COPYING",
+    "/README.md",
+    "/SECURITY.md",
+    "/frontend",
+    "/package",
+    "/pyproject.toml",
+    "/src",
+    "/subpackages.py",
+    "/web.png",
 ]
 exclude = [
-    "package/archlinux",
-    "frontend/node_modules",
-    "frontend/package-lock.json",
+    "/package/archlinux",
+    "/frontend/node_modules",
+    "/frontend/package-lock.json",
 ]
 
-[tool.flit.external-data]
-directory = "package"
+[tool.hatch.build.targets.wheel]
+packages = ["src/ahriman"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"package/lib" = "lib"
+"package/share" = "share"

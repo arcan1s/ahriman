@@ -12,7 +12,7 @@ pacman -Syyu --noconfirm
 # main dependencies
 pacman -S --noconfirm devtools git npm pyalpm python-bcrypt python-filelock python-inflection python-pyelftools python-requests python-systemd sudo
 # make dependencies
-pacman -S --noconfirm --asdeps base-devel python-build python-flit python-installer python-tox python-wheel
+pacman -S --noconfirm --asdeps base-devel python-build python-hatchling python-installer python-tox python-wheel
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
     # web server

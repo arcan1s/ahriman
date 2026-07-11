@@ -35,7 +35,7 @@ RUN pacman -S --noconfirm --asdeps \
 RUN pacman -S --noconfirm --asdeps \
         base-devel \
         python-build \
-        python-flit \
+        python-hatchling \
         python-installer \
         python-setuptools \
         python-tox \

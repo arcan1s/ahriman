@@ -9,7 +9,7 @@ arch=('any')
 url="https://ahriman.readthedocs.io/"
 license=('GPL-3.0-or-later')
 depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-bcrypt' 'python-filelock' 'python-inflection' 'python-pyelftools' 'python-requests')
-makedepends=('npm' 'python-build' 'python-flit' 'python-installer' 'python-wheel')
+makedepends=('npm' 'python-build' 'python-hatchling' 'python-installer' 'python-wheel')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgbase-$pkgver.tar.gz"
         "$pkgbase.sysusers"
         "$pkgbase.tmpfiles")
