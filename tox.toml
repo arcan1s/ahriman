@@ -87,12 +87,13 @@ allowlist_externals = [
 dependency_groups = [
     "check",
 ]
-extras = [
+deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
 ]
 pip_pre = true
+skip_install = true
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
-set_env.MYPYPATH = "src"
+set_env.MYPYPATH = "ahriman-core/src:ahriman-triggers/src:ahriman-web/src"
 commands = [
     [
         "autopep8",
@@ -101,26 +102,35 @@ commands = [
         "--in-place",
         "--jobs", "0",
         "--recursive",
-        "src/{[project]name}",
-        "tests/{[project]name}",
+        "ahriman-core/src/{[project]name}",
+        "ahriman-triggers/src/{[project]name}",
+        "ahriman-web/src/{[project]name}",
+        "tests",
+        "ahriman-core/tests",
+        "ahriman-triggers/tests",
+        "ahriman-web/tests",
     ],
     [
         "pylint",
         { replace = "ref", of = ["flags", "pylint"], extend = true },
-        "src/{[project]name}",
+        "{[project]name}",
     ],
     [
         "bandit",
         { replace = "ref", of = ["flags", "bandit"], extend = true },
         "--recursive",
-        "src/{[project]name}",
+        "ahriman-core/src/{[project]name}",
+        "ahriman-triggers/src/{[project]name}",
+        "ahriman-web/src/{[project]name}",
     ],
     [
         "bandit",
         { replace = "ref", of = ["flags", "bandit"], extend = true },
         "--skip", "B101,B105,B106",
         "--recursive",
-        "src/{[project]name}",
+        "ahriman-core/src/{[project]name}",
+        "ahriman-triggers/src/{[project]name}",
+        "ahriman-web/src/{[project]name}",
     ],
     [
         "mypy",
@@ -152,7 +162,7 @@ deps = [
 ]
 dynamic_version = "{[project]name}.__version__"
 pip_pre = true
-set_env.PYTHONPATH = "src"
+set_env.PYTHONPATH = "ahriman-core/src:ahriman-triggers/src:ahriman-web/src"
 set_env.SPHINX_APIDOC_OPTIONS = "members,no-undoc-members,show-inheritance"
 commands = [
     [
@@ -180,14 +190,16 @@ commands = [
         "--dot-output", "{tox_root}/docs/_static/architecture.dot",
         "--no-output",
         "--show-dot",
-        "src/ahriman",
+        "ahriman-core/src/ahriman",
     ],
     [
         "sphinx-apidoc",
         "--force",
         "--no-toc",
         "--output-dir", "docs",
-        "src",
+        "ahriman-core/src",
+        "ahriman-triggers/src",
+        "ahriman-web/src",
     ],
     # compile list of dependencies for rtd.io
     [
@@ -298,6 +310,10 @@ set_env.CFLAGS = "-Wno-unterminated-string-initialization"
 commands = [
     [
         "pytest",
+        "tests/test_tests.py",
+        "ahriman-core/tests",
+        "ahriman-triggers/tests",
+        "ahriman-web/tests",
         { replace = "posargs", extend = true },
     ],
 ]
@@ -321,7 +337,7 @@ commands = [
         "sed",
         "--in-place",
         "s/^__version__ = .*/__version__ = \"{posargs}\"/",
-        "src/ahriman/__init__.py",
+        "ahriman-core/src/ahriman/__init__.py",
     ],
     [
         "npm",
