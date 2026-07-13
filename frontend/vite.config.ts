@@ -19,7 +19,7 @@ export default defineConfig({
     build: {
         chunkSizeWarningLimit: 10000,
         emptyOutDir: false,
-        outDir: path.resolve(__dirname, "../package/share/ahriman/templates"),
+        outDir: path.resolve(__dirname, "../ahriman-web/package/share/ahriman/templates"),
         rolldownOptions: {
             output: {
                 assetFileNames: "static/[name].[ext]",

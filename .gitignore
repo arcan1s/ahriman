@@ -103,5 +103,8 @@ docs/html/
 # Frontend
 node_modules/
 package-lock.json
-package/share/ahriman/templates/static/index.js
-package/share/ahriman/templates/static/index.css
+ahriman-web/package/share/ahriman/templates/static/index.js
+ahriman-web/package/share/ahriman/templates/static/index.css
+
+# local configs
+/*.ini

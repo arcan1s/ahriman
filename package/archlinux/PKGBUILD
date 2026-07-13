@@ -20,7 +20,9 @@ build() {
     npm --prefix "frontend" install --cache "$srcdir/npm-cache"
     npm --prefix "frontend" run build
 
-    python -m build --wheel --no-isolation
+    python -m build --wheel --no-isolation ahriman-core
+    python -m build --wheel --no-isolation ahriman-triggers
+    python -m build --wheel --no-isolation ahriman-web
 }
 
 package_ahriman() {
@@ -48,8 +50,7 @@ package_ahriman-core() {
 
     cd "$pkgbase-$pkgver"
 
-    python -m installer --destdir="$pkgdir" "dist/$pkgbase-$pkgver-py3-none-any.whl"
-    python subpackages.py "$pkgdir" "$pkgname"
+    python -m installer --destdir="$pkgdir" "$pkgname/dist/ahriman_core-$pkgver-py3-none-any.whl"
 
     # keep usr/share configs as reference and copy them to /etc
     install -Dm644 "$pkgdir/usr/share/$pkgbase/settings/ahriman.ini" "$pkgdir/etc/ahriman.ini"
@@ -68,8 +69,7 @@ package_ahriman-triggers() {
 
     cd "$pkgbase-$pkgver"
 
-    python -m installer --destdir="$pkgdir" "dist/$pkgbase-$pkgver-py3-none-any.whl"
-    python subpackages.py "$pkgdir" "$pkgname"
+    python -m installer --destdir="$pkgdir" "$pkgname/dist/ahriman_triggers-$pkgver-py3-none-any.whl"
 
     install -Dm644 "$pkgdir/usr/share/$pkgbase/settings/ahriman.ini.d/00-triggers.ini" "$pkgdir/etc/ahriman.ini.d/00-triggers.ini"
 }
@@ -88,8 +88,7 @@ package_ahriman-web() {
 
     cd "$pkgbase-$pkgver"
 
-    python -m installer --destdir="$pkgdir" "dist/$pkgbase-$pkgver-py3-none-any.whl"
-    python subpackages.py "$pkgdir" "$pkgname"
+    python -m installer --destdir="$pkgdir" "$pkgname/dist/ahriman_web-$pkgver-py3-none-any.whl"
 
     install -Dm644 "$pkgdir/usr/share/$pkgbase/settings/ahriman.ini.d/00-web.ini" "$pkgdir/etc/ahriman.ini.d/00-web.ini"
 }

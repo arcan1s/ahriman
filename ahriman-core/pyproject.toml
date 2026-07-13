@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ahriman-core"
+description = "ArcH linux ReposItory MANager, core package"
+readme = "../README.md"
+requires-python = ">=3.13"
+license = {file = "../COPYING"}
+authors = [
+    {name = "ahriman team"},
+]
+dependencies = [
+    "bcrypt",
+    "filelock",
+    "inflection",
+    "pyelftools",
+    "requests",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+journald = [
+    "systemd-python",
+]
+# FIXME technically this dependency is required, but in some cases we do not have access to
+# the libalpm which is required in order to install the package. Thus in case if we do not
+# really need to run the application we can move it to "optional" dependencies
+pacman = [
+    "pyalpm",
+]
+reports = [
+    "Jinja2",
+]
+s3 = [
+    "boto3",
+]
+shell = [
+    "IPython",
+]
+stats = [
+    "matplotlib",
+]
+unixsocket = [
+    "requests-unixsocket2",
+]
+validator = [
+    "cerberus",
+]
+
+[project.scripts]
+ahriman = "ahriman.application.ahriman:run"
+
+[project.urls]
+Documentation = "https://ahriman.readthedocs.io/"
+Repository = "https://github.com/arcan1s/ahriman"
+Changelog = "https://github.com/arcan1s/ahriman/releases"
+
+[tool.hatch.version]
+path = "src/ahriman/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ahriman"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"package/lib" = "lib"
+"package/share" = "share"
