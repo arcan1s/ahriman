@@ -1,10 +1,18 @@
-from pathlib import Path
-
 import pytest
 
-from fixtures import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from ahriman.core.auth import Auth
+from ahriman.core.configuration import Configuration
 
 
 @pytest.fixture
-def resource_path_root() -> Path:
-    return Path(__file__).resolve().parents[2] / "tests" / "testresources"
+def auth(configuration: Configuration) -> Auth:
+    """
+    auth provider fixture
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        Auth: auth service instance
+    """
+    return Auth(configuration)
