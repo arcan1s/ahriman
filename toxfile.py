@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import importlib
-import sys
+from importlib.metadata import Distribution, PackageNotFoundError
 
 from tox.config.sets import EnvConfigSet
 from tox.plugin import impl
@@ -26,32 +25,34 @@ from tox.session.state import State
 from tox.tox_env.api import ToxEnv
 
 
-def _extract_version(env_conf: EnvConfigSet, python_path: str | None = None) -> dict[str, str]:
+def _extract_version(tox_env: ToxEnv) -> dict[str, str]:
     """
     extract version dynamically and set VERSION environment variable
 
     Args:
-        env_conf(EnvConfigSet): the core configuration object
-        python_path(str | None): python path variable if available
+        tox_env(ToxEnv): tox environment containing the installed package
 
     Returns:
         dict[str, str]: environment variables which must be inserted
+
+    Raises:
+        PackageNotFoundError: no installed distribution has been found
     """
-    import_path = env_conf["dynamic_version"]
-    if not import_path:
+    distribution = tox_env.conf["dynamic_version"]
+    if not distribution:
         return {}
 
-    if python_path is not None:
-        sys.path.append(python_path)
+    installed = next(
+        (
+            package for package in Distribution.discover(path=[str(tox_env.env_site_package_dir())])
+            if package.name == distribution
+        ),
+        None,
+    )
+    if installed is None:
+        raise PackageNotFoundError(distribution)
 
-    module_name, variable_name = import_path.rsplit(".", maxsplit=1)
-    module = importlib.import_module(module_name)
-    version = getattr(module, variable_name)
-
-    # reset import paths
-    sys.path.pop()
-
-    return {"VERSION": version}
+    return {"VERSION": installed.version}
 
 
 @impl
@@ -70,7 +71,7 @@ def tox_add_env_config(env_conf: EnvConfigSet, state: State) -> None:
         keys=["dynamic_version"],
         of_type=str,
         default="",
-        desc="import path for the version variable",
+        desc="distribution name used to populate the VERSION environment variable",
     )
 
 
@@ -82,8 +83,4 @@ def tox_before_run_commands(tox_env: ToxEnv) -> None:
     Args:
         tox_env(ToxEnv): the tox environment being executed
     """
-    env_conf = tox_env.conf
-    set_env = env_conf["set_env"]
-
-    python_path = set_env.load("PYTHONPATH") if "PYTHONPATH" in set_env else None
-    set_env.update(_extract_version(env_conf, python_path))
+    tox_env.conf["set_env"].update(_extract_version(tox_env))

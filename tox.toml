@@ -160,9 +160,8 @@ deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
     "uv",
 ]
-dynamic_version = "{[project]name}.__version__"
+dynamic_version = "{[project]name}"
 pip_pre = true
-set_env.PYTHONPATH = "ahriman-core/src:ahriman-triggers/src:ahriman-web/src"
 set_env.SPHINX_APIDOC_OPTIONS = "members,no-undoc-members,show-inheritance"
 commands = [
     [
@@ -190,16 +189,14 @@ commands = [
         "--dot-output", "{tox_root}/docs/_static/architecture.dot",
         "--no-output",
         "--show-dot",
-        "ahriman-core/src/ahriman",
+        "{envsitepackagesdir}/{[project]name}",
     ],
     [
         "sphinx-apidoc",
         "--force",
         "--no-toc",
         "--output-dir", "docs",
-        "ahriman-core/src",
-        "ahriman-triggers/src",
-        "ahriman-web/src",
+        "{envsitepackagesdir}/{[project]name}",
     ],
     # compile list of dependencies for rtd.io
     [
@@ -207,9 +204,9 @@ commands = [
         "pip",
         "compile",
         "--group", "pyproject.toml:docs",
-        "--extra", "s3",
-        "--extra", "validator",
-        "--extra", "web",
+        "--no-emit-package", "ahriman-core",
+        "--no-emit-package", "ahriman-triggers",
+        "--no-emit-package", "ahriman-web",
         "--output-file", "docs/requirements.txt",
         "--quiet",
         "pyproject.toml",
