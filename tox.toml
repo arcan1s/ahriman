@@ -91,7 +91,6 @@ deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
 ]
 pip_pre = true
-skip_install = true
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
 set_env.MYPYPATH = "ahriman-core/src:ahriman-triggers/src:ahriman-web/src"
 commands = [
@@ -243,7 +242,7 @@ commands = [
         "sphinx-build",
         "--builder", "html",
         "--fail-on-warning",
-        "--jobs", "auto",
+        "--jobs", "1",
         "--write-all",
         "docs",
         "{envtmpdir}/html",
@@ -265,9 +264,9 @@ commands = [
     [
         "git",
         "add",
+        "archlinux/PKGBUILD",
         "docs/_static/architecture.dot",
         "frontend/package.json",
-        "package/archlinux/PKGBUILD",
         "ahriman-core/package/share/man/man1/ahriman.1",
         "ahriman-core/package/share/bash-completion/completions/_ahriman",
         "ahriman-core/package/share/zsh/site-functions/_ahriman",
@@ -324,6 +323,7 @@ allowlist_externals = [
 deps = [
     "packaging",
 ]
+skip_install = true
 commands = [
     # check if version is set and validate it
     [
@@ -346,6 +346,6 @@ commands = [
         "sed",
         "--in-place",
         "s/pkgver=.*/pkgver={posargs}/",
-        "package/archlinux/PKGBUILD",
+        "archlinux/PKGBUILD",
     ],
 ]

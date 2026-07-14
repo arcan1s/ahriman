@@ -68,8 +68,8 @@ COPY --chown=build . "/home/build/ahriman"
 ## create package archive and install it
 RUN cd "/home/build/ahriman" && \
     tox -e archive && \
-    cp ./dist/*.tar.gz "package/archlinux" && \
-    cd "package/archlinux" && \
+    cp ./dist/*.tar.gz "archlinux" && \
+    cd "archlinux" && \
     runuser -u build -- makepkg --noconfirm --skipchecksums && \
     cd / && rm -r "/home/build/ahriman"
 
