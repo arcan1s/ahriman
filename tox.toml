@@ -15,26 +15,36 @@ npm_install = [
         "npm",
         { replace = "ref", of = ["flags", "npm"], extend = true },
         "install",
-        "--cache", "{envtmpdir}/npm-cache",
+        "--cache",
+        "{envtmpdir}/npm-cache",
     ],
 ]
 
 [flags]
 autopep8 = [
-    "--max-line-length", "120",
+    "--max-line-length",
+    "120",
     "-aa",
 ]
 bandit = [
-    "--configfile", ".bandit.yml",
+    "--configfile",
+    ".bandit.yml",
 ]
 manpage = [
-    "--author", "{[project]name} team",
-    "--author-email", "",
-    "--description", "ArcH linux ReposItory MANager",
-    "--manual-title", "ArcH linux ReposItory MANager",
-    "--project-name", "{[project]name}",
-    "--version", "{env:VERSION}",
-    "--url", "https://github.com/arcan1s/ahriman",
+    "--author",
+    "{[project]name} team",
+    "--author-email",
+    "",
+    "--description",
+    "ArcH linux ReposItory MANager",
+    "--manual-title",
+    "ArcH linux ReposItory MANager",
+    "--project-name",
+    "{[project]name}",
+    "--version",
+    "{env:VERSION}",
+    "--url",
+    "https://github.com/arcan1s/ahriman",
 ]
 mypy = [
     "--implicit-reexport",
@@ -43,18 +53,22 @@ mypy = [
     "--allow-subclassing-any",
 ]
 npm = [
-    "--prefix", "frontend",
+    "--prefix",
+    "frontend",
 ]
 pydeps = [
     "--no-config",
     "--cluster",
 ]
 pylint = [
-    "--rcfile", ".pylint.toml",
+    "--rcfile",
+    ".pylint.toml",
 ]
 shtab = [
-    "--prefix", "{[project]name}",
-    "--prog", "{[project]name}",
+    "--prefix",
+    "{[project]name}",
+    "--prog",
+    "{[project]name}",
     "ahriman.application.ahriman._parser",
 ]
 
@@ -73,7 +87,8 @@ system_site_packages = true
 commands = [
     [
         "{envpython}",
-        "-m", "build",
+        "-m",
+        "build",
         "--sdist",
         "--no-isolation",
     ],
@@ -99,7 +114,8 @@ commands = [
         { replace = "ref", of = ["flags", "autopep8"], extend = true },
         "--exit-code",
         "--in-place",
-        "--jobs", "0",
+        "--jobs",
+        "0",
         "--recursive",
         "ahriman-core/src/{[project]name}",
         "ahriman-triggers/src/{[project]name}",
@@ -125,18 +141,20 @@ commands = [
     [
         "bandit",
         { replace = "ref", of = ["flags", "bandit"], extend = true },
-        "--skip", "B101,B105,B106",
+        "--skip",
+        "B101,B105,B106",
         "--recursive",
-        "ahriman-core/src/{[project]name}",
-        "ahriman-triggers/src/{[project]name}",
-        "ahriman-web/src/{[project]name}",
+        "ahriman-core/tests/{[project]name}",
+        "ahriman-triggers/tests/{[project]name}",
+        "ahriman-web/tests/{[project]name}",
     ],
     [
         "mypy",
         { replace = "ref", of = ["flags", "mypy"], extend = true },
         "--install-types",
         "--non-interactive",
-        "--package", "{[project]name}",
+        "--package",
+        "{[project]name}",
     ],
     { replace = "ref", of = ["commands", "npm_install"], extend = true },
     [
@@ -166,26 +184,34 @@ commands = [
     [
         "shtab",
         { replace = "ref", of = ["flags", "shtab"], extend = true },
-        "--shell", "bash",
-        "--output", "ahriman-core/package/share/bash-completion/completions/_ahriman",
+        "--shell",
+        "bash",
+        "--output",
+        "ahriman-core/package/share/bash-completion/completions/_ahriman",
     ],
     [
         "shtab",
         { replace = "ref", of = ["flags", "shtab"], extend = true },
-        "--shell", "zsh",
-        "--output", "ahriman-core/package/share/zsh/site-functions/_ahriman",
+        "--shell",
+        "zsh",
+        "--output",
+        "ahriman-core/package/share/zsh/site-functions/_ahriman",
     ],
     [
         "argparse-manpage",
         { replace = "ref", of = ["flags", "manpage"], extend = true },
-        "--module", "ahriman.application.ahriman",
-        "--function", "_parser",
-        "--output", "ahriman-core/package/share/man/man1/ahriman.1",
+        "--module",
+        "ahriman.application.ahriman",
+        "--function",
+        "_parser",
+        "--output",
+        "ahriman-core/package/share/man/man1/ahriman.1",
     ],
     [
         "pydeps",
         { replace = "ref", of = ["flags", "pydeps"], extend = true },
-        "--dot-output", "{tox_root}/docs/_static/architecture.dot",
+        "--dot-output",
+        "{tox_root}/docs/_static/architecture.dot",
         "--no-output",
         "--show-dot",
         "{envsitepackagesdir}/{[project]name}",
@@ -194,7 +220,8 @@ commands = [
         "sphinx-apidoc",
         "--force",
         "--no-toc",
-        "--output-dir", "docs",
+        "--output-dir",
+        "docs",
         "{envsitepackagesdir}/{[project]name}",
     ],
     # compile list of dependencies for rtd.io
@@ -202,11 +229,16 @@ commands = [
         "uv",
         "pip",
         "compile",
-        "--group", "pyproject.toml:docs",
-        "--no-emit-package", "ahriman-core",
-        "--no-emit-package", "ahriman-triggers",
-        "--no-emit-package", "ahriman-web",
-        "--output-file", "docs/requirements.txt",
+        "--group",
+        "pyproject.toml:docs",
+        "--no-emit-package",
+        "ahriman-core",
+        "--no-emit-package",
+        "ahriman-triggers",
+        "--no-emit-package",
+        "ahriman-web",
+        "--output-file",
+        "docs/requirements.txt",
         "--quiet",
         "pyproject.toml",
     ],
@@ -240,9 +272,11 @@ recreate = true
 commands = [
     [
         "sphinx-build",
-        "--builder", "html",
+        "--builder",
+        "html",
         "--fail-on-warning",
-        "--jobs", "1",
+        "--jobs",
+        "1",
         "--write-all",
         "docs",
         "{envtmpdir}/html",
@@ -275,7 +309,8 @@ commands = [
     [
         "git",
         "commit",
-        "--message", "Release {posargs}",
+        "--message",
+        "Release {posargs}",
     ],
     [
         "git",
@@ -328,7 +363,8 @@ commands = [
     # check if version is set and validate it
     [
         "{envpython}",
-        "-c", "from packaging.version import Version; Version('{posargs}')",
+        "-c",
+        "from packaging.version import Version; Version('{posargs}')",
     ],
     [
         "sed",

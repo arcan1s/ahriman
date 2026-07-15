@@ -1,27 +1,26 @@
 [build-system]
-requires = ["hatchling"]
+requires = [
+    "hatchling",
+]
 build-backend = "hatchling.build"
 
 [project]
 name = "ahriman"
-
 description = "ArcH linux ReposItory MANager"
 readme = "README.md"
-
 requires-python = ">=3.13"
-
-license = {file = "COPYING"}
+license = { file = "COPYING" }
 authors = [
-    {name = "ahriman team"},
+    { name = "ahriman team" },
 ]
-
 dependencies = [
     "ahriman-core",
     "ahriman-triggers",
     "ahriman-web",
 ]
-
-dynamic = ["version"]
+dynamic = [
+    "version",
+]
 
 [project.urls]
 Documentation = "https://ahriman.readthedocs.io/"
@@ -36,13 +35,13 @@ check = [
     "pylint",
 ]
 docs = [
-     "ahriman-core[s3,validator]",
-     "Sphinx",
-     "argparse-manpage",
-     "pydeps",
-     "shtab",
-     "sphinx-argparse",
-     "sphinx-rtd-theme>=1.1.1",  # https://stackoverflow.com/a/74355734
+    "ahriman-core[s3,validator]",
+    "Sphinx",
+    "argparse-manpage",
+    "pydeps",
+    "shtab",
+    "sphinx-argparse",
+    "sphinx-rtd-theme>=1.1.1",  # https://stackoverflow.com/a/74355734
 ]
 tests = [
     "pytest",
@@ -57,17 +56,21 @@ tests = [
 [tool.hatch.build.targets.sdist]
 exclude = [
     "/.github",
+    "/archlinux",
     "/docker",
-    "/package/archlinux",
+    "/docs",
     "/recipes",
     "/tools",
+    "tests",
     "/.bandit.yml",
     "/.dockerignore",
     "/.pylint.toml",
     "/.readthedocs.yml",
+    "/conftest.py",
     "/github-logo.png",
     "/tox.toml",
     "/toxfile.py",
+    "/web.png",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -75,18 +78,18 @@ bypass-selection = true
 
 [tool.hatch.envs.default]
 workspace.members = [
-    {path = "ahriman-core"},
-    {path = "ahriman-triggers"},
-    {path = "ahriman-web"},
+    { path = "ahriman-core" },
+    { path = "ahriman-triggers" },
+    { path = "ahriman-web" },
 ]
 
 [tool.hatch.version]
 path = "ahriman-core/src/ahriman/__init__.py"
 
 [tool.uv.sources]
-ahriman-core = {workspace = true}
-ahriman-triggers = {workspace = true}
-ahriman-web = {workspace = true}
+ahriman-core = { workspace = true }
+ahriman-triggers = { workspace = true }
+ahriman-web = { workspace = true }
 
 [tool.uv.workspace]
 members = [
