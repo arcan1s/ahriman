@@ -20,9 +20,9 @@ build() {
     npm --prefix "frontend" install --cache "$srcdir/npm-cache"
     npm --prefix "frontend" run build
 
-    python -m build --wheel --no-isolation ahriman-core
-    python -m build --wheel --no-isolation ahriman-triggers
-    python -m build --wheel --no-isolation ahriman-web
+    python -m build --wheel --no-isolation "ahriman-core"
+    python -m build --wheel --no-isolation "ahriman-triggers"
+    python -m build --wheel --no-isolation "ahriman-web"
 }
 
 package_ahriman() {
