@@ -26,10 +26,10 @@ cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
 # create fresh tarball
 tox -e archive
 # run makepkg
-PKGVER=$(python -c "from src.ahriman import __version__; print(__version__)")
-mv "dist/ahriman-$PKGVER.tar.gz" package/archlinux
-chmod +777 package/archlinux  # because fuck you that's why
-cd package/archlinux
+PKGVER=$(PYTHONPATH=ahriman-core/src python -c "from ahriman import __version__; print(__version__)")
+mv "dist/ahriman-$PKGVER.tar.gz" archlinux
+chmod +777 archlinux  # because fuck you that's why
+cd archlinux
 sudo -u nobody -- makepkg -cf --skipchecksums --noconfirm
 sudo -u nobody -- makepkg --packagelist | grep "ahriman-core-$PKGVER" | pacman -U --noconfirm --nodeps -
 if [[ -z $MINIMAL_INSTALL ]]; then
