@@ -47,7 +47,7 @@ stats = [
     "matplotlib",
 ]
 unixsocket = [
-    "requests-unixsocket2",
+    "requests-unixsocket2",  # required by unix socket support
 ]
 validator = [
     "cerberus",
@@ -61,9 +61,6 @@ Documentation = "https://ahriman.readthedocs.io/"
 Repository = "https://github.com/arcan1s/ahriman"
 Changelog = "https://github.com/arcan1s/ahriman/releases"
 
-[tool.hatch.version]
-path = "src/ahriman/__init__.py"
-
 [tool.hatch.build.targets.wheel]
 packages = [
     "src/ahriman",
@@ -72,3 +69,6 @@ packages = [
 [tool.hatch.build.targets.wheel.shared-data]
 "package/lib" = "lib"
 "package/share" = "share"
+
+[tool.hatch.version]
+path = "src/ahriman/__init__.py"

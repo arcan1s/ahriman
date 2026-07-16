@@ -32,7 +32,7 @@ auth = [
 ]
 docs = [
     "aiohttp-apispec",
-    "setuptools",
+    "setuptools",  # required by aiohttp-apispec
 ]
 metrics = [
     "aiohttp-openmetrics",
@@ -47,17 +47,14 @@ Documentation = "https://ahriman.readthedocs.io/"
 Repository = "https://github.com/arcan1s/ahriman"
 Changelog = "https://github.com/arcan1s/ahriman/releases"
 
-[tool.hatch.version]
-path = "../ahriman-core/src/ahriman/__init__.py"
-
 [tool.hatch.build.targets.wheel]
-only-include = [
+packages = [
     "src/ahriman",
-]
-sources = [
-    "src",
 ]
 
 [tool.hatch.build.targets.wheel.shared-data]
 "package/lib" = "lib"
 "package/share" = "share"
+
+[tool.hatch.version]
+path = "../ahriman-core/src/ahriman/__init__.py"
