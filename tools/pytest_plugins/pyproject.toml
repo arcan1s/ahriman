@@ -1,0 +1,18 @@
+[build-system]
+requires = [
+    "hatchling",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "ahriman-pytest-plugins"
+version = "1"
+classifiers = [
+    "Framework :: Pytest",
+]
+
+[project.entry-points.pytest11]
+ahriman-fixtures = "ahriman_fixtures"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

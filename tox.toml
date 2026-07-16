@@ -335,17 +335,30 @@ dependency_groups = [
 ]
 deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
+    "./tools/pytest_plugins",
 ]
 pip_pre = true
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
 commands = [
     [
+        "coverage",
+        "run",
+        "--source",
+        "ahriman",
+        "-m",
         "pytest",
         "tests/test_tests.py",
         "ahriman-core/tests",
         "ahriman-triggers/tests",
         "ahriman-web/tests",
         { replace = "posargs", extend = true },
+    ],
+    [
+        "coverage",
+        "report",
+        "--show-missing",
+        "--skip-covered",
+        "--fail-under=100",
     ],
 ]
 

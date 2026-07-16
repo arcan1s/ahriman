@@ -41,7 +41,6 @@ T = TypeVar("T")
 
 # helpers
 # https://stackoverflow.com/a/21611963
-@pytest.helpers.register
 def anyvar(cls: type[T], strict: bool = False) -> T:
     """
     any value helper for mocker calls check
@@ -73,7 +72,6 @@ def anyvar(cls: type[T], strict: bool = False) -> T:
     return AnyVar()
 
 
-@pytest.helpers.register
 def get_package_status(package: Package) -> dict[str, Any]:
     """
     helper to extract package status from package
@@ -87,7 +85,6 @@ def get_package_status(package: Package) -> dict[str, Any]:
     return {"status": BuildStatusEnum.Unknown.value, "package": package.view()}
 
 
-@pytest.helpers.register
 def get_package_status_extended(package: Package) -> dict[str, Any]:
     """
     helper to extract package status from package
@@ -101,7 +98,6 @@ def get_package_status_extended(package: Package) -> dict[str, Any]:
     return {"status": BuildStatus().view(), "package": package.view()}
 
 
-@pytest.helpers.register
 def import_error(package: str, components: list[str], mocker: MockerFixture) -> MagicMock:
     """
     mock import error
@@ -123,6 +119,15 @@ def import_error(package: str, components: list[str], mocker: MockerFixture) -> 
         return _import(name, globals, locals, from_list, level)
 
     return mocker.patch.object(builtins, "__import__", test_import)
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_configure() -> None:
+    """
+    register helpers after pytest-helpers-namespace has initialized
+    """
+    for helper in (anyvar, get_package_status, get_package_status_extended, import_error):
+        pytest.helpers.register(helper)
 
 
 # generic fixtures

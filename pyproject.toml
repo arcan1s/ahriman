@@ -44,9 +44,9 @@ docs = [
     "sphinx-rtd-theme>=1.1.1",  # https://stackoverflow.com/a/74355734
 ]
 tests = [
+    "coverage",
     "pytest",
     "pytest-aiohttp",
-    "pytest-cov",
     "pytest-helpers-namespace",
     "pytest-mock",
     "pytest-resource-path",
