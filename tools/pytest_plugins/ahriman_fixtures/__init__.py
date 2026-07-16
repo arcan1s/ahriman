@@ -1,3 +1,22 @@
+#
+# Copyright (c) 2021-2025 ahriman team.
+#
+# This file is part of ahriman
+# (see https://github.com/arcan1s/ahriman).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
 import argparse
 import datetime
 import pytest
@@ -132,7 +151,7 @@ def pytest_configure() -> None:
 
 # generic fixtures
 @pytest.fixture(autouse=True)
-def register_log_context() -> None:
+def _register_log_context() -> None:
     """
     register log context variables and factory
     """
@@ -149,31 +168,6 @@ def args() -> argparse.Namespace:
     """
     return argparse.Namespace(architecture=None, lock=None, force=False, unsafe=False, report=False,
                               repository=None, repository_id=None, wait_timeout=-1)
-
-
-@pytest.fixture
-def gpg(configuration: Configuration) -> GPG:
-    """
-    fixture for empty GPG
-
-    Args:
-        configuration(Configuration): configuration fixture
-
-    Returns:
-        GPG: GPG test instance
-    """
-    return GPG(configuration)
-
-
-@pytest.fixture
-def parser() -> argparse.ArgumentParser:
-    """
-    fixture for command line arguments parser
-
-    Returns:
-        argparse.ArgumentParser: command line arguments parser instance
-    """
-    return _parser()
 
 
 @pytest.fixture
@@ -322,6 +316,20 @@ def database(configuration: Configuration, mocker: MockerFixture) -> SQLite:
 
     mocker.patch.object(Migrations, "perform_migration", autospec=True, side_effect=perform_migration)
     return SQLite.load(configuration)
+
+
+@pytest.fixture
+def gpg(configuration: Configuration) -> GPG:
+    """
+    fixture for empty GPG
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        GPG: GPG test instance
+    """
+    return GPG(configuration)
 
 
 @pytest.fixture
@@ -491,6 +499,17 @@ def package_description_python2_schedule() -> PackageDescription:
         licenses=["MIT"],
         url="https://github.com/dbader/schedule",
     )
+
+
+@pytest.fixture
+def parser() -> argparse.ArgumentParser:
+    """
+    fixture for command line arguments parser
+
+    Returns:
+        argparse.ArgumentParser: command line arguments parser instance
+    """
+    return _parser()
 
 
 @pytest.fixture

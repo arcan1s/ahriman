@@ -15,4 +15,4 @@ classifiers = [
 ahriman-fixtures = "ahriman_fixtures"
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["ahriman_fixtures"]
