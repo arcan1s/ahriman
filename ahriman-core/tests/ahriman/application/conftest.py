@@ -3,7 +3,6 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.ahriman import _parser
 from ahriman.application.application import Application
 from ahriman.application.help_formatter import _HelpFormatter
 from ahriman.application.lock import Lock
@@ -34,18 +33,6 @@ def application(configuration: Configuration, repository: Repository, database: 
 
 
 @pytest.fixture
-def args() -> argparse.Namespace:
-    """
-    fixture for command line arguments
-
-    Returns:
-        argparse.Namespace: command line arguments test instance
-    """
-    return argparse.Namespace(architecture=None, lock=None, force=False, unsafe=False, report=False,
-                              repository=None, repository_id=None, wait_timeout=-1)
-
-
-@pytest.fixture
 def formatter() -> _HelpFormatter:
     """
     fixture for help message formatter
@@ -70,14 +57,3 @@ def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
     """
     _, repository_id = configuration.check_loaded()
     return Lock(args, repository_id, configuration)
-
-
-@pytest.fixture
-def parser() -> argparse.ArgumentParser:
-    """
-    fixture for command line arguments parser
-
-    Returns:
-        argparse.ArgumentParser: command line arguments parser test instance
-    """
-    return _parser()
