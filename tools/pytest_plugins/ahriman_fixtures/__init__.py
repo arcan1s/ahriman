@@ -132,6 +132,7 @@ def import_error(package: str, components: list[str], mocker: MockerFixture) -> 
     import builtins
     _import = builtins.__import__
 
+    # pylint: disable=redefined-builtin
     def test_import(name: str, globals: Any, locals: Any, from_list: list[str], level: Any):
         if name == package and (not components or any(component in from_list for component in components)):
             raise ImportError
