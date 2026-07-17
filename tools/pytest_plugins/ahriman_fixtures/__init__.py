@@ -255,43 +255,6 @@ def configuration(repository_id: RepositoryId, tmp_path: Path, resource_path_roo
     path = resource_path_root / "core" / "ahriman.ini"
 
     instance = Configuration.from_path(path, repository_id)
-    settings_root = resource_path_root.parent.parent / "ahriman-core" / "package" / "share" / "ahriman" / "settings"
-    logging_path = settings_root / "ahriman.ini.d" / "logging.ini"
-    instance.set_option("settings", "include", str(settings_root / "ahriman.ini.d"))
-    instance.set_option("settings", "logging", str(logging_path))
-
-    for include_root in (
-        settings_root /
-        "ahriman.ini.d",
-        resource_path_root.parent.parent /
-        "ahriman-triggers" /
-        "package" /
-        "share" /
-        "ahriman" /
-        "settings" /
-        "ahriman.ini.d",
-        resource_path_root.parent.parent /
-        "ahriman-web" /
-        "package" /
-        "share" /
-        "ahriman" /
-        "settings" /
-        "ahriman.ini.d",
-    ):
-        for include in sorted(include_root.glob("*.ini")):
-            if include != logging_path:
-                instance.read(include)
-
-    core_templates = resource_path_root.parent.parent / "ahriman-core" / "package" / "share" / "ahriman" / "templates"
-    web_templates = resource_path_root.parent.parent / "ahriman-web" / "package" / "share" / "ahriman" / "templates"
-
-    for section in ("email", "html", "rss", "telegram"):
-        instance.set_option(section, "templates", str(core_templates))
-    instance.set_option("keyring", "target", "keyring")
-    instance.set_option("mirrorlist", "target", "mirrorlist")
-    instance.set_option("web", "templates", str(web_templates))
-    instance.set_option("web", "static_path", str(web_templates / "static"))
-    instance.set_option("web", "autorefresh_intervals", "")
     instance.set_option("repository", "root", str(tmp_path))
     instance.set_option("settings", "database", str(tmp_path / "ahriman.db"))
 
