@@ -11,14 +11,6 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import datetime
-import sys
-
-from pathlib import Path
-
-
-# support package imports
-basedir = Path(__file__).resolve().parent.parent / "src"
-sys.path.insert(0, str(basedir))
 
 
 # -- Project information -----------------------------------------------------

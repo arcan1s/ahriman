@@ -10,6 +10,9 @@ build:
 python:
   install:
     - requirements: docs/requirements.txt
+    - path: ahriman-core
+    - path: ahriman-triggers
+    - path: ahriman-web
 
 formats:
   - pdf
