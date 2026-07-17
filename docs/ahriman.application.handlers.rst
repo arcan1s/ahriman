@@ -1,6 +1,15 @@
 ahriman.application.handlers package
 ====================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   ahriman.application.handlers.triggers_support
+   ahriman.application.handlers.web
+
 Submodules
 ----------
 
@@ -268,14 +277,6 @@ ahriman.application.handlers.triggers module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.application.handlers.triggers\_support module
------------------------------------------------------
-
-.. automodule:: ahriman.application.handlers.triggers_support
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 ahriman.application.handlers.unsafe\_commands module
 ----------------------------------------------------
 
@@ -312,14 +313,6 @@ ahriman.application.handlers.versions module
 --------------------------------------------
 
 .. automodule:: ahriman.application.handlers.versions
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
-ahriman.application.handlers.web module
----------------------------------------
-
-.. automodule:: ahriman.application.handlers.web
    :members:
    :no-undoc-members:
    :show-inheritance:

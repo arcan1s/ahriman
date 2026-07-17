@@ -1,0 +1,50 @@
+[build-system]
+requires = [
+    "hatchling",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "ahriman-web"
+dependencies = [
+    "ahriman-core",
+    "aiohttp",
+    "aiohttp_cors",
+    "aiohttp_jinja2",
+    "aiohttp_sse",
+]
+description = "ArcH linux ReposItory MANager, web server"
+dynamic = [
+    "version",
+]
+requires-python = ">=3.13"
+
+[project.optional-dependencies]
+auth = [
+    "aiohttp_session",
+    "aiohttp_security",
+    "cryptography",
+]
+docs = [
+    "aiohttp-apispec",
+    "setuptools",  # required by aiohttp-apispec
+]
+metrics = [
+    "aiohttp-openmetrics",
+]
+oauth2 = [
+    "ahriman-web[auth]",
+    "aioauth-client",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/ahriman",
+]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"package/lib" = "lib"
+"package/share" = "share"
+
+[tool.hatch.version]
+path = "../ahriman-core/src/ahriman/__init__.py"

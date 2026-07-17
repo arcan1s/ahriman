@@ -15,26 +15,36 @@ npm_install = [
         "npm",
         { replace = "ref", of = ["flags", "npm"], extend = true },
         "install",
-        "--cache", "{envtmpdir}/npm-cache",
+        "--cache",
+        "{envtmpdir}/npm-cache",
     ],
 ]
 
 [flags]
 autopep8 = [
-    "--max-line-length", "120",
+    "--max-line-length",
+    "120",
     "-aa",
 ]
 bandit = [
-    "--configfile", ".bandit.yml",
+    "--configfile",
+    ".bandit.toml",
 ]
 manpage = [
-    "--author", "{[project]name} team",
-    "--author-email", "",
-    "--description", "ArcH linux ReposItory MANager",
-    "--manual-title", "ArcH linux ReposItory MANager",
-    "--project-name", "{[project]name}",
-    "--version", "{env:VERSION}",
-    "--url", "https://github.com/arcan1s/ahriman",
+    "--author",
+    "{[project]name} team",
+    "--author-email",
+    "",
+    "--description",
+    "ArcH linux ReposItory MANager",
+    "--manual-title",
+    "ArcH linux ReposItory MANager",
+    "--project-name",
+    "{[project]name}",
+    "--version",
+    "{env:VERSION}",
+    "--url",
+    "https://github.com/arcan1s/ahriman",
 ]
 mypy = [
     "--implicit-reexport",
@@ -43,49 +53,44 @@ mypy = [
     "--allow-subclassing-any",
 ]
 npm = [
-    "--prefix", "frontend",
+    "--prefix",
+    "frontend",
 ]
 pydeps = [
     "--no-config",
     "--cluster",
 ]
 pylint = [
-    "--rcfile", ".pylint.toml",
+    "--rcfile",
+    ".pylint.toml",
 ]
 shtab = [
-    "--prefix", "{[project]name}",
-    "--prog", "{[project]name}",
+    "--prefix",
+    "{[project]name}",
+    "--prog",
+    "{[project]name}",
     "ahriman.application.ahriman._parser",
 ]
 
 [project]
 extras = [
-    "journald",
-    "pacman",
-    "reports",
-    "s3",
-    "shell",
-    "stats",
-    "unixsocket",
-    "validator",
-    "web",
-    "web-auth",
-    "web-docs",
-    "web-oauth2",
-    "web-metrics",
+    "./ahriman-core[journald,pacman,reports,s3,shell,stats,unixsocket,validator]",
+    "./ahriman-triggers",
+    "./ahriman-web[auth,docs,metrics,oauth2]",
 ]
 name = "ahriman"
 
 [env.archive]
 description = "Create source files tarball"
-deps = [
-    "build",
-]
+skip_install = true
+system_site_packages = true
 commands = [
     [
         "{envpython}",
-        "-m", "build",
+        "-m",
+        "build",
         "--sdist",
+        "--no-isolation",
     ],
 ]
 
@@ -97,47 +102,59 @@ allowlist_externals = [
 dependency_groups = [
     "check",
 ]
-extras = [
+deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
 ]
 pip_pre = true
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
-set_env.MYPYPATH = "src"
+set_env.MYPYPATH = "ahriman-core/src:ahriman-triggers/src:ahriman-web/src"
 commands = [
     [
         "autopep8",
         { replace = "ref", of = ["flags", "autopep8"], extend = true },
         "--exit-code",
         "--in-place",
-        "--jobs", "0",
+        "--jobs",
+        "0",
         "--recursive",
-        "src/{[project]name}",
-        "tests/{[project]name}",
+        "ahriman-core/src/{[project]name}",
+        "ahriman-triggers/src/{[project]name}",
+        "ahriman-web/src/{[project]name}",
+        "tests",
+        "ahriman-core/tests",
+        "ahriman-triggers/tests",
+        "ahriman-web/tests",
     ],
     [
         "pylint",
         { replace = "ref", of = ["flags", "pylint"], extend = true },
-        "src/{[project]name}",
+        "{[project]name}",
     ],
     [
         "bandit",
         { replace = "ref", of = ["flags", "bandit"], extend = true },
         "--recursive",
-        "src/{[project]name}",
+        "ahriman-core/src/{[project]name}",
+        "ahriman-triggers/src/{[project]name}",
+        "ahriman-web/src/{[project]name}",
     ],
     [
         "bandit",
         { replace = "ref", of = ["flags", "bandit"], extend = true },
-        "--skip", "B101,B105,B106",
+        "--skip",
+        "B101,B105,B106",
         "--recursive",
-        "src/{[project]name}",
+        "ahriman-core/tests/{[project]name}",
+        "ahriman-triggers/tests/{[project]name}",
+        "ahriman-web/tests/{[project]name}",
     ],
     [
         "mypy",
         { replace = "ref", of = ["flags", "mypy"], extend = true },
         "--install-types",
         "--non-interactive",
-        "--package", "{[project]name}",
+        "--package",
+        "{[project]name}",
     ],
     { replace = "ref", of = ["commands", "npm_install"], extend = true },
     [
@@ -157,60 +174,71 @@ depends = [
     "version",
 ]
 deps = [
+    { replace = "ref", of = ["project", "extras"], extend = true },
     "uv",
 ]
-dynamic_version = "{[project]name}.__version__"
-extras = [
-    { replace = "ref", of = ["project", "extras"], extend = true },
-]
+dynamic_version = "{[project]name}"
 pip_pre = true
-set_env.PYTHONPATH = "src"
 set_env.SPHINX_APIDOC_OPTIONS = "members,no-undoc-members,show-inheritance"
 commands = [
     [
         "shtab",
         { replace = "ref", of = ["flags", "shtab"], extend = true },
-        "--shell", "bash",
-        "--output", "package/share/bash-completion/completions/_ahriman",
+        "--shell",
+        "bash",
+        "--output",
+        "ahriman-core/package/share/bash-completion/completions/_ahriman",
     ],
     [
         "shtab",
         { replace = "ref", of = ["flags", "shtab"], extend = true },
-        "--shell", "zsh",
-        "--output", "package/share/zsh/site-functions/_ahriman",
+        "--shell",
+        "zsh",
+        "--output",
+        "ahriman-core/package/share/zsh/site-functions/_ahriman",
     ],
     [
         "argparse-manpage",
         { replace = "ref", of = ["flags", "manpage"], extend = true },
-        "--module", "ahriman.application.ahriman",
-        "--function", "_parser",
-        "--output", "package/share/man/man1/ahriman.1",
+        "--module",
+        "ahriman.application.ahriman",
+        "--function",
+        "_parser",
+        "--output",
+        "ahriman-core/package/share/man/man1/ahriman.1",
     ],
     [
         "pydeps",
         { replace = "ref", of = ["flags", "pydeps"], extend = true },
-        "--dot-output", "{tox_root}/docs/_static/architecture.dot",
+        "--dot-output",
+        "{tox_root}/docs/_static/architecture.dot",
         "--no-output",
         "--show-dot",
-        "src/ahriman",
+        "{envsitepackagesdir}/{[project]name}",
     ],
     [
         "sphinx-apidoc",
         "--force",
         "--no-toc",
-        "--output-dir", "docs",
-        "src",
+        "--output-dir",
+        "docs",
+        "{envsitepackagesdir}/{[project]name}",
     ],
     # compile list of dependencies for rtd.io
     [
         "uv",
         "pip",
         "compile",
-        "--group", "pyproject.toml:docs",
-        "--extra", "s3",
-        "--extra", "validator",
-        "--extra", "web",
-        "--output-file", "docs/requirements.txt",
+        "--group",
+        "pyproject.toml:docs",
+        "--no-emit-package",
+        "ahriman-core",
+        "--no-emit-package",
+        "ahriman-triggers",
+        "--no-emit-package",
+        "ahriman-web",
+        "--output-file",
+        "docs/requirements.txt",
         "--quiet",
         "pyproject.toml",
     ],
@@ -236,7 +264,7 @@ description = "Generate html documentation"
 dependency_groups = [
     "docs",
 ]
-extras = [
+deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
 ]
 pip_pre = true
@@ -244,9 +272,11 @@ recreate = true
 commands = [
     [
         "sphinx-build",
-        "--builder", "html",
+        "--builder",
+        "html",
         "--fail-on-warning",
-        "--jobs", "auto",
+        "--jobs",
+        "1",
         "--write-all",
         "docs",
         "{envtmpdir}/html",
@@ -268,18 +298,19 @@ commands = [
     [
         "git",
         "add",
+        "archlinux/PKGBUILD",
         "docs/_static/architecture.dot",
         "frontend/package.json",
-        "package/archlinux/PKGBUILD",
-        "package/share/man/man1/ahriman.1",
-        "package/share/bash-completion/completions/_ahriman",
-        "package/share/zsh/site-functions/_ahriman",
-        "src/ahriman/__init__.py",
+        "ahriman-core/package/share/man/man1/ahriman.1",
+        "ahriman-core/package/share/bash-completion/completions/_ahriman",
+        "ahriman-core/package/share/zsh/site-functions/_ahriman",
+        "ahriman-core/src/ahriman/__init__.py",
     ],
     [
         "git",
         "commit",
-        "--message", "Release {posargs}",
+        "--message",
+        "Release {posargs}",
     ],
     [
         "git",
@@ -302,15 +333,32 @@ description = "Run tests"
 dependency_groups = [
     "tests",
 ]
-extras = [
+deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
+    "./tools/pytest_plugins",
 ]
 pip_pre = true
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
 commands = [
     [
+        "coverage",
+        "run",
+        "--source",
+        "ahriman",
+        "-m",
         "pytest",
+        "tests/test_tests.py",
+        "ahriman-core/tests",
+        "ahriman-triggers/tests",
+        "ahriman-web/tests",
         { replace = "posargs", extend = true },
+    ],
+    [
+        "coverage",
+        "report",
+        "--show-missing",
+        "--skip-covered",
+        "--fail-under=100",
     ],
 ]
 
@@ -323,17 +371,19 @@ allowlist_externals = [
 deps = [
     "packaging",
 ]
+skip_install = true
 commands = [
     # check if version is set and validate it
     [
         "{envpython}",
-        "-c", "from packaging.version import Version; Version('{posargs}')",
+        "-c",
+        "from packaging.version import Version; Version('{posargs}')",
     ],
     [
         "sed",
         "--in-place",
         "s/^__version__ = .*/__version__ = \"{posargs}\"/",
-        "src/ahriman/__init__.py",
+        "ahriman-core/src/ahriman/__init__.py",
     ],
     [
         "npm",
@@ -345,6 +395,6 @@ commands = [
         "sed",
         "--in-place",
         "s/pkgver=.*/pkgver={posargs}/",
-        "package/archlinux/PKGBUILD",
+        "archlinux/PKGBUILD",
     ],
 ]

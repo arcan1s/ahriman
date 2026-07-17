@@ -1,0 +1,8 @@
+[pytest]
+addopts = [
+    "--spec",
+]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+"resource-path.directory-name-test-resources" = "../../tests/testresources"
+spec_test_format = "{result} {docstring_summary}"
