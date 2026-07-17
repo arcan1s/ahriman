@@ -6,13 +6,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ahriman-web"
-description = "ArcH linux ReposItory MANager, web server"
-readme = "../README.md"
-requires-python = ">=3.13"
-license = { file = "../COPYING" }
-authors = [
-    { name = "ahriman team" },
-]
 dependencies = [
     "ahriman-core",
     "aiohttp",
@@ -20,9 +13,11 @@ dependencies = [
     "aiohttp_jinja2",
     "aiohttp_sse",
 ]
+description = "ArcH linux ReposItory MANager, web server"
 dynamic = [
     "version",
 ]
+requires-python = ">=3.13"
 
 [project.optional-dependencies]
 auth = [
@@ -41,11 +36,6 @@ oauth2 = [
     "ahriman-web[auth]",
     "aioauth-client",
 ]
-
-[project.urls]
-Documentation = "https://ahriman.readthedocs.io/"
-Repository = "https://github.com/arcan1s/ahriman"
-Changelog = "https://github.com/arcan1s/ahriman/releases"
 
 [tool.hatch.build.targets.wheel]
 packages = [

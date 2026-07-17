@@ -6,10 +6,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ahriman"
-description = "ArcH linux ReposItory MANager"
-readme = "README.md"
-requires-python = ">=3.13"
-license = { file = "COPYING" }
 authors = [
     { name = "ahriman team" },
 ]
@@ -18,14 +14,18 @@ dependencies = [
     "ahriman-triggers",
     "ahriman-web",
 ]
+description = "ArcH linux ReposItory MANager"
 dynamic = [
     "version",
 ]
+license = { file = "COPYING" }
+readme = "README.md"
+requires-python = ">=3.13"
 
 [project.urls]
+Changelog = "https://github.com/arcan1s/ahriman/releases"
 Documentation = "https://ahriman.readthedocs.io/"
 Repository = "https://github.com/arcan1s/ahriman"
-Changelog = "https://github.com/arcan1s/ahriman/releases"
 
 [dependency-groups]
 check = [

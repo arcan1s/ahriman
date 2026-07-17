@@ -6,13 +6,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ahriman-core"
-description = "ArcH linux ReposItory MANager, core package"
-readme = "../README.md"
-requires-python = ">=3.13"
-license = { file = "../COPYING" }
-authors = [
-    { name = "ahriman team" },
-]
 dependencies = [
     "bcrypt",
     "filelock",
@@ -20,9 +13,11 @@ dependencies = [
     "pyelftools",
     "requests",
 ]
+description = "ArcH linux ReposItory MANager, core package"
 dynamic = [
     "version",
 ]
+requires-python = ">=3.13"
 
 [project.optional-dependencies]
 journald = [
@@ -55,11 +50,6 @@ validator = [
 
 [project.scripts]
 ahriman = "ahriman.application.ahriman:run"
-
-[project.urls]
-Documentation = "https://ahriman.readthedocs.io/"
-Repository = "https://github.com/arcan1s/ahriman"
-Changelog = "https://github.com/arcan1s/ahriman/releases"
 
 [tool.hatch.build.targets.wheel]
 packages = [

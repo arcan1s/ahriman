@@ -6,10 +6,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ahriman-pytest-plugins"
-version = "1"
 classifiers = [
     "Framework :: Pytest",
 ]
+version = "1"
 
 [project.entry-points.pytest11]
 ahriman-fixtures = "ahriman_fixtures"
