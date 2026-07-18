@@ -19,6 +19,7 @@
 #
 import argparse
 
+from functools import partial
 from pathlib import Path
 
 import ahriman.application.handlers
@@ -34,9 +35,12 @@ from ahriman.models.log_handler import LogHandler
 __all__: list[str] = []
 
 
-def _parser() -> argparse.ArgumentParser:
+def _parser(*, color: bool = False) -> argparse.ArgumentParser:
     """
     command line parser generator
+
+    Args:
+        color(bool, optional): enable colors in help messages (Default value = False)
 
     Returns:
         argparse.ArgumentParser: command line parser for the application
@@ -63,7 +67,7 @@ Start web service (requires additional configuration):
 
 >>> ahriman web
 """,
-                                     fromfile_prefix_chars="@", formatter_class=_HelpFormatter)
+                                     fromfile_prefix_chars="@", formatter_class=_HelpFormatter, color=color)
     parser.add_argument("-a", "--architecture", help="filter by target architecture")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path,
                         default=Path("/") / "etc" / "ahriman.ini")
@@ -92,8 +96,9 @@ Start web service (requires additional configuration):
     for handler in implementations(ahriman.application.handlers, Handler):
         for subparser_parser in handler.arguments:
             subparser = subparser_parser(subparsers)
+            subparser.color = color
             subparser.formatter_class = _HelpFormatter
-            subparser.set_defaults(handler=handler, parser=_parser)
+            subparser.set_defaults(handler=handler, parser=partial(_parser, color=color))
 
     # sort actions alphabetically in both choices and help message
     # pylint: disable=protected-access
@@ -110,7 +115,7 @@ def run() -> int:
     Returns:
         int: application status code
     """
-    parser = _parser()
+    parser = _parser(color=True)
     args = parser.parse_args()
 
     if args.command is None:  # in case of empty command we would like to print help message
