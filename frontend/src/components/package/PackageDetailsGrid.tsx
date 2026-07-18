@@ -89,7 +89,7 @@ export default function PackageDetailsGrid({ dependencies, pkg }: PackageDetails
             <Grid size={{ md: 1, xs: 4 }}><Typography align="right" color="text.secondary" variant="body2">upstream</Typography></Grid>
             <Grid size={{ md: 5, xs: 8 }}>
                 {upstreamUrls.map(url =>
-                    <Link display="block" href={url} key={url} rel="noopener noreferrer" target="_blank" underline="hover" variant="body2">
+                    <Link href={url} key={url} rel="noopener noreferrer" sx={{ display: "block" }} target="_blank" underline="hover" variant="body2">
                         {url}
                     </Link>,
                 )}

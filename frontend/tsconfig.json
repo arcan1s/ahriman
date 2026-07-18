@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "allowImportingTsExtensions": true,
-        "baseUrl": "src",
         "isolatedModules": true,
         "jsx": "react-jsx",
         "lib": ["ESNext", "DOM", "DOM.Iterable"],
@@ -12,6 +11,17 @@
         "noImplicitOverride": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
+        "paths": {
+            "App": ["./src/App.tsx"],
+            "api/*": ["./src/api/*"],
+            "chartSetup": ["./src/chartSetup.ts"],
+            "components/*": ["./src/components/*"],
+            "contexts/*": ["./src/contexts/*"],
+            "hooks/*": ["./src/hooks/*"],
+            "models/*": ["./src/models/*"],
+            "theme/*": ["./src/theme/*"],
+            "utils": ["./src/utils.ts"]
+        },
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "strict": true,
