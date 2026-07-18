@@ -113,6 +113,7 @@ class PackageDescription:
             Self: package properties based on source AUR package
         """
         return cls(
+            build_date=int(package.last_modified.timestamp()),
             depends=package.depends,
             make_depends=package.make_depends,
             opt_depends=package.opt_depends,

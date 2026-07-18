@@ -206,7 +206,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "type": "boolean",
                 "coerce": "boolean",
             },
-            "makepkg_flags": {
+            "makechrootpkg_flags": {
                 "type": "list",
                 "coerce": "list",
                 "schema": {
@@ -214,7 +214,12 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                     "empty": False,
                 },
             },
-            "makechrootpkg_flags": {
+            "min_age": {
+                "type": "integer",
+                "coerce": "integer",
+                "min": 0,
+            },
+            "makepkg_flags": {
                 "type": "list",
                 "coerce": "list",
                 "schema": {

@@ -136,6 +136,7 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``include_debug_packages`` - distribute debug packages, boolean, optional, default ``yes``.
 * ``makepkg_flags`` - additional flags passed to ``makepkg`` command, space separated list of strings, optional.
 * ``makechrootpkg_flags`` - additional flags passed to ``makechrootpkg`` command, space separated list of strings, optional.
+* ``min_age`` - minimal age in seconds since the latest AUR package modification before automatic updates are allowed, integer, optional, default ``0``.
 * ``scan_paths`` - paths to be used for implicit dependencies scan, space separated list of strings, optional. If any of those paths is matched against the path, it will be added to the allowed list.
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of definition.
 * ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.

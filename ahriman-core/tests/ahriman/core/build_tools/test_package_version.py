@@ -90,6 +90,19 @@ def test_is_outdated_true(package_ahriman: Package, configuration: Configuration
     actual_version_mock.assert_called_once_with(configuration)
 
 
+def test_is_outdated_aur_cooldown(package_ahriman: Package, configuration: Configuration) -> None:
+    """
+    must be not outdated if AUR package is modified too recently
+    """
+    other = Package.from_json(package_ahriman.view())
+    other.version = other.version.replace("-1", "-2")
+    for description in other.packages.values():
+        description.build_date = int(utcnow().timestamp())
+    configuration.set_option("build", "min_age", "3600")
+
+    assert not PackageVersion(package_ahriman).is_outdated(other, configuration)
+
+
 def test_is_outdated_no_version_calculation(package_ahriman: Package, configuration: Configuration,
                                             mocker: MockerFixture) -> None:
     """
