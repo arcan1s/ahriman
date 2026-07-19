@@ -3,6 +3,9 @@ env_list = [
     "tests",
 ]
 isolated_build = true
+requires = [
+    "tox-uv",
+]
 labels.release = [
     "version",
     "docs",
@@ -337,7 +340,9 @@ deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
     "./tools/pytest_plugins",
 ]
+package = "uv"
 pip_pre = true
+runner = "uv-venv-runner"
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
 commands = [
     [

@@ -88,9 +88,10 @@ workspace.members = [
 path = "ahriman-core/src/ahriman/__init__.py"
 
 [tool.uv.sources]
-ahriman-core = { workspace = true }
-ahriman-triggers = { workspace = true }
-ahriman-web = { workspace = true }
+ahriman-core = { workspace = true, editable = false }
+ahriman-pytest-plugins = { path = "tools/pytest_plugins", editable = true }
+ahriman-triggers = { workspace = true, editable = false }
+ahriman-web = { workspace = true, editable = false }
 
 [tool.uv.workspace]
 members = [
