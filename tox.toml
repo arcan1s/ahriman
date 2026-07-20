@@ -85,8 +85,10 @@ name = "ahriman"
 
 [env.archive]
 description = "Create source files tarball"
+deps = [
+    "build",
+]
 skip_install = true
-system_site_packages = true
 commands = [
     [
         "{envpython}",
