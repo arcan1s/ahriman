@@ -297,6 +297,7 @@ depends = [
 pass_env = [
     "SSH_AUTH_SOCK",
 ]
+skip_install = true
 commands = [
     [
         "git",
