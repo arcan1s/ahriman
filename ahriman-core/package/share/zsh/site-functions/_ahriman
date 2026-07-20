@@ -20,13 +20,19 @@ _shtab_ahriman_commands() {
     "init:create initial service configuration, requires root"
     "key-import:import PGP key from public sources to the repository user"
     "package-add:add existing or new package to the build queue"
+    "package-archives:list available archive versions for the package"
     "package-changes:retrieve package changes stored in database"
     "package-changes-remove:remove the package changes stored remotely"
     "package-copy:copy package and its metadata from another repository"
+    "package-hold:hold package from automatic updates"
+    "package-pkgbuild:retrieve package PKGBUILD stored in database"
+    "package-pkgbuild-remove:remove the package PKGBUILD stored remotely"
     "package-remove:remove package from the repository"
+    "package-rollback:rollback package to specified version from archives"
     "package-status:request status of the package"
     "package-status-remove:remove the package from the status page"
     "package-status-update:update package status on the status page"
+    "package-unhold:remove package hold, allowing automatic updates"
     "package-update:add existing or new package to the build queue"
     "patch-add:create or update patched PKGBUILD function or variable"
     "patch-list:list available patches for the package"
@@ -110,10 +116,10 @@ _shtab_ahriman_add_options=(
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
   {-n,--now}"[run update function after (default\: False)]"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
   {-s,--source}"[explicitly specify the package source for this command (default\: auto)]:source:(auto archive aur directory local remote repository)"
   {-u,--username}"[build as user (default\: None)]:username:"
   "*"{-v,--variable}"[apply specified makepkg variables to the next build (default\: None)]:variable:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -272,15 +278,25 @@ _shtab_ahriman_package_add_options=(
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
   {-n,--now}"[run update function after (default\: False)]"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
   {-s,--source}"[explicitly specify the package source for this command (default\: auto)]:source:(auto archive aur directory local remote repository)"
   {-u,--username}"[build as user (default\: None)]:username:"
   "*"{-v,--variable}"[apply specified makepkg variables to the next build (default\: None)]:variable:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
 # guard to ensure default positional specs are added only once per session
 _shtab_ahriman_package_add_defaults_added=0
+
+_shtab_ahriman_package_archives_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--info,--no-info}"[show additional package information (default\: False)]:info:"
+  ":package base:"
+)
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_archives_defaults_added=0
 
 _shtab_ahriman_package_changes_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -310,6 +326,31 @@ _shtab_ahriman_package_copy_options=(
 # guard to ensure default positional specs are added only once per session
 _shtab_ahriman_package_copy_defaults_added=0
 
+_shtab_ahriman_package_hold_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  "(*):package base:"
+)
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_hold_defaults_added=0
+
+_shtab_ahriman_package_pkgbuild_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  ":package base:"
+)
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_pkgbuild_defaults_added=0
+
+_shtab_ahriman_package_pkgbuild_remove_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  ":package base:"
+)
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_pkgbuild_remove_defaults_added=0
+
 _shtab_ahriman_package_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*):package name or base:"
@@ -317,6 +358,17 @@ _shtab_ahriman_package_remove_options=(
 
 # guard to ensure default positional specs are added only once per session
 _shtab_ahriman_package_remove_defaults_added=0
+
+_shtab_ahriman_package_rollback_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--hold,--no-hold}"[hold package afterwards (default\: True)]:hold:"
+  {-u,--username}"[build as user (default\: None)]:username:"
+  ":package base:"
+  ":package version:"
+)
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_rollback_defaults_added=0
 
 _shtab_ahriman_package_status_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -347,6 +399,14 @@ _shtab_ahriman_package_status_update_options=(
 # guard to ensure default positional specs are added only once per session
 _shtab_ahriman_package_status_update_defaults_added=0
 
+_shtab_ahriman_package_unhold_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  "(*):package base:"
+)
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_unhold_defaults_added=0
+
 _shtab_ahriman_package_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--changes,--no-changes}"[calculate changes from the latest known commit if available (default\: True)]:changes:"
@@ -354,10 +414,10 @@ _shtab_ahriman_package_update_options=(
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
   {-n,--now}"[run update function after (default\: False)]"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
   {-s,--source}"[explicitly specify the package source for this command (default\: auto)]:source:(auto archive aur directory local remote repository)"
   {-u,--username}"[build as user (default\: None)]:username:"
   "*"{-v,--variable}"[apply specified makepkg variables to the next build (default\: None)]:variable:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -605,7 +665,7 @@ _shtab_ahriman_repo_sign_defaults_added=0
 _shtab_ahriman_repo_statistics_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--chart[create updates chart and save it to the specified path (default\: None)]:chart:"
-  {-e,--event}"[event type filter (default\: package-updated)]:event:(package-outdated package-removed package-update-failed package-updated)"
+  {-e,--event}"[event type filter (default\: package-updated)]:event:(build-log package-held package-outdated package-removed package-status-changed package-update-failed package-updated service-status-changed)"
   "--from-date[only fetch events which are newer than the date (default\: None)]:from_date:"
   "--limit[limit response by specified amount of events (default\: -1)]:limit:"
   "--offset[skip specified amount of events (default\: 0)]:offset:"
@@ -953,13 +1013,19 @@ _shtab_ahriman() {
         init) _arguments -C -s $_shtab_ahriman_init_options ;;
         key-import) _arguments -C -s $_shtab_ahriman_key_import_options ;;
         package-add) _arguments -C -s $_shtab_ahriman_package_add_options ;;
+        package-archives) _arguments -C -s $_shtab_ahriman_package_archives_options ;;
         package-changes) _arguments -C -s $_shtab_ahriman_package_changes_options ;;
         package-changes-remove) _arguments -C -s $_shtab_ahriman_package_changes_remove_options ;;
         package-copy) _arguments -C -s $_shtab_ahriman_package_copy_options ;;
+        package-hold) _arguments -C -s $_shtab_ahriman_package_hold_options ;;
+        package-pkgbuild) _arguments -C -s $_shtab_ahriman_package_pkgbuild_options ;;
+        package-pkgbuild-remove) _arguments -C -s $_shtab_ahriman_package_pkgbuild_remove_options ;;
         package-remove) _arguments -C -s $_shtab_ahriman_package_remove_options ;;
+        package-rollback) _arguments -C -s $_shtab_ahriman_package_rollback_options ;;
         package-status) _arguments -C -s $_shtab_ahriman_package_status_options ;;
         package-status-remove) _arguments -C -s $_shtab_ahriman_package_status_remove_options ;;
         package-status-update) _arguments -C -s $_shtab_ahriman_package_status_update_options ;;
+        package-unhold) _arguments -C -s $_shtab_ahriman_package_unhold_options ;;
         package-update) _arguments -C -s $_shtab_ahriman_package_update_options ;;
         patch-add) _arguments -C -s $_shtab_ahriman_patch_add_options ;;
         patch-list) _arguments -C -s $_shtab_ahriman_patch_list_options ;;
