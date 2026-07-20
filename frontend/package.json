@@ -29,7 +29,7 @@
         "typescript-eslint": ">=8.64.0 <8.65.0",
         "vite": ">=8.1.0 <8.2.0"
     },
-    "name": "ahriman-frontend",
+    "name": "ahriman",
     "private": true,
     "scripts": {
         "build": "tsc && vite build",
