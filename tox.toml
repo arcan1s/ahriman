@@ -87,6 +87,7 @@ name = "ahriman"
 description = "Create source files tarball"
 deps = [
     "build",
+    "hatchling",
 ]
 skip_install = true
 commands = [
