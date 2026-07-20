@@ -352,11 +352,12 @@ commands = [
         "ahriman",
         "-m",
         "pytest",
-        "tests/test_tests.py",
-        "ahriman-core/tests",
-        "ahriman-triggers/tests",
-        "ahriman-web/tests",
-        { replace = "posargs", extend = true },
+        { replace = "posargs", default = [
+            "tests/test_tests.py",
+            "ahriman-core/tests",
+            "ahriman-triggers/tests",
+            "ahriman-web/tests",
+        ], extend = true },
     ],
     [
         "coverage",
