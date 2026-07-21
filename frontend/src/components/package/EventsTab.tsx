@@ -54,6 +54,7 @@ export default function EventsTab({ packageBase, repository }: EventsTabProps): 
         enabled: !!packageBase,
         queryFn: () => client.fetch.fetchPackageEvents(repository, packageBase, 30),
         queryKey: QueryKeys.events(repository, packageBase),
+        refetchOnMount: "always",
     });
 
     const rows = useMemo<EventRow[]>(() => events.map((event, index) => ({

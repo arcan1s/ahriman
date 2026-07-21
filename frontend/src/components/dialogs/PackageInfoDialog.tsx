@@ -58,11 +58,7 @@ export default function PackageInfoDialog({
     const { showSuccess, showError } = useNotification();
     const queryClient = useQueryClient();
 
-    const [localPackageBase, setLocalPackageBase] = useState(packageBase);
-    if (packageBase !== null && packageBase !== localPackageBase) {
-        setLocalPackageBase(packageBase);
-    }
-
+    const localPackageBase = packageBase;
     const [activeTab, setActiveTab] = useState<TabKey>("logs");
     const [refreshDatabase, setRefreshDatabase] = useState(true);
 
@@ -157,38 +153,42 @@ export default function PackageInfoDialog({
 
         <DialogContent>
             {pkg &&
-                <>
-                    <PackageDetailsGrid dependencies={dependencies} pkg={pkg} />
-                    <PackagePatchesList
-                        editable={isAuthorized}
-                        onDelete={key => void handleDeletePatch(key)}
-                        patches={patches}
-                    />
+                <PackageDetailsGrid dependencies={dependencies} pkg={pkg} />
+            }
+            {localPackageBase &&
+                <PackagePatchesList
+                    editable={isAuthorized}
+                    onDelete={key => void handleDeletePatch(key)}
+                    patches={patches}
+                />
+            }
 
+            {localPackageBase && currentRepository &&
+                <>
                     <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 2 }}>
                         <Tabs onChange={(_, tab: TabKey) => setActiveTab(tab)} value={activeTab}>
                             {tabs.map(({ key, label }) => <Tab key={key} label={label} value={key} />)}
                         </Tabs>
                     </Box>
 
-                    {activeTab === "logs" && localPackageBase && currentRepository &&
+                    {activeTab === "logs" &&
                         <BuildLogsTab
                             packageBase={localPackageBase}
                             repository={currentRepository}
                         />
                     }
-                    {activeTab === "changes" && localPackageBase && currentRepository &&
+                    {activeTab === "changes" &&
                         <ChangesTab packageBase={localPackageBase} repository={currentRepository} />
                     }
-                    {activeTab === "pkgbuild" && localPackageBase && currentRepository &&
+                    {activeTab === "pkgbuild" &&
                         <PkgbuildTab packageBase={localPackageBase} repository={currentRepository} />
                     }
-                    {activeTab === "events" && localPackageBase && currentRepository &&
+                    {activeTab === "events" &&
                         <EventsTab packageBase={localPackageBase} repository={currentRepository} />
                     }
-                    {activeTab === "artifacts" && localPackageBase && currentRepository &&
+                    {activeTab === "artifacts" &&
                         <ArtifactsTab
-                            currentVersion={pkg.version}
+                            currentVersion={pkg?.version}
                             packageBase={localPackageBase}
                             repository={currentRepository}
                         />

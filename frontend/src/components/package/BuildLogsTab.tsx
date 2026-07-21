@@ -61,6 +61,7 @@ export default function BuildLogsTab({
         enabled: !!packageBase,
         queryFn: () => client.fetch.fetchPackageLogs(packageBase, repository),
         queryKey: QueryKeys.logs(packageBase, repository),
+        refetchOnMount: "always",
     });
 
     // Build version selectors from all logs
@@ -116,6 +117,7 @@ export default function BuildLogsTab({
             )
             : skipToken,
         queryKey: QueryKeys.logsVersion(packageBase, repository, activeVersion?.version ?? "", activeVersion?.processId ?? ""),
+        refetchOnMount: "always",
     });
 
     // Derive displayed logs: prefer fresh polled data when available

@@ -32,7 +32,7 @@ import { useCallback, useMemo } from "react";
 import { DETAIL_TABLE_PROPS } from "utils";
 
 interface ArtifactsTabProps {
-    currentVersion: string;
+    currentVersion?: string;
     packageBase: string;
     repository: RepositoryId;
 }
@@ -78,6 +78,7 @@ export default function ArtifactsTab({
             })).reverse();
         },
         queryKey: QueryKeys.artifacts(packageBase, repository),
+        refetchOnMount: "always",
     });
 
     const handleRollback = useCallback(async (version: string): Promise<void> => {
@@ -101,7 +102,7 @@ export default function ArtifactsTab({
                 <Tooltip title={params.row.version === currentVersion ? "Current version" : "Rollback to this version"}>
                     <span>
                         <IconButton
-                            disabled={params.row.version === currentVersion}
+                            disabled={currentVersion === params.row.version}
                             onClick={() => void handleRollback(params.row.version)}
                             size="small"
                         >

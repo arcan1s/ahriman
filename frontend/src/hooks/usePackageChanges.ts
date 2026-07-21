@@ -30,6 +30,7 @@ export function usePackageChanges(packageBase: string, repository: RepositoryId)
         enabled: !!packageBase,
         queryFn: () => client.fetch.fetchPackageChanges(packageBase, repository),
         queryKey: QueryKeys.changes(packageBase, repository),
+        refetchOnMount: "always",
     });
 
     return data;
