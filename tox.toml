@@ -110,10 +110,12 @@ dependency_groups = [
 ]
 deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
+    "pip",
 ]
 pip_pre = true
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
 set_env.MYPYPATH = "ahriman-core/src:ahriman-triggers/src:ahriman-web/src"
+uv_seed = true
 commands = [
     [
         "autopep8",
