@@ -94,6 +94,21 @@ class ImportOrder(BaseRawFileChecker):
     )
 
     @staticmethod
+    def import_context(statement: nodes.Import | nodes.ImportFrom) -> tuple[nodes.NodeNG, str]:
+        """
+        extract the lexical block containing an import
+
+        Args:
+            statement(nodes.Import | nodes.ImportFrom): import node
+
+        Returns:
+            tuple[nodes.NodeNG, str]: parent node and its branch containing the import
+        """
+        parent = statement.parent
+        field, _ = parent.locate_child(statement)
+        return parent, field
+
+    @staticmethod
     def imports(source: Iterable[Any], start_lineno: int = 0) -> Iterable[nodes.Import | nodes.ImportFrom]:
         """
         extract import nodes from list of raw nodes
@@ -192,7 +207,12 @@ class ImportOrder(BaseRawFileChecker):
             node(nodes.Module): module node to check
         """
         root_module, *_ = node.qname().split(".")
-        self.check_imports(self.imports(node.values()), root_module)
+        contexts: dict[tuple[nodes.NodeNG, str], list[nodes.Import | nodes.ImportFrom]] = {}
+        for statement in self.imports(node.values()):
+            contexts.setdefault(self.import_context(statement), []).append(statement)
+
+        for imports in contexts.values():
+            self.check_imports(imports, root_module)
 
 
 def register(linter: PyLinter) -> None:
