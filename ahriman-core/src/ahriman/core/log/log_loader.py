@@ -26,6 +26,7 @@ from typing import ClassVar, Literal
 from ahriman.core.configuration import Configuration
 from ahriman.core.log.http_log_handler import HttpLogHandler
 from ahriman.core.log.log_context import LogContext
+from ahriman.core.module_loader import optional_module
 from ahriman.models.log_handler import LogHandler
 from ahriman.models.repository_id import RepositoryId
 
@@ -65,14 +66,11 @@ class LogLoader:
         if selected is not None:
             return selected
 
-        try:
-            from systemd.journal import JournalHandler  # type: ignore[import-untyped]
-            del JournalHandler
+        if optional_module("systemd.journal"):
             return LogHandler.Journald  # journald import was found
-        except ImportError:
-            if LogLoader.DEFAULT_SYSLOG_DEVICE.exists():
-                return LogHandler.Syslog
-            return LogHandler.Console
+        if LogLoader.DEFAULT_SYSLOG_DEVICE.exists():
+            return LogHandler.Syslog
+        return LogHandler.Console
 
     @staticmethod
     def load(repository_id: RepositoryId, configuration: Configuration, handler: LogHandler, *,

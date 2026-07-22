@@ -17,14 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-try:
-    import aiohttp_openmetrics
-except ImportError:
-    aiohttp_openmetrics = None  # type: ignore[assignment]
-
 from aiohttp.typedefs import Middleware
 from aiohttp.web import HTTPNotFound, Request, Response, StreamResponse, middleware
 
+from ahriman.core.module_loader import optional_module
 from ahriman.web.middlewares import HandlerType
 
 
@@ -32,6 +28,9 @@ __all__ = [
     "metrics",
     "metrics_handler",
 ]
+
+
+aiohttp_openmetrics = optional_module("aiohttp_openmetrics")
 
 
 async def metrics(request: Request) -> Response:
@@ -47,7 +46,7 @@ async def metrics(request: Request) -> Response:
     Raises:
         HTTPNotFound: endpoint is disabled
     """
-    if aiohttp_openmetrics is None:
+    if not aiohttp_openmetrics:
         raise HTTPNotFound
     return await aiohttp_openmetrics.metrics(request)
 
@@ -59,7 +58,7 @@ def metrics_handler() -> Middleware:
     Returns:
         Middleware: middleware function to handle server metrics
     """
-    if aiohttp_openmetrics is not None:
+    if aiohttp_openmetrics:
         return aiohttp_openmetrics.metrics_middleware
 
     @middleware

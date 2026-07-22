@@ -17,17 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-try:
-    import aiohttp_security
-except ImportError:
-    aiohttp_security = None  # type: ignore[assignment]
-
-try:
-    import aiohttp_session
-except ImportError:
-    aiohttp_session = None  # type: ignore[assignment]
-
 from typing import Any
+
+from ahriman.core.module_loader import optional_module
 
 
 __all__ = [
@@ -37,6 +29,10 @@ __all__ = [
     "get_session",
     "remember",
 ]
+
+
+aiohttp_security = optional_module("aiohttp_security")
+aiohttp_session = optional_module("aiohttp_session")
 
 
 async def authorized_userid(*args: Any, **kwargs: Any) -> Any:
@@ -50,7 +46,7 @@ async def authorized_userid(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if aiohttp_security is not None:
+    if aiohttp_security:
         return await aiohttp_security.authorized_userid(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
@@ -66,7 +62,7 @@ async def check_authorized(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if aiohttp_security is not None:
+    if aiohttp_security:
         return await aiohttp_security.check_authorized(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
@@ -82,7 +78,7 @@ async def forget(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if aiohttp_security is not None:
+    if aiohttp_security:
         return await aiohttp_security.forget(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
@@ -98,7 +94,7 @@ async def get_session(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: empty dictionary in case if no aiohttp_session module found and function call otherwise
     """
-    if aiohttp_session is not None:
+    if aiohttp_session:
         return await aiohttp_session.get_session(*args, **kwargs)
     return {}
 
@@ -114,6 +110,6 @@ async def remember(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if aiohttp_security is not None:
+    if aiohttp_security:
         return await aiohttp_security.remember(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None

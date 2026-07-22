@@ -26,8 +26,7 @@ from pkgutil import ModuleInfo, walk_packages
 from types import ModuleType
 from typing import Any, TypeGuard, TypeVar
 
-
-__all__ = ["implementations"]
+__all__ = ["implementations", "optional_module"]
 
 
 T = TypeVar("T")
@@ -74,3 +73,19 @@ def implementations(root_module: ModuleType, base_class: type[T]) -> Iterator[ty
 
             for _, attribute in inspect.getmembers(module, is_base_class):
                 yield attribute
+
+
+def optional_module(module_name: str) -> ModuleType | None:
+    """
+    import an optional module
+
+    Args:
+        module_name(str): fully qualified module name
+
+    Returns:
+        ModuleType | None: imported module or ``None`` when it cannot be imported
+    """
+    try:
+        return import_module(module_name)
+    except ImportError:
+        return None

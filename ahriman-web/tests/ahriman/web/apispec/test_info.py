@@ -48,7 +48,8 @@ def test_setup_apispec(application: Application, mocker: MockerFixture) -> None:
     must set api specification
     """
     apispec_mock = mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    assert setup_apispec(application)
+
+    setup_apispec(application)
     apispec_mock.assert_called_once_with(
         application,
         url="/api-docs/swagger.json",

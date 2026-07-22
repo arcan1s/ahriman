@@ -60,7 +60,7 @@ async def server_info(view: BaseView) -> dict[str, Any]:
             "username": await authorized_userid(view.request),
         },
         "autorefresh_intervals": sorted(autorefresh_intervals, key=comparator),
-        "docs_enabled": aiohttp_apispec is not None,
+        "docs_enabled": bool(aiohttp_apispec),
         "index_url": view.configuration.get("web", "index_url", fallback=None),
         "repositories": [
             {

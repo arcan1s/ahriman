@@ -17,15 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-try:
-    import aiohttp_apispec  # type: ignore[import-untyped]
+from ahriman.core.module_loader import optional_module
 
-    from marshmallow import Schema, fields
-except ImportError:
+
+aiohttp_apispec = optional_module("aiohttp_apispec")
+marshmallow = optional_module("marshmallow")
+
+
+if aiohttp_apispec and marshmallow:
+    Schema = marshmallow.Schema
+    fields = marshmallow.fields
+else:
     from unittest.mock import Mock
 
     Schema = Mock  # type: ignore[misc]
-    aiohttp_apispec = None
     fields = Mock()
 
 

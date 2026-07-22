@@ -100,20 +100,17 @@ def _servers(application: Application) -> list[dict[str, Any]]:
     }]
 
 
-def setup_apispec(application: Application) -> Any:
+def setup_apispec(application: Application) -> None:
     """
     setup swagger api specification
 
     Args:
         application(Application): web application instance
-
-    Returns:
-        Any: created specification instance if module is available
     """
     if aiohttp_apispec is None:
-        return None
+        return
 
-    return aiohttp_apispec.setup_aiohttp_apispec(
+    aiohttp_apispec.setup_aiohttp_apispec(
         application,
         url="/api-docs/swagger.json",
         openapi_version="3.0.2",

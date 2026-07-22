@@ -22,6 +22,7 @@ from secrets import token_urlsafe
 from typing import ClassVar
 
 from ahriman.core.auth.helpers import get_session, remember
+from ahriman.core.module_loader import optional_module
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
 from ahriman.web.schemas import LoginSchema, OAuth2Schema
@@ -62,14 +63,12 @@ class LoginView(BaseView):
             HTTPMethodNotAllowed: in case if method is used, but OAuth is disabled
             HTTPUnauthorized: if case of authorization error
         """
-        try:
-            from ahriman.core.auth.oauth import OAuth
-        except ImportError:
-            # no aioauth library found
+        oauth = optional_module("ahriman.core.auth.oauth")
+        if not oauth:
             raise HTTPMethodNotAllowed(self.request.method, ["POST"])
 
         oauth_provider = self.validator
-        if not isinstance(oauth_provider, OAuth):
+        if not isinstance(oauth_provider, oauth.OAuth):
             raise HTTPMethodNotAllowed(self.request.method, ["POST"])
 
         session = await get_session(self.request)

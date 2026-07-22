@@ -2,7 +2,7 @@ import ahriman.web.views
 
 from pathlib import Path
 
-from ahriman.core.module_loader import _modules, implementations
+from ahriman.core.module_loader import _modules, implementations, optional_module
 from ahriman.web.views.base import BaseView
 
 
@@ -23,3 +23,17 @@ def test_implementations() -> None:
     assert routes
     assert all(isinstance(view, type) for view in routes)
     assert all(issubclass(view, BaseView) for view in routes)
+
+
+def test_optional_module() -> None:
+    """
+    must import an available module
+    """
+    assert optional_module("ahriman.web.views") is ahriman.web.views
+
+
+def test_optional_module_fallback() -> None:
+    """
+    must return none when the module cannot be imported
+    """
+    assert optional_module("missing_ahriman_module") is None

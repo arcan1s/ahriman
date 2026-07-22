@@ -117,36 +117,12 @@ def get_package_status_extended(package: Package) -> dict[str, Any]:
     return {"status": BuildStatus().view(), "package": package.view()}
 
 
-def import_error(package: str, components: list[str], mocker: MockerFixture) -> MagicMock:
-    """
-    mock import error
-
-    Args:
-        package(str): package name to import
-        components(list[str]): component to import if any (e.g. from ... import ...)
-        mocker(MockerFixture): mocker object
-
-    Returns:
-        MagicMock: mocked object
-    """
-    import builtins
-    _import = builtins.__import__
-
-    # pylint: disable=redefined-builtin
-    def test_import(name: str, globals: Any, locals: Any, from_list: list[str], level: Any):
-        if name == package and (not components or any(component in from_list for component in components)):
-            raise ImportError
-        return _import(name, globals, locals, from_list, level)
-
-    return mocker.patch.object(builtins, "__import__", test_import)
-
-
 @pytest.hookimpl(trylast=True)
 def pytest_configure() -> None:
     """
     register helpers after pytest-helpers-namespace has initialized
     """
-    for helper in (anyvar, get_package_status, get_package_status_extended, import_error):
+    for helper in (anyvar, get_package_status, get_package_status_extended):
         pytest.helpers.register(helper)
 
 

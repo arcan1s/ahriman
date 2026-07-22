@@ -115,7 +115,7 @@ def apidocs(*,
     authorization_required = permission != UserAccess.Unauthorized
 
     def wrapper(handler: Callable[..., Any]) -> Callable[..., Any]:
-        if aiohttp_apispec is None:
+        if not aiohttp_apispec:
             return handler  # apispec is disabled
 
         responses = _response_schema(

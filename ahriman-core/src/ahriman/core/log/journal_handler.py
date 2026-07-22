@@ -21,6 +21,8 @@
 from logging import NullHandler
 from typing import Any
 
+from ahriman.core.module_loader import optional_module
+
 
 __all__ = ["JournalHandler"]
 
@@ -40,7 +42,5 @@ class _JournalHandler(NullHandler):
         del args, kwargs
 
 
-try:
-    from systemd.journal import JournalHandler  # type: ignore[import-untyped]
-except ImportError:
-    JournalHandler = _JournalHandler
+systemd_journal = optional_module("systemd.journal")
+JournalHandler = systemd_journal.JournalHandler if systemd_journal else _JournalHandler

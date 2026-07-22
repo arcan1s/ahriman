@@ -50,7 +50,7 @@ class DocsView(BaseView):
             list[str]: list of routes defined for the view. By default, it tries to read :attr:`ROUTES` option if set
             and returns empty list otherwise
         """
-        if aiohttp_apispec is None:
+        if not aiohttp_apispec:
             return []
         return cls.ROUTES
 

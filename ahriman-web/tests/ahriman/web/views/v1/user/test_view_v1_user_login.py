@@ -37,7 +37,7 @@ async def test_get_import_error(client_with_auth: TestClient, mocker: MockerFixt
     """
     must return 405 on import error
     """
-    pytest.helpers.import_error("ahriman.core.auth.oauth", ["OAuth"], mocker)
+    mocker.patch("ahriman.web.views.v1.user.login.optional_module", return_value=None)
     response = await client_with_auth.get("/api/v1/login")
     assert response.status == 405
 
