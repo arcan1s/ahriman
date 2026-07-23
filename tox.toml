@@ -2,7 +2,6 @@ env_list = [
     "check",
     "tests",
 ]
-isolated_build = true
 requires = [
     "tox-uv",
 ]
@@ -32,6 +31,17 @@ autopep8 = [
 bandit = [
     "--configfile",
     ".bandit.toml",
+]
+coverage_report = [
+    "--show-missing",
+    "--skip-covered",
+    "--fail-under=100",
+]
+coverage_run = [
+    "--source",
+    "ahriman",
+    "-m",
+    "pytest",
 ]
 manpage = [
     "--author",
@@ -115,7 +125,6 @@ deps = [
 pip_pre = true
 set_env.CFLAGS = "-Wno-unterminated-string-initialization"
 set_env.MYPYPATH = "ahriman-core/src:ahriman-triggers/src:ahriman-web/src"
-uv_seed = true
 commands = [
     [
         "autopep8",
@@ -276,15 +285,12 @@ deps = [
     { replace = "ref", of = ["project", "extras"], extend = true },
 ]
 pip_pre = true
-recreate = true
 commands = [
     [
         "sphinx-build",
         "--builder",
         "html",
         "--fail-on-warning",
-        "--jobs",
-        "1",
         "--write-all",
         "docs",
         "{envtmpdir}/html",
@@ -354,10 +360,7 @@ commands = [
     [
         "coverage",
         "run",
-        "--source",
-        "ahriman",
-        "-m",
-        "pytest",
+        { replace = "ref", of = ["flags", "coverage_run"], extend = true },
         { replace = "posargs", default = [
             "tests/test_tests.py",
             "ahriman-core/tests",
@@ -368,9 +371,7 @@ commands = [
     [
         "coverage",
         "report",
-        "--show-missing",
-        "--skip-covered",
-        "--fail-under=100",
+        { replace = "ref", of = ["flags", "coverage_report"], extend = true },
     ],
 ]
 
