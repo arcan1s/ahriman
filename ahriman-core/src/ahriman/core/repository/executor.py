@@ -73,7 +73,7 @@ class Executor(PackageInfo, Cleaner):
         """
         self.reporter.set_building(package.base)
 
-        task = Task(package, self.configuration, self.repository_id.architecture, self.paths)
+        task = Task(package, self.configuration, self.repository_id, self.paths)
         patches = self.reporter.package_patches_get(package.base, None)
         commit_sha = task.init(path, patches, local_version)
 

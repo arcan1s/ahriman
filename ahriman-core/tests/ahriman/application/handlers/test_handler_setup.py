@@ -55,8 +55,6 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
     devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
     makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
-    sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
-    executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
     owner_guard_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
 
@@ -67,8 +65,6 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     devtools_configuration_mock.assert_called_once_with(
         repository_id, args.from_configuration, args.mirror, args.multilib, f"file://{repository_paths.repository}")
     makepkg_configuration_mock.assert_called_once_with(args.packager, args.makeflags_jobs, repository_paths)
-    sudo_configuration_mock.assert_called_once_with(repository_paths, repository_id)
-    executable_mock.assert_called_once_with(repository_paths, repository_id)
     init_mock.assert_called_once_with()
 
 
@@ -102,8 +98,6 @@ def test_run_with_server(args: argparse.Namespace, configuration: Configuration,
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
     mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
-    mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
-    mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
     mocker.patch("ahriman.core.alpm.repo.Repo.init")
     devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
 
@@ -111,17 +105,6 @@ def test_run_with_server(args: argparse.Namespace, configuration: Configuration,
     Setup.run(args, repository_id, configuration, report=False)
     devtools_configuration_mock.assert_called_once_with(
         repository_id, args.from_configuration, args.mirror, args.multilib, "server")
-
-
-def test_build_command(repository_id: RepositoryId) -> None:
-    """
-    must generate correct build command name
-    """
-    path = Path("local")
-
-    build_command = Setup.build_command(path, repository_id)
-    assert build_command.name == f"{repository_id.name}-{repository_id.architecture}-build"
-    assert build_command.parent == path
 
 
 def test_configuration_create_ahriman(args: argparse.Namespace, configuration: Configuration,
@@ -135,12 +118,9 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
     remove_mock = mocker.patch("pathlib.Path.unlink", autospec=True)
     _, repository_id = configuration.check_loaded()
-    command = Setup.build_command(repository_paths.root, repository_id)
 
     Setup.configuration_create_ahriman(args, repository_id, configuration)
     set_option_mock.assert_has_calls([
-        MockCall(Configuration.section_name("build", repository_id.name, repository_id.architecture), "build_command",
-                 str(command)),
         MockCall("repository", "name", repository_id.name),
         MockCall(Configuration.section_name("build", repository_id.name, repository_id.architecture),
                  "makechrootpkg_flags", f"-U {args.build_as_user}"),
@@ -249,34 +229,6 @@ def test_configuration_create_makepkg(args: argparse.Namespace, repository_paths
     Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, repository_paths)
     write_text_mock.assert_called_once_with(
         Path("home") / ".makepkg.conf", pytest.helpers.anyvar(str, True), encoding="utf8")
-
-
-def test_configuration_create_sudo(configuration: Configuration, repository_paths: RepositoryPaths,
-                                   mocker: MockerFixture) -> None:
-    """
-    must create sudo configuration
-    """
-    chmod_text_mock = mocker.patch("pathlib.Path.chmod")
-    write_text_mock = mocker.patch("pathlib.Path.write_text")
-
-    _, repository_id = configuration.check_loaded()
-    Setup.configuration_create_sudo(repository_paths, repository_id)
-    chmod_text_mock.assert_called_once_with(0o400)
-    write_text_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), encoding="utf8")
-
-
-def test_executable_create(configuration: Configuration, repository_paths: RepositoryPaths,
-                           mocker: MockerFixture) -> None:
-    """
-    must create executable
-    """
-    symlink_mock = mocker.patch("pathlib.Path.symlink_to")
-    unlink_mock = mocker.patch("pathlib.Path.unlink")
-
-    _, repository_id = configuration.check_loaded()
-    Setup.executable_create(repository_paths, repository_id)
-    symlink_mock.assert_called_once_with(Setup.ARCHBUILD_COMMAND_PATH)
-    unlink_mock.assert_called_once_with(missing_ok=True)
 
 
 def test_disallow_multi_architecture_run() -> None:

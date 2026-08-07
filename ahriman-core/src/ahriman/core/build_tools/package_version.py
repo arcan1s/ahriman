@@ -56,7 +56,7 @@ class PackageVersion(LazyLogging):
 
         _, repository_id = configuration.check_loaded()
         paths = configuration.repository_paths
-        task = Task(self.package, configuration, repository_id.architecture, paths)
+        task = Task(self.package, configuration, repository_id, paths)
 
         try:
             # create fresh chroot environment, fetch sources and - automagically - update PKGBUILD

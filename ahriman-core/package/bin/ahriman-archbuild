@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage() {
+    local cmd="${0##*/}"
+    echo "Usage: $cmd [options] -- [archbuild args]"
+    echo "    -r <repository>    Repository name"
+    echo "    -a <architecture>  Repository architecture"
+    exit 1
+}
+
+repository=
+architecture=
+
+while getopts ":r:a:" arg; do
+    case "$arg" in
+        r) repository="$OPTARG" ;;
+        a) architecture="$OPTARG" ;;
+        *) usage ;;
+    esac
+done
+
+if [[ -z $repository || -z $architecture ]]; then
+    usage
+fi
+
+source "/usr/share/devtools/lib/archroot.sh"
+check_root "SOURCE_DATE_EPOCH,SRCDEST,SRCPKGDEST,PKGDEST,LOGDEST,NPROC,MAKEFLAGS,PACKAGER,GNUPGHOME" "${BASH_SOURCE[0]}" "$@"
+
+exec bash -c '
+    source "$1" "${@:2}"
+' "${repository}-${architecture}-build" "archbuild" "${@:$OPTIND}"

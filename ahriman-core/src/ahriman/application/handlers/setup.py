@@ -40,16 +40,12 @@ class Setup(Handler):
     setup handler
 
     Attributes:
-        ARCHBUILD_COMMAND_PATH(Path): (class attribute) default devtools command
         MIRRORLIST_PATH(Path): (class attribute) path to pacman default mirrorlist (used by multilib repository)
-        SUDOERS_DIR_PATH(Path): (class attribute) path to sudoers.d includes directory
     """
 
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
-    ARCHBUILD_COMMAND_PATH: ClassVar[Path] = Path("/") / "usr" / "bin" / "archbuild"
     MIRRORLIST_PATH: ClassVar[Path] = Path("/") / "etc" / "pacman.d" / "mirrorlist"
-    SUDOERS_DIR_PATH: ClassVar[Path] = Path("/") / "etc" / "sudoers.d"
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
@@ -74,11 +70,9 @@ class Setup(Handler):
 
         # basically we create configuration here as root, but it is ok, because those files are only used for reading
         Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
-        Setup.executable_create(application.repository.paths, repository_id)
         repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
         Setup.configuration_create_devtools(
             repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
-        Setup.configuration_create_sudo(application.repository.paths, repository_id)
 
         # finish initialization
         with application.repository.paths.preserve_owner():
@@ -125,20 +119,6 @@ class Setup(Handler):
         return parser
 
     @staticmethod
-    def build_command(root: Path, repository_id: RepositoryId) -> Path:
-        """
-        generate build command name
-
-        Args:
-            root(Path): root directory for the build command (must be root of the repository)
-            repository_id(RepositoryId): repository unique identifier
-
-        Returns:
-            Path: valid devtools command name
-        """
-        return root / f"{repository_id.name}-{repository_id.architecture}-build"
-
-    @staticmethod
     def configuration_create_ahriman(args: argparse.Namespace, repository_id: RepositoryId,
                                      root: Configuration) -> None:
         """
@@ -152,8 +132,6 @@ class Setup(Handler):
         configuration = Configuration()
 
         section = Configuration.section_name("build", repository_id.name, repository_id.architecture)
-        build_command = Setup.build_command(root.repository_paths.root, repository_id)
-        configuration.set_option(section, "build_command", str(build_command))
         configuration.set_option("repository", "name", repository_id.name)  # backward compatibility for docker
         if args.build_as_user is not None:
             configuration.set_option(section, "makechrootpkg_flags", f"-U {args.build_as_user}")
@@ -256,32 +234,5 @@ class Setup(Handler):
         uid, _ = paths.root_owner
         home_dir = Path(getpwuid(uid).pw_dir)
         (home_dir / ".makepkg.conf").write_text(content, encoding="utf8")
-
-    @staticmethod
-    def configuration_create_sudo(paths: RepositoryPaths, repository_id: RepositoryId) -> None:
-        """
-        create configuration to run build command with sudo without password
-
-        Args:
-            paths(RepositoryPaths): repository paths instance
-            repository_id(RepositoryId): repository unique identifier
-        """
-        command = Setup.build_command(paths.root, repository_id)
-        sudoers_file = Setup.build_command(Setup.SUDOERS_DIR_PATH, repository_id)
-        sudoers_file.write_text(f"ahriman ALL=(ALL) NOPASSWD:SETENV: {command} *\n", encoding="utf8")
-        sudoers_file.chmod(0o400)  # security!
-
-    @staticmethod
-    def executable_create(paths: RepositoryPaths, repository_id: RepositoryId) -> None:
-        """
-        create executable for the service
-
-        Args:
-            paths(RepositoryPaths): repository paths instance
-            repository_id(RepositoryId): repository unique identifier
-        """
-        command = Setup.build_command(paths.root, repository_id)
-        command.unlink(missing_ok=True)
-        command.symlink_to(Setup.ARCHBUILD_COMMAND_PATH)
 
     arguments = [_set_service_setup_parser]

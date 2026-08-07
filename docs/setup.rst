@@ -27,48 +27,24 @@ Initial setup
       #.
          Configure build tools (it is required for correct dependency management system):
 
-      #.
-         Create build command (you can choose any name for command, basically it should be ``{name}-{arch}-build``):
+          #.
+             Create configuration file ``{name}.conf`` or ``{name}-{arch}.conf``, where ``name`` is the repostory name and ``arch`` is the repository architecture, e.g.:
 
-         .. code-block:: shell
+             .. code-block:: shell
 
-            ln -s /usr/bin/archbuild /usr/local/bin/aur-x86_64-build
+                cp /usr/share/devtools/pacman.conf.d/{extra,aur-x86_64}.conf
 
-      #. 
-         Create configuration file (same as previous ``{name}.conf``):
+          #.
+             Change configuration file, add your own repository, add multilib repository etc:
 
-         .. code-block:: shell
+             .. code-block:: shell
 
-            cp /usr/share/devtools/pacman.conf.d/{extra,aur}.conf
+                echo '[multilib]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+                echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
 
-      #. 
-         Change configuration file, add your own repository, add multilib repository etc:
-
-         .. code-block:: shell
-
-            echo '[multilib]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-            echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-
-            echo '[aur]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-            echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-            echo 'Server = file:///var/lib/ahriman/repository/$repo/$arch' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-
-      #. 
-         Set ``build_command`` option to point to your command:
-
-         .. code-block:: shell
-
-            echo '[build]' | tee -a /etc/ahriman.ini.d/build.ini
-            echo 'build_command = aur-x86_64-build' | tee -a /etc/ahriman.ini.d/build.ini
-
-      #.
-         Configure ``/etc/sudoers.d/ahriman`` to allow running command without a password:
-
-         .. code-block:: shell
-
-            echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/local/bin/aur-x86_64-build *' | tee -a /etc/sudoers.d/ahriman
-            echo 'ahriman ALL=(ALL) NOPASSWD:SETENV: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
-            chmod 400 /etc/sudoers.d/ahriman
+                echo '[aur]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+                echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+                echo 'Server = file:///var/lib/ahriman/repository/$repo/$arch' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
 
    This command supports several arguments, kindly refer to its help message.
 

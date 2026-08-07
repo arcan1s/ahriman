@@ -131,7 +131,7 @@ Authorized users are stored inside internal database, if any of external provide
 Build related configuration. Group name can refer to architecture, e.g. ``build:x86_64`` can be used for x86_64 architecture specific settings.
 
 * ``archbuild_flags`` - additional flags passed to ``archbuild`` command, space separated list of strings, optional.
-* ``build_command`` - default build command, string, required.
+* ``devtools_wrapper`` - path to devtools wrapper, space separated list of strings, required.
 * ``ignore_packages`` - list packages to ignore during a regular update (manual update will still work), space separated list of strings, optional.
 * ``include_debug_packages`` - distribute debug packages, boolean, optional, default ``yes``.
 * ``makepkg_flags`` - additional flags passed to ``makepkg`` command, space separated list of strings, optional.

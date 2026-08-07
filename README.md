@@ -31,7 +31,7 @@ For installation details kindly refer to the [documentation](https://ahriman.rea
 
 Every available option is described in the [documentation](https://ahriman.readthedocs.io/en/stable/configuration.html).
 
-The application provides reasonable defaults which allow to use it out-of-box; however additional steps (like configuring build toolchain and sudoers) are recommended and can be easily achieved by following install instructions.
+The application provides reasonable defaults which allow to use it out-of-box; however additional steps (like configuring build toolchain) are recommended and can be easily achieved by following install instructions.
 
 ## [FAQ](https://ahriman.readthedocs.io/en/stable/faq/index.html)
 

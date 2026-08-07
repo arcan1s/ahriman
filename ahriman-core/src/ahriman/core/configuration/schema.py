@@ -190,8 +190,20 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 },
             },
             "build_command": {
-                "type": "string",
-                "required": True,
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
+            },
+            "devtools_wrapper": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
                 "empty": False,
             },
             "ignore_packages": {

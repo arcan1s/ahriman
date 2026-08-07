@@ -27,6 +27,7 @@ from ahriman.core.log import LazyLogging
 from ahriman.core.utils import check_output, package_like
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -36,32 +37,33 @@ class Task(LazyLogging):
 
     Attributes:
         archbuild_flags(list[str]): command flags for archbuild command
-        architecture(str): repository architecture
-        build_command(str): build command
+        build_command(list[str]): build command
         include_debug_packages(bool): whether to include debug packages or not
         makechrootpkg_flags(list[str]): command flags for makechrootpkg command
         makepkg_flags(list[str]): command flags for makepkg command
         package(Package): package definitions
         paths(RepositoryPaths): repository paths instance
+        repository_id(RepositoryId): repository unique identifier
         uid(int): uid of the repository owner user
     """
 
-    def __init__(self, package: Package, configuration: Configuration, architecture: str,
+    def __init__(self, package: Package, configuration: Configuration, repository_id: RepositoryId,
                  paths: RepositoryPaths) -> None:
         """
         Args:
             package(Package): package definitions
             configuration(Configuration): configuration instance
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             paths(RepositoryPaths): repository paths instance
         """
         self.package = package
         self.paths = paths
         self.uid, _ = paths.root_owner
-        self.architecture = architecture
+        self.repository_id = repository_id
 
         self.archbuild_flags = configuration.getlist("build", "archbuild_flags", fallback=[])
-        self.build_command = configuration.get("build", "build_command")
+        self.build_command = configuration.getlist("build", "devtools_wrapper")
+        self._legacy_build_command = configuration.getlist("build", "build_command", fallback=[])
         self.include_debug_packages = configuration.getboolean("build", "include_debug_packages", fallback=True)
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
@@ -108,12 +110,16 @@ class Task(LazyLogging):
         Returns:
             list[Path]: paths of produced packages
         """
-        command = [self.build_command, "-r", str(self.paths.chroot)]
-        command.extend(self.archbuild_flags)
-        command.extend(["--", "-D", str(self.paths.archive)] + self.makechrootpkg_flags)
-        command.extend(["--"] + self.makepkg_flags)
+        command = self._legacy_build_command[:]
+        if not command:
+            command = self.build_command + ["-r", self.repository_id.name, "-a", self.repository_id.architecture, "--"]
+
+        command.extend(["-r", str(self.paths.chroot)] + self.archbuild_flags)  # archbuild flags
+        command.extend(["--", "-D", str(self.paths.archive)] + self.makechrootpkg_flags)  # makechrootpkg flags
+        command.extend(["--"] + self.makepkg_flags)  # makepkg flags
         if dry_run:
             command.extend(["--nobuild"])
+
         self.logger.info("using %s for %s", command, self.package.base)
 
         environment: dict[str, str] = {
@@ -156,7 +162,7 @@ class Task(LazyLogging):
             return last_commit_sha
 
         # load fresh package
-        loaded_package = Package.from_build(sources_dir, self.architecture, None)
+        loaded_package = Package.from_build(sources_dir, self.repository_id.architecture, None)
         if (pkgrel := loaded_package.next_pkgrel(local_version)) is not None:
             self.logger.info("package %s is the same as in repo, bumping pkgrel to %s", self.package.base, pkgrel)
             patch = PkgbuildPatch("pkgrel", pkgrel)

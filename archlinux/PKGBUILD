@@ -12,7 +12,8 @@ depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-bcrypt' 'python-filelock' 'p
 makedepends=('npm' 'python-build' 'python-hatchling' 'python-installer' 'python-wheel')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgbase-$pkgver.tar.gz"
         "$pkgbase.sysusers"
-        "$pkgbase.tmpfiles")
+        "$pkgbase.tmpfiles"
+        "sudoers.conf")
 
 build() {
     cd "$pkgbase-$pkgver"
@@ -59,6 +60,8 @@ package_ahriman-core() {
 
     install -Dm644 "$srcdir/$pkgbase.sysusers" "$pkgdir/usr/lib/sysusers.d/$pkgbase.conf"
     install -Dm644 "$srcdir/$pkgbase.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/$pkgbase.conf"
+
+    install -Dm440 "$srcdir/sudoers.conf" "$pkgdir/etc/sudoers.d/$pkgname"
 }
 
 package_ahriman-triggers() {

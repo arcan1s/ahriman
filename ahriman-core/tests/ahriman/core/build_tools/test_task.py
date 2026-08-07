@@ -53,8 +53,9 @@ def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
 
     assert task_ahriman.build(local) == [task_ahriman.package.base]
     check_output_mock.assert_called_once_with(
-        "extra-x86_64-build",
-        "-r", str(task_ahriman.paths.chroot),
+        "ahriman-archbuild",
+        "-r", task_ahriman.repository_id.name, "-a", task_ahriman.repository_id.architecture,
+        "--", "-r", str(task_ahriman.paths.chroot),
         "--", "-D", str(task_ahriman.paths.archive),
         "--", "--skippgpcheck",
         exception=pytest.helpers.anyvar(int),
@@ -79,8 +80,9 @@ def test_build_environment(task_ahriman: Task, mocker: MockerFixture) -> None:
 
     task_ahriman.build(local, **environment, empty=None)
     check_output_mock.assert_called_once_with(
-        "extra-x86_64-build",
-        "-r", str(task_ahriman.paths.chroot),
+        "ahriman-archbuild",
+        "-r", task_ahriman.repository_id.name, "-a", task_ahriman.repository_id.architecture,
+        "--", "-r", str(task_ahriman.paths.chroot),
         "--", "-D", str(task_ahriman.paths.archive),
         "--", "--skippgpcheck",
         exception=pytest.helpers.anyvar(int),
@@ -102,11 +104,36 @@ def test_build_dry_run(task_ahriman: Task, mocker: MockerFixture) -> None:
 
     assert task_ahriman.build(local, dry_run=True) == [task_ahriman.package.base]
     check_output_mock.assert_called_once_with(
+        "ahriman-archbuild",
+        "-r", task_ahriman.repository_id.name, "-a", task_ahriman.repository_id.architecture,
+        "--", "-r", str(task_ahriman.paths.chroot),
+        "--", "-D", str(task_ahriman.paths.archive),
+        "--", "--skippgpcheck",
+        "--nobuild",
+        exception=pytest.helpers.anyvar(int),
+        cwd=local,
+        logger=task_ahriman.logger,
+        user=task_ahriman.uid,
+        environment={},
+    )
+
+
+def test_build_legacy_subcommand(task_ahriman: Task, mocker: MockerFixture) -> None:
+    """
+    must build package by using legacy subcommand if set
+    """
+    local = Path("local")
+    mocker.patch("pathlib.Path.iterdir", return_value=["file"])
+    mocker.patch("ahriman.core.build_tools.task.Task._package_archives", return_value=[task_ahriman.package.base])
+    check_output_mock = mocker.patch("ahriman.core.build_tools.task.check_output")
+    task_ahriman._legacy_build_command = ["extra-x86_64-build"]
+
+    task_ahriman.build(local)
+    check_output_mock.assert_called_once_with(
         "extra-x86_64-build",
         "-r", str(task_ahriman.paths.chroot),
         "--", "-D", str(task_ahriman.paths.archive),
         "--", "--skippgpcheck",
-        "--nobuild",
         exception=pytest.helpers.anyvar(int),
         cwd=local,
         logger=task_ahriman.logger,
