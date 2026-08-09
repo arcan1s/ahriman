@@ -109,16 +109,6 @@ class Configuration(configparser.RawConfigParser):
         return repository_id.architecture
 
     @property
-    def include(self) -> Path:
-        """
-        get full path to include directory
-
-        Returns:
-            Path: path to directory with configuration includes
-        """
-        return self.getpath("settings", "include")
-
-    @property
     def logging_path(self) -> Path:
         """
         get full path to logging configuration
@@ -325,25 +315,35 @@ class Configuration(configparser.RawConfigParser):
             section, key = name.rsplit(":", maxsplit=1)
             self.set_option(section, key, value)
 
-    def load_includes(self, path: Path | None = None) -> None:
+    def load_includes(self) -> None:
         """
         load configuration includes from specified path
-
-        Args:
-            path(Path | None, optional): path to directory with include files. If none set, the default path will be
-                used (Default value = None)
         """
         self.includes = []  # reset state
 
         try:
-            path = path or self.include
+            # raw processing to make sure that options are applied correctly
+            include_directories = shlex.split(self.get("settings", "include", raw=True))
+        except (configparser.NoOptionError, configparser.NoSectionError):
+            return
+
+        for directory in include_directories:
+            value = self._interpolation.before_get(  # type: ignore[attr-defined]
+                self,
+                "settings",
+                "include",
+                directory,
+                self._unify_values("settings", None),  # type: ignore[attr-defined]
+            )
+            path = self._convert_path(value)
+            if not path.is_dir():
+                continue
+
             for include in sorted(path.glob("*.ini")):
                 if include == self.logging_path:
                     continue  # we don't want to load logging explicitly
                 self.read(include)
                 self.includes.append(include)
-        except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
-            pass
 
     def merge_sections(self, repository_id: RepositoryId) -> None:
         """
@@ -403,6 +403,7 @@ class Configuration(configparser.RawConfigParser):
         # create another instance and copy values from there
         instance = self.from_path(path, repository_id)
         self.copy_from(instance)
+        self.includes = instance.includes
 
     def set_option(self, section: str, option: str, value: str) -> None:
         """

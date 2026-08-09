@@ -40,10 +40,13 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "required": True,
             },
             "include": {
-                "type": "path",
-                "coerce": "absolute_path",
-                "path_exists": True,
-                "path_type": "dir",
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "path_type": "dir",
+                },
             },
             "logging": {
                 "type": "path",

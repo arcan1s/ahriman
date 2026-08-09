@@ -82,7 +82,7 @@ Base configuration settings.
 
 * ``apply_migrations`` - perform database migrations on the application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations manually.
 * ``database`` - path to the application SQLite database, string, required.
-* ``include`` - path to directory with configuration files overrides, string, optional. Files will be read in alphabetical order.
+* ``include`` - path to directories with configuration files overrides, space separated list of strings, optional. Files will be read in alphabetical order.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 
 ``alpm:*`` groups

@@ -137,7 +137,11 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
         MockCall("auth", "salt", pytest.helpers.anyvar(str, strict=True)),
     ])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-    remove_mock.assert_called_once_with(configuration.include / "00-setup-overrides.ini", missing_ok=True)
+    remove_mock.assert_called_once_with(
+        next(
+            path for path in configuration.getpathlist("settings", "include")) /
+        "00-setup-overrides.ini",
+        missing_ok=True)
 
 
 def test_configuration_create_ahriman_no_multilib(args: argparse.Namespace, configuration: Configuration,

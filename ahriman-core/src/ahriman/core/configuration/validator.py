@@ -190,5 +190,5 @@ class Validator(RootValidator):
             {"type": "string"}
         """
         fn = getattr(value, f"is_{constraint}")
-        if not fn():
+        if value.exists() and not fn():
             self._error(field, f"Path {value} must be type of {constraint}")

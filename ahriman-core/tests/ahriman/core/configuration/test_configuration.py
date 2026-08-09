@@ -374,17 +374,16 @@ def test_load_environment(configuration: Configuration) -> None:
     assert configuration.get("section:identifier", "key") == "value2"
 
 
-def test_load_includes(mocker: MockerFixture) -> None:
+def test_load_includes(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must load includes
     """
     mocker.patch.object(Configuration, "logging_path", Path("logging"))
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
     glob_mock = mocker.patch("pathlib.Path.glob", autospec=True, return_value=[Path("include"), Path("logging")])
-    configuration = Configuration()
 
-    configuration.load_includes(Path("path"))
-    glob_mock.assert_called_once_with(Path("path"), "*.ini")
+    configuration.load_includes()
+    glob_mock.assert_called_once_with(configuration.path.absolute().parent, "*.ini")
     read_mock.assert_called_once_with(Path("include"))
     assert configuration.includes == [Path("include")]
 
@@ -413,17 +412,6 @@ def test_load_includes_no_section() -> None:
     """
     configuration = Configuration()
     configuration.load_includes()
-
-
-def test_load_includes_default_path(mocker: MockerFixture) -> None:
-    """
-    must load includes from default path
-    """
-    mocker.patch.object(Configuration, "include", Path("path"))
-    glob_mock = mocker.patch("pathlib.Path.glob", autospec=True, return_value=[])
-
-    Configuration().load_includes()
-    glob_mock.assert_called_once_with(Path("path"), "*.ini")
 
 
 def test_merge_sections_missing(configuration: Configuration) -> None:

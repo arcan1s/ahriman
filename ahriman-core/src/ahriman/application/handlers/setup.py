@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import os
 
 from pathlib import Path
 from pwd import getpwuid
@@ -161,8 +162,9 @@ class Setup(Handler):
         if args.generate_salt:
             configuration.set_option("auth", "salt", User.generate_password(20))
 
-        (root.include / "00-setup-overrides.ini").unlink(missing_ok=True)  # remove old-style configuration
-        target = root.include / f"00-setup-overrides-{repository_id.id}.ini"
+        include_path = next(path for path in root.getpathlist("settings", "include") if os.access(path, os.W_OK))
+        (include_path / "00-setup-overrides.ini").unlink(missing_ok=True)  # remove old-style configuration
+        target = include_path / f"00-setup-overrides-{repository_id.id}.ini"
         with target.open("w", encoding="utf8") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 

@@ -134,6 +134,10 @@ def test_validate_path_type(validator: Validator, mocker: MockerFixture) -> None
     """
     error_mock = mocker.patch("ahriman.core.configuration.validator.Validator._error")
 
+    validator._validate_path_type("file", "field", Path("42"))
+
+    mocker.patch("pathlib.Path.exists", return_value=True)
+
     mocker.patch("pathlib.Path.is_file", return_value=True)
     validator._validate_path_type("file", "field", Path("1"))
 
