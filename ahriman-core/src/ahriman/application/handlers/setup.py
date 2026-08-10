@@ -28,7 +28,7 @@ from urllib.parse import quote_plus as url_encode
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import MissingArchitectureError
+from ahriman.core.exceptions import InitializeError, MissingArchitectureError
 from ahriman.core.utils import enum_values
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.sign_settings import SignSettings
@@ -63,18 +63,20 @@ class Setup(Handler):
         if args.architecture is None or args.repository is None:
             raise MissingArchitectureError(args.command)
 
-        Setup.configuration_create_ahriman(args, repository_id, configuration)
+        target_directory = Setup.configuration_create_directory(configuration)
+        Setup.configuration_create_ahriman(args, repository_id, configuration, target_directory)
         configuration.reload()
 
         application = Application(repository_id, configuration, report=report)
+        paths = application.repository.paths
 
-        # basically we create configuration here as root, but it is ok, because those files are only used for reading
-        repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
-        Setup.configuration_create_devtools(
-            repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
+        repository_server = f"file://{paths.repository}" if args.server is None else args.server
+        target_directory = paths.ensure_exists(configuration.getpath("build", "devtools_configs"))
+        Setup.configuration_create_devtools(repository_id, args.from_configuration, target_directory, args.mirror,
+                                            args.multilib, repository_server)
 
         # finish initialization
-        with application.repository.paths.preserve_owner():
+        with paths.preserve_owner():
             application.repository.repo.init()
             # lazy database sync
             application.repository.pacman.handle  # pylint: disable=pointless-statement
@@ -119,7 +121,7 @@ class Setup(Handler):
 
     @staticmethod
     def configuration_create_ahriman(args: argparse.Namespace, repository_id: RepositoryId,
-                                     root: Configuration) -> None:
+                                     root: Configuration, target_directory: Path) -> None:
         """
         create service specific configuration
 
@@ -127,6 +129,7 @@ class Setup(Handler):
             args(argparse.Namespace): command line args
             repository_id(RepositoryId): repository unique identifier
             root(Configuration): root configuration instance
+            target_directory(Path): path to directory where configuration files will be written
         """
         configuration = Configuration()
 
@@ -164,15 +167,13 @@ class Setup(Handler):
         if args.generate_salt:
             configuration.set_option("auth", "salt", User.generate_password(20))
 
-        include_path = next(path for path in root.getpathlist("settings", "include") if os.access(path, os.W_OK))
-        (include_path / "00-setup-overrides.ini").unlink(missing_ok=True)  # remove old-style configuration
-        target = include_path / f"00-setup-overrides-{repository_id.id}.ini"
+        target = target_directory / f"00-setup-overrides-{repository_id.id}.ini"
         with target.open("w", encoding="utf8") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 
     @staticmethod
-    def configuration_create_devtools(repository_id: RepositoryId, source: Path, mirror: str | None,
-                                      multilib: bool, repository_server: str) -> None:
+    def configuration_create_devtools(repository_id: RepositoryId, source: Path, target_directory: Path,
+                                      mirror: str | None, multilib: bool, repository_server: str) -> None:
         """
         create configuration for devtools based on ``source`` configuration
 
@@ -182,6 +183,7 @@ class Setup(Handler):
         Args:
             repository_id(RepositoryId): repository unique identifier
             source(Path): path to source configuration file
+            target_directory(Path): path to directory where configuration files will be written
             mirror(str | None): link to package server mirror
             multilib(bool): add or do not multilib repository to the configuration
             repository_server(str): url of the repository
@@ -216,8 +218,32 @@ class Setup(Handler):
         configuration.set_option(repository_id.name, "SigLevel", "Never")  # we don't care
         configuration.set_option(repository_id.name, "Server", repository_server)
 
-        target = source.parent / f"{repository_id.name}-{repository_id.architecture}.conf"
+        target = target_directory / f"{repository_id.name}-{repository_id.architecture}.conf"
         with target.open("w", encoding="utf8") as devtools_configuration:
             configuration.write(devtools_configuration)
+
+    @staticmethod
+    def configuration_create_directory(root: Configuration) -> Path:
+        """
+        create directory for includes
+
+        Args:
+            root(Configuration): root configuration instance
+
+        Returns:
+            Path: path to first writable directory
+
+        Raises:
+            InitializeError: if no writable directories have been found
+        """
+        for include_path in root.getpathlist("settings", "include"):
+            try:
+                directory = root.repository_paths.ensure_exists(include_path)
+                if os.access(directory, os.W_OK | os.X_OK):
+                    return directory
+            except OSError:
+                continue
+
+        raise InitializeError("No writable include directory found")
 
     arguments = [_set_service_setup_parser]

@@ -200,6 +200,13 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                     "empty": False,
                 },
             },
+            "devtools_configs": {
+                "type": "path",
+                "coerce": "absolute_path",
+                "required": True,
+                "path_exists": True,
+                "path_type": "dir",
+            },
             "devtools_wrapper": {
                 "type": "list",
                 "coerce": "list",

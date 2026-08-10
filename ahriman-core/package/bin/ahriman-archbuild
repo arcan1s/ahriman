@@ -7,16 +7,19 @@ usage() {
     echo "Usage: $cmd [options] -- [archbuild args]"
     echo "    -r <repository>    Repository name"
     echo "    -a <architecture>  Repository architecture"
+    echo "    -c <directory>     Read devtools pacman configurations from this directory"
     exit 1
 }
 
 repository=
 architecture=
+pacman_config_dir=
 
-while getopts ":r:a:" arg; do
+while getopts ":r:a:c:" arg; do
     case "$arg" in
         r) repository="$OPTARG" ;;
         a) architecture="$OPTARG" ;;
+        c) pacman_config_dir="$OPTARG" ;;
         *) usage ;;
     esac
 done
@@ -27,6 +30,17 @@ fi
 
 source "/usr/share/devtools/lib/archroot.sh"
 check_root "SOURCE_DATE_EPOCH,SRCDEST,SRCPKGDEST,PKGDEST,LOGDEST,NPROC,MAKEFLAGS,PACKAGER,GNUPGHOME" "${BASH_SOURCE[0]}" "$@"
+
+# because devtools doesn't allow to read configuration from custom path
+# here is a workaround, which uses unshare to bind-mount directory with configuration files
+# for specific process
+if [[ -n $pacman_config_dir && -z ${AHRIMAN_ARCHBUILD_MOUNTED:-} ]]; then
+    export AHRIMAN_ARCHBUILD_MOUNTED=1
+    exec unshare --mount --propagation private bash -e -c '
+        mount --bind "$0" /usr/share/devtools/pacman.conf.d
+        exec "$@"
+    ' "$(readlink -f "$pacman_config_dir")" "${BASH_SOURCE[0]}" "$@"
+fi
 
 exec bash -c '
     source "$1" "${@:2}"

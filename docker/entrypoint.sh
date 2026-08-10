@@ -48,7 +48,7 @@ if [ -n "$AHRIMAN_UNIX_SOCKET" ]; then
 fi
 
 [ -n "$AHRIMAN_PRESETUP_COMMAND" ] && eval "$AHRIMAN_PRESETUP_COMMAND"
-ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" service-setup "${AHRIMAN_SETUP_ARGS[@]}"
+sudo -E -u "$AHRIMAN_USER" -- ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" service-setup "${AHRIMAN_SETUP_ARGS[@]}"
 [ -n "$AHRIMAN_POSTSETUP_COMMAND" ] && eval "$AHRIMAN_POSTSETUP_COMMAND"
 
 # validate configuration if set

@@ -38,6 +38,7 @@ class Task(LazyLogging):
     Attributes:
         archbuild_flags(list[str]): command flags for archbuild command
         build_command(list[str]): build command
+        devtools_configs(Path): path to local directory with devtools configuration files
         include_debug_packages(bool): whether to include debug packages or not
         make_flags(str): MAKEFLAGS variable for makepkg command
         makechrootpkg_flags(list[str]): command flags for makechrootpkg command
@@ -64,6 +65,7 @@ class Task(LazyLogging):
 
         self.archbuild_flags = configuration.getlist("build", "archbuild_flags", fallback=[])
         self.build_command = configuration.getlist("build", "devtools_wrapper")
+        self.devtools_configs = configuration.getpath("build", "devtools_configs")
         self._legacy_build_command = configuration.getlist("build", "build_command", fallback=[])
         self.include_debug_packages = configuration.getboolean("build", "include_debug_packages", fallback=True)
         # even though this option is declared as list, there is no need to read it as list,
@@ -116,7 +118,12 @@ class Task(LazyLogging):
         """
         command = self._legacy_build_command[:]
         if not command:
-            command = self.build_command + ["-r", self.repository_id.name, "-a", self.repository_id.architecture, "--"]
+            command = self.build_command + [
+                "-r", self.repository_id.name,
+                "-a", self.repository_id.architecture,
+                "-c", str(self.devtools_configs),
+                "--",
+            ]
 
         command.extend(["-r", str(self.paths.chroot)] + self.archbuild_flags)  # archbuild flags
         command.extend(["--", "-D", str(self.paths.archive)] + self.makechrootpkg_flags)  # makechrootpkg flags
