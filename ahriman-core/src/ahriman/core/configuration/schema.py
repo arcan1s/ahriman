@@ -221,7 +221,23 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "type": "boolean",
                 "coerce": "boolean",
             },
+            "make_flags": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
+            },
             "makechrootpkg_flags": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
+            },
+            "makepkg_flags": {
                 "type": "list",
                 "coerce": "list",
                 "schema": {
@@ -234,13 +250,9 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "integer",
                 "min": 0,
             },
-            "makepkg_flags": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {
-                    "type": "string",
-                    "empty": False,
-                },
+            "packager": {
+                "type": "string",
+                "empty": False,
             },
             "scan_paths": {
                 "type": "list",

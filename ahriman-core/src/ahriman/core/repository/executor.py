@@ -73,6 +73,7 @@ class Executor(PackageInfo, Cleaner):
         """
         self.reporter.set_building(package.base)
 
+        default_packager = self.configuration.get("build", "packager", fallback=None)
         task = Task(package, self.configuration, self.repository_id, self.paths)
         patches = self.reporter.package_patches_get(package.base, None)
         commit_sha = task.init(path, patches, local_version)
@@ -86,7 +87,7 @@ class Executor(PackageInfo, Cleaner):
                     shutil.copy(artifact, path)
                 built.append(path / artifact.name)
         else:
-            built = task.build(path, PACKAGER=packager)
+            built = task.build(path, PACKAGER=packager or default_packager)
 
         package.with_packages(built)
         for src in built:

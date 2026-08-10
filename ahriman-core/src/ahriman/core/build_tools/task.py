@@ -39,6 +39,7 @@ class Task(LazyLogging):
         archbuild_flags(list[str]): command flags for archbuild command
         build_command(list[str]): build command
         include_debug_packages(bool): whether to include debug packages or not
+        make_flags(str): MAKEFLAGS variable for makepkg command
         makechrootpkg_flags(list[str]): command flags for makechrootpkg command
         makepkg_flags(list[str]): command flags for makepkg command
         package(Package): package definitions
@@ -65,6 +66,9 @@ class Task(LazyLogging):
         self.build_command = configuration.getlist("build", "devtools_wrapper")
         self._legacy_build_command = configuration.getlist("build", "build_command", fallback=[])
         self.include_debug_packages = configuration.getboolean("build", "include_debug_packages", fallback=True)
+        # even though this option is declared as list, there is no need to read it as list,
+        # because it will be converted back to the string anyway
+        self.make_flags = configuration.get("build", "make_flags", fallback=None)
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
@@ -127,6 +131,8 @@ class Task(LazyLogging):
             for key, value in kwargs.items()
             if value is not None
         }
+        if self.make_flags is not None:
+            environment["MAKEFLAGS"] = self.make_flags
         self.logger.info("using environment variables %s", environment)
 
         source_files = list(sources_dir.iterdir())

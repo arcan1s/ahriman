@@ -1,4 +1,5 @@
 import argparse
+import multiprocessing
 import pytest
 
 from pathlib import Path
@@ -54,7 +55,6 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
     devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
-    makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
     owner_guard_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
 
@@ -64,7 +64,6 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     ahriman_configuration_mock.assert_called_once_with(args, repository_id, configuration)
     devtools_configuration_mock.assert_called_once_with(
         repository_id, args.from_configuration, args.mirror, args.multilib, f"file://{repository_paths.repository}")
-    makepkg_configuration_mock.assert_called_once_with(args.packager, args.makeflags_jobs, repository_paths)
     init_mock.assert_called_once_with()
 
 
@@ -97,7 +96,6 @@ def test_run_with_server(args: argparse.Namespace, configuration: Configuration,
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
-    mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
     mocker.patch("ahriman.core.alpm.repo.Repo.init")
     devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
 
@@ -123,13 +121,17 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
     set_option_mock.assert_has_calls([
         MockCall("repository", "name", repository_id.name),
         MockCall(Configuration.section_name("build", repository_id.name, repository_id.architecture),
+                 "packager", args.packager),
+        MockCall(Configuration.section_name("build", repository_id.name, repository_id.architecture),
+                 "make_flags", f"-j{multiprocessing.cpu_count()}"),
+        MockCall(Configuration.section_name("build", repository_id.name, repository_id.architecture),
                  "makechrootpkg_flags", f"-U {args.build_as_user}"),
-        MockCall(Configuration.section_name(
-            "alpm", repository_id.name, repository_id.architecture), "mirror", args.mirror),
-        MockCall(Configuration.section_name("sign", repository_id.name, repository_id.architecture), "target",
-                 " ".join([target.name.lower() for target in args.sign_target])),
-        MockCall(Configuration.section_name("sign", repository_id.name, repository_id.architecture), "key",
-                 args.sign_key),
+        MockCall(Configuration.section_name("alpm", repository_id.name, repository_id.architecture),
+                 "mirror", args.mirror),
+        MockCall(Configuration.section_name("sign", repository_id.name, repository_id.architecture),
+                 "target", " ".join([target.name.lower() for target in args.sign_target])),
+        MockCall(Configuration.section_name("sign", repository_id.name, repository_id.architecture),
+                 "key", args.sign_key),
         MockCall("web", "port", str(args.web_port)),
         MockCall("status", "address", f"http://127.0.0.1:{str(args.web_port)}"),
         MockCall("web", "unix_socket", str(args.web_unix_socket)),
@@ -219,20 +221,6 @@ def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, con
     _, repository_id = configuration.check_loaded()
     Setup.configuration_create_devtools(repository_id, args.from_configuration, args.mirror, False, "server")
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-
-
-def test_configuration_create_makepkg(args: argparse.Namespace, repository_paths: RepositoryPaths,
-                                      passwd: Any, mocker: MockerFixture) -> None:
-    """
-    must create makepkg configuration
-    """
-    args = _default_args(args)
-    mocker.patch("ahriman.application.handlers.setup.getpwuid", return_value=passwd)
-    write_text_mock = mocker.patch("pathlib.Path.write_text", autospec=True)
-
-    Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, repository_paths)
-    write_text_mock.assert_called_once_with(
-        Path("home") / ".makepkg.conf", pytest.helpers.anyvar(str, True), encoding="utf8")
 
 
 def test_disallow_multi_architecture_run() -> None:

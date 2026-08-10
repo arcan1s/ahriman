@@ -18,10 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import multiprocessing
 import os
 
 from pathlib import Path
-from pwd import getpwuid
 from typing import ClassVar
 from urllib.parse import quote_plus as url_encode
 
@@ -31,7 +31,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import MissingArchitectureError
 from ahriman.core.utils import enum_values
 from ahriman.models.repository_id import RepositoryId
-from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user import User
 
@@ -70,7 +69,6 @@ class Setup(Handler):
         application = Application(repository_id, configuration, report=report)
 
         # basically we create configuration here as root, but it is ok, because those files are only used for reading
-        Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
         repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
         Setup.configuration_create_devtools(
             repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
@@ -132,8 +130,12 @@ class Setup(Handler):
         """
         configuration = Configuration()
 
-        section = Configuration.section_name("build", repository_id.name, repository_id.architecture)
         configuration.set_option("repository", "name", repository_id.name)  # backward compatibility for docker
+
+        section = Configuration.section_name("build", repository_id.name, repository_id.architecture)
+        configuration.set_option(section, "packager", args.packager)
+        if args.makeflags_jobs:
+            configuration.set_option(section, "make_flags", f"-j{multiprocessing.cpu_count()}")
         if args.build_as_user is not None:
             configuration.set_option(section, "makechrootpkg_flags", f"-U {args.build_as_user}")
 
@@ -217,24 +219,5 @@ class Setup(Handler):
         target = source.parent / f"{repository_id.name}-{repository_id.architecture}.conf"
         with target.open("w", encoding="utf8") as devtools_configuration:
             configuration.write(devtools_configuration)
-
-    @staticmethod
-    def configuration_create_makepkg(packager: str, makeflags_jobs: bool, paths: RepositoryPaths) -> None:
-        """
-        create configuration for makepkg
-
-        Args:
-            packager(str): packager identifier (e.g. name, email)
-            makeflags_jobs(bool): set MAKEFLAGS variable to number of cores
-            paths(RepositoryPaths): repository paths instance
-        """
-
-        content = f"PACKAGER='{packager}'\n"
-        if makeflags_jobs:
-            content += "MAKEFLAGS=\"-j$(nproc)\"\n"
-
-        uid, _ = paths.root_owner
-        home_dir = Path(getpwuid(uid).pw_dir)
-        (home_dir / ".makepkg.conf").write_text(content, encoding="utf8")
 
     arguments = [_set_service_setup_parser]
