@@ -116,7 +116,7 @@ Filesystem tree
 
 The application supports two types of trees, one is for the legacy configuration (when there were no explicit repository name configuration available) and another one is the new-style tree. This document describes only new-style tree in order to avoid deprecated structures.
 
-Having default root as ``/var/lib/ahriman`` (differs from container though), the directory structure is the following:
+Having default root as ``/var/lib/ahriman``, the directory structure is the following:
 
 .. code-block::
 

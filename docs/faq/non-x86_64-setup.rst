@@ -56,6 +56,13 @@ There are two possible ways to achieve same setup, by using docker container. Th
       FROM arcan1s/ahriman:latest
 
 #.
+   Switch to ``root`` user:
+
+   .. code-block:: dockerfile
+
+      USER root
+
+#.
    Init pacman keys. This command is required in order to populate distribution keys:
 
    .. code-block:: dockerfile
@@ -78,11 +85,15 @@ There are two possible ways to achieve same setup, by using docker container. Th
 
       FROM arcan1s/ahriman:latest
 
+      USER root
+
       RUN pacman-key --init
 
       RUN pacman --noconfirm -Sy wget
       RUN wget https://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.2-any.pkg.tar.zst
       RUN wget https://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
+
+      USER ahriman
 
 #.
    After that you can build you own container, e.g.:

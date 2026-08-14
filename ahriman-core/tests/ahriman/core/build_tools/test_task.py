@@ -54,7 +54,9 @@ def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
     assert task_ahriman.build(local) == [task_ahriman.package.base]
     check_output_mock.assert_called_once_with(
         "ahriman-archbuild",
-        "-r", task_ahriman.repository_id.name, "-a", task_ahriman.repository_id.architecture,
+        "-r", task_ahriman.repository_id.name,
+        "-a", task_ahriman.repository_id.architecture,
+        "-c", str(task_ahriman.devtools_configs),
         "--", "-r", str(task_ahriman.paths.chroot),
         "--", "-D", str(task_ahriman.paths.archive),
         "--", "--skippgpcheck",
@@ -81,7 +83,9 @@ def test_build_environment(task_ahriman: Task, mocker: MockerFixture) -> None:
     task_ahriman.build(local, **environment, empty=None)
     check_output_mock.assert_called_once_with(
         "ahriman-archbuild",
-        "-r", task_ahriman.repository_id.name, "-a", task_ahriman.repository_id.architecture,
+        "-r", task_ahriman.repository_id.name,
+        "-a", task_ahriman.repository_id.architecture,
+        "-c", str(task_ahriman.devtools_configs),
         "--", "-r", str(task_ahriman.paths.chroot),
         "--", "-D", str(task_ahriman.paths.archive),
         "--", "--skippgpcheck",
@@ -106,7 +110,9 @@ def test_build_makeflags(task_ahriman: Task, mocker: MockerFixture) -> None:
     task_ahriman.build(local)
     check_output_mock.assert_called_once_with(
         "ahriman-archbuild",
-        "-r", task_ahriman.repository_id.name, "-a", task_ahriman.repository_id.architecture,
+        "-r", task_ahriman.repository_id.name,
+        "-a", task_ahriman.repository_id.architecture,
+        "-c", str(task_ahriman.devtools_configs),
         "--", "-r", str(task_ahriman.paths.chroot),
         "--", "-D", str(task_ahriman.paths.archive),
         "--", "--skippgpcheck",
@@ -130,7 +136,9 @@ def test_build_dry_run(task_ahriman: Task, mocker: MockerFixture) -> None:
     task_ahriman.build(local, dry_run=True)
     check_output_mock.assert_called_once_with(
         "ahriman-archbuild",
-        "-r", task_ahriman.repository_id.name, "-a", task_ahriman.repository_id.architecture,
+        "-r", task_ahriman.repository_id.name,
+        "-a", task_ahriman.repository_id.architecture,
+        "-c", str(task_ahriman.devtools_configs),
         "--", "-r", str(task_ahriman.paths.chroot),
         "--", "-D", str(task_ahriman.paths.archive),
         "--", "--skippgpcheck",

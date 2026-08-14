@@ -1,0 +1,54 @@
+To 2.22.0
+---------
+
+This release stores newly generated configuration files in the repository root and changes the docker image to run as the ``ahriman`` user. Existing system-wide configuration files remain supported, so regular installations do not require manual intervention. Docker installations require data migration.
+
+Regular installation
+^^^^^^^^^^^^^^^^^^^^
+
+Newly generated ahriman and devtools configuration files are stored below ``/var/lib/ahriman/.config/ahriman`` instead of system-wide configuration directories. Existing configurations continue to work without any changes.
+
+However, it is recommended to migrate to the new configuration schema by doing the following steps:
+
+#.
+   Stop all ahriman services.
+
+#.
+   Remove the old generated configuration files. For example, for repository ``aur`` and architecture ``x86_64``:
+
+   .. code-block:: shell
+
+      sudo rm /etc/ahriman.ini.d/00-setup-overrides-x86_64-aur.ini
+      sudo rm /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+
+   Repeat this step for every configured repository. Do not remove manually maintained configuration overrides.
+
+#.
+   Run setup command (i.e. ``ahriman service-setup``) again with the same arguments as used before as the ``ahriman`` user.
+
+#.
+   Start the services again.
+
+Docker installation
+^^^^^^^^^^^^^^^^^^^
+
+The repository root inside the Docker image has changed from ``/var/lib/ahriman/ahriman`` to ``/var/lib/ahriman``. Existing repository contents must therefore be moved one directory level up, and the volume must be owned by the ``ahriman`` user.
+
+#.
+   Stop all containers using the repository volume and create a backup.
+
+#.
+   Run a one-off container which mounts the existing volume. Replace ``VOLUME`` with the named volume or bind mount used by the installation:
+
+   .. code-block:: shell
+
+      docker run --rm --user root --entrypoint bash \
+          --volume VOLUME:/var/lib/ahriman \
+          arcan1s/ahriman:latest \
+          -c 'find /var/lib/ahriman/ahriman -mindepth 1 -maxdepth 1 -exec mv -t /var/lib/ahriman -- {} + && rmdir /var/lib/ahriman/ahriman && chown ahriman:ahriman /var/lib/ahriman'
+
+#.
+   Update custom configuration and container arguments which refer to ``/var/lib/ahriman/ahriman``. The new path is ``/var/lib/ahriman``.
+
+#.
+   Start the containers again.

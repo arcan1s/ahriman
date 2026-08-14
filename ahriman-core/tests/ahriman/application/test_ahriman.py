@@ -1488,7 +1488,7 @@ def test_subparsers_service_run_option_repository(parser: argparse.ArgumentParse
 
 def test_subparsers_service_setup(parser: argparse.ArgumentParser) -> None:
     """
-    service-setup command must imply lock, quiet, report and unsafe
+    service-setup command must imply lock, quiet and report
     """
     args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup",
                               "--packager", "ahriman bot <ahriman@example.com>"])
@@ -1497,7 +1497,6 @@ def test_subparsers_service_setup(parser: argparse.ArgumentParser) -> None:
     assert args.quiet
     assert not args.report
     assert args.repository == "repo"
-    assert args.unsafe
 
 
 def test_subparsers_service_setup_option_from_configuration(parser: argparse.ArgumentParser) -> None:

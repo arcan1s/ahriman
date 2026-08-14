@@ -44,7 +44,7 @@ pacman -Qdtq | pacman -Rscn --noconfirm -
 
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
-ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@example.com>" "${WEB_ARGS[@]}"
+sudo -u ahriman -- ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@example.com>" "${WEB_ARGS[@]}"
 # enable services
 systemctl enable ahriman@x86_64-github.timer
 if [[ -z $MINIMAL_INSTALL ]]; then

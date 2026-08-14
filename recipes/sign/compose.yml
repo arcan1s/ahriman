@@ -1,4 +1,21 @@
 services:
+  volume-init:
+    image: arcan1s/ahriman:edge
+    user: root
+
+    entrypoint: [
+      "chown",
+    ]
+    command: [
+      "ahriman:ahriman",
+      "/var/lib/ahriman",
+    ]
+
+    volumes:
+      - type: volume
+        source: repository
+        target: /var/lib/ahriman
+
   backend:
     image: arcan1s/ahriman:edge
     privileged: true
@@ -6,7 +23,7 @@ services:
     environment:
       AHRIMAN_DEBUG: yes
       AHRIMAN_OUTPUT: console
-      AHRIMAN_POSTSETUP_COMMAND: sudo -u ahriman gpg --import /run/secrets/key
+      AHRIMAN_POSTSETUP_COMMAND: gpg --import /run/secrets/key
       AHRIMAN_REPOSITORY: ahriman-demo
 
     configs:
@@ -19,8 +36,10 @@ services:
       - type: volume
         source: repository
         target: /var/lib/ahriman
-        volume:
-          nocopy: true
+
+    depends_on:
+      volume-init:
+        condition: service_completed_successfully
 
     command: repo-daemon
 

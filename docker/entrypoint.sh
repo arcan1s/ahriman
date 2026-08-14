@@ -3,30 +3,15 @@
 set -e
 [ -n "$AHRIMAN_DEBUG" ] && set -x
 
-# configuration tune
-cat <<EOF > "/etc/ahriman.ini.d/01-docker.ini"
-[repository]
-root = $AHRIMAN_REPOSITORY_ROOT
-
-[web]
-host = $AHRIMAN_HOST
-
-EOF
-
 AHRIMAN_DEFAULT_ARGS=("--architecture" "$AHRIMAN_ARCHITECTURE")
 AHRIMAN_DEFAULT_ARGS+=("--repository" "$AHRIMAN_REPOSITORY")
 if [ -n "$AHRIMAN_OUTPUT" ]; then
     AHRIMAN_DEFAULT_ARGS+=("--log-handler" "$AHRIMAN_OUTPUT")
 fi
 
-# create repository root inside the [[mounted]] directory and set correct ownership
-[ -d "$AHRIMAN_REPOSITORY_ROOT" ] || mkdir "$AHRIMAN_REPOSITORY_ROOT"
-chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_REPOSITORY_ROOT"
-
 # create .gnupg directory which is required for keys
 AHRIMAN_GNUPG_HOME="$(getent passwd "$AHRIMAN_USER" | cut -d : -f 6)/.gnupg"
 [ -d "$AHRIMAN_GNUPG_HOME" ] || mkdir -m700 "$AHRIMAN_GNUPG_HOME"
-chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_GNUPG_HOME"
 
 # run built-in setup command
 AHRIMAN_SETUP_ARGS=("--build-as-user" "$AHRIMAN_USER")
@@ -54,19 +39,7 @@ ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" service-setup "${AHRIMAN_SETUP_ARGS[@]}"
 # validate configuration if set
 [ -n "$AHRIMAN_VALIDATE_CONFIGURATION" ] && ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" service-config-validate --exit-code
 
-# create machine-id which is required by build tools
-systemd-machine-id-setup &> /dev/null
-
 # special workaround to emulate /bin/bash entrypoint if first argument starts with /
 [[ "$1" =~ ^/.* ]] && exec "$@"
 
-# if AHRIMAN_FORCE_ROOT is set or command is unsafe we can run without sudo
-# otherwise we prepend executable by sudo command
-if [ -n "$AHRIMAN_FORCE_ROOT" ]; then
-    AHRIMAN_EXECUTABLE=("ahriman")
-elif ahriman help-commands-unsafe -- "$@" &> /dev/null; then
-    AHRIMAN_EXECUTABLE=("sudo" "-E" "-u" "$AHRIMAN_USER" "--" "ahriman")
-else
-    AHRIMAN_EXECUTABLE=("ahriman")
-fi
-exec "${AHRIMAN_EXECUTABLE[@]}" "${AHRIMAN_DEFAULT_ARGS[@]}" "$@"
+exec ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" "$@"

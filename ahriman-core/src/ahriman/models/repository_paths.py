@@ -103,7 +103,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             Path: path to directory in which build process is run
         """
-        uid, _ = owner(self.root)
+        uid, _ = self.root_owner
         return self.chroot / f"{self.repository_id.name}-{self.repository_id.architecture}" / getpwuid(uid).pw_name
 
     @property
@@ -126,6 +126,16 @@ class RepositoryPaths(LazyLogging):
         """
         # for the chroot directory devtools will create own tree, and we don't have to specify architecture here
         return self.root / "chroot" / self.repository_id.name
+
+    @property
+    def configs(self) -> Path:
+        """
+        get directory for local configuration files
+
+        Returns:
+            Path: full path to local configuration directory
+        """
+        return self.root / ".config" / "ahriman"
 
     @property
     def packages(self) -> Path:
@@ -323,6 +333,7 @@ class RepositoryPaths(LazyLogging):
             self.archive,
             self.cache,
             self.chroot,
+            self.configs,
             self.packages,
             self.pacman,
             self.repository,

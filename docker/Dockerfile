@@ -80,7 +80,6 @@ FROM archlinux:base AS ahriman
 # image configuration
 ENV AHRIMAN_ARCHITECTURE="x86_64"
 ENV AHRIMAN_DEBUG=""
-ENV AHRIMAN_FORCE_ROOT=""
 ENV AHRIMAN_HOST="0.0.0.0"
 ENV AHRIMAN_MULTILIB="yes"
 ENV AHRIMAN_OUTPUT=""
@@ -91,7 +90,6 @@ ENV AHRIMAN_POSTSETUP_COMMAND=""
 ENV AHRIMAN_PRESETUP_COMMAND=""
 ENV AHRIMAN_REPOSITORY="aur"
 ENV AHRIMAN_REPOSITORY_SERVER=""
-ENV AHRIMAN_REPOSITORY_ROOT="/var/lib/ahriman/ahriman"
 ENV AHRIMAN_UNIX_SOCKET=""
 ENV AHRIMAN_USER="ahriman"
 ENV AHRIMAN_VALIDATE_CONFIGURATION="yes"
@@ -135,11 +133,15 @@ RUN find "/var/cache/pacman/pkg" "/var/lib/pacman/sync" -type "f,l" -delete && \
 VOLUME ["/var/lib/ahriman"]
 
 # minimal runtime ahriman setup
+RUN systemd-machine-id-setup
+COPY "docker/01-docker.ini" "/etc/ahriman.ini.d/01-docker.ini"
 ## FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
 COPY "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
 ## entrypoint setup
 COPY "docker/entrypoint.sh" "/usr/local/bin/entrypoint"
 COPY "docker/entrypoint-web.sh" "/usr/local/bin/entrypoint-web"
+
+USER ahriman
 ENTRYPOINT ["entrypoint"]
 # default command
 CMD ["repo-update", "--refresh"]
