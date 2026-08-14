@@ -12,3 +12,4 @@ Upgrades to breakpoints
    2.9.0
    2.12.0
    2.16.0
+   2.22.0

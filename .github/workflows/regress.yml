@@ -18,7 +18,7 @@ jobs:
         image: arcan1s/ahriman:edge
         env:
           AHRIMAN_PORT: 8080
-          AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman-web.sock
+          AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman-web.sock
         options: --privileged --entrypoint entrypoint-web
         ports:
           - 8080
@@ -31,7 +31,7 @@ jobs:
         AHRIMAN_DEBUG: y
         AHRIMAN_OUTPUT: console
         AHRIMAN_PORT: 8080
-        AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman-web.sock
+        AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman-web.sock
       options: --privileged
       volumes:
         - repo:/var/lib/ahriman
