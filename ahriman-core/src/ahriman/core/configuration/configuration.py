@@ -109,6 +109,16 @@ class Configuration(configparser.RawConfigParser):
         return repository_id.architecture
 
     @property
+    def include(self) -> list[Path]:
+        """
+        get full path to include directory
+
+        Returns:
+            list[Path]: paths to directories with configuration includes
+        """
+        return self.getpathlist("settings", "include")
+
+    @property
     def logging_path(self) -> Path:
         """
         get full path to logging configuration
@@ -322,20 +332,11 @@ class Configuration(configparser.RawConfigParser):
         self.includes = []  # reset state
 
         try:
-            # raw processing to make sure that options are applied correctly
-            include_directories = shlex.split(self.get("settings", "include", raw=True))
+            include_directories = self.include
         except (configparser.NoOptionError, configparser.NoSectionError):
             return
 
-        for directory in include_directories:
-            value = self._interpolation.before_get(  # type: ignore[attr-defined]
-                self,
-                "settings",
-                "include",
-                directory,
-                self._unify_values("settings", None),  # type: ignore[attr-defined]
-            )
-            path = self._convert_path(value)
+        for path in include_directories:  # pylint: disable=not-an-iterable
             if not path.is_dir():
                 continue
 

@@ -116,7 +116,7 @@ class Setup(Handler):
         parser.add_argument("--web-port", help="port of the web service", type=int)
         parser.add_argument("--web-unix-socket", help="path to unix socket used for interprocess communications",
                             type=Path)
-        parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(lock=None, quiet=True, report=False)
         return parser
 
     @staticmethod
@@ -236,7 +236,7 @@ class Setup(Handler):
         Raises:
             InitializeError: if no writable directories have been found
         """
-        for include_path in root.getpathlist("settings", "include"):
+        for include_path in root.include:
             try:
                 directory = root.repository_paths.ensure_exists(include_path)
                 if os.access(directory, os.W_OK | os.X_OK):

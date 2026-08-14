@@ -1,4 +1,21 @@
 services:
+  volume-init:
+    image: arcan1s/ahriman:edge
+    user: root
+
+    entrypoint: [
+      "chown",
+    ]
+    command: [
+      "ahriman:ahriman",
+      "/var/lib/ahriman",
+    ]
+
+    volumes:
+      - type: volume
+        source: repository
+        target: /var/lib/ahriman
+
   backend:
     image: arcan1s/ahriman:edge
     privileged: true
@@ -16,8 +33,10 @@ services:
       - type: volume
         source: repository
         target: /var/lib/ahriman
-        volume:
-          nocopy: true
+
+    depends_on:
+      volume-init:
+        condition: service_completed_successfully
 
   frontend:
     image: nginx

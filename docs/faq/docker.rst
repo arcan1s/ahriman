@@ -22,6 +22,12 @@ In order to make data available outside of container, you would need to mount lo
 
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman -v /path/to/overrides/overrides.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
 
+The volume must have correct rights, e.g.:
+
+.. code-block:: shell
+
+   chown 643:643 /path/to/local/repo
+
 The action can be specified during run, e.g.:
 
 .. code-block:: shell
@@ -59,19 +65,17 @@ The following environment variables are supported:
 
 * ``AHRIMAN_ARCHITECTURE`` - architecture of the repository, default is ``x86_64``.
 * ``AHRIMAN_DEBUG`` - if set all commands will be logged to console.
-* ``AHRIMAN_FORCE_ROOT`` - force run ahriman as root instead of guessing by subcommand.
 * ``AHRIMAN_HOST`` - host for the web interface, default is ``0.0.0.0``.
 * ``AHRIMAN_MULTILIB`` - if set (default) multilib repository will be used, disabled otherwise.
 * ``AHRIMAN_OUTPUT`` - controls logging handler, e.g. ``syslog``, ``console``. The name must be found in logging configuration. Note that if ``syslog`` handler is used you will need to mount ``/dev/log`` inside container because it is not available there.
 * ``AHRIMAN_PACKAGER`` - packager name from which packages will be built, default is ``ahriman bot <ahriman@example.com>``.
 * ``AHRIMAN_PACMAN_MIRROR`` - override pacman mirror server if set.
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
-* ``AHRIMAN_POSTSETUP_COMMAND`` - if set, the command which will be called (as root) after the setup command, but before any other actions.
-* ``AHRIMAN_PRESETUP_COMMAND`` - if set, the command which will be called (as root) right before the setup command.
+* ``AHRIMAN_POSTSETUP_COMMAND`` - if set, the command which will be called after the setup command, but before any other actions.
+* ``AHRIMAN_PRESETUP_COMMAND`` - if set, the command which will be called right before the setup command.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur``.
 * ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository URL. Useful if you would like to download packages from remote instead of local filesystem.
-* ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
-* ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/run/ahriman``.
+* ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside repository root directory (e.g. ``/var/lib/ahriman/ahriman-web.sock``) or to ``/run/ahriman``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.
 * ``AHRIMAN_VALIDATE_CONFIGURATION`` - if set (default) validate service configuration.
 
@@ -99,7 +103,7 @@ For that you would need to have web container instance running forever; it can b
 
 .. code-block:: shell
 
-   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman-web.sock -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
 Note about ``AHRIMAN_PORT`` environment variable which is required in order to enable web service. An additional port bind by ``-p 8080:8080`` is required to pass docker port outside of container.
 
@@ -109,7 +113,7 @@ If you are using ``AHRIMAN_UNIX_SOCKET`` variable, for every next container run 
 
 .. code-block:: shell
 
-   docker run --privileged -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+   docker run --privileged -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman-web.sock -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
 Otherwise, you would need to pass ``AHRIMAN_PORT`` and mount container network to the host system (``--net=host``), e.g.:
 
@@ -128,7 +132,7 @@ In order to create configuration for additional repositories, the ``AHRIMAN_POST
 
 .. code-block:: shell
 
-   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -e AHRIMAN_POSTSETUP_COMMAND="ahriman --architecture x86_64 --repository aur-v2 service-setup --build-as-user ahriman --packager 'ahriman bot <ahriman@example.com>'" -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman-web.sock -e AHRIMAN_POSTSETUP_COMMAND="ahriman --architecture x86_64 --repository aur-v2 service-setup --build-as-user ahriman --packager 'ahriman bot <ahriman@example.com>'" -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
 The command above will also create configuration for the repository named ``aur-v2``.
 
