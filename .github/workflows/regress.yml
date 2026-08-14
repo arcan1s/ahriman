@@ -19,7 +19,7 @@ jobs:
         env:
           AHRIMAN_PORT: 8080
           AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman-web.sock
-        options: --privileged --entrypoint entrypoint-web
+        options: --privileged --user root --entrypoint entrypoint-web
         ports:
           - 8080
         volumes:
@@ -32,7 +32,7 @@ jobs:
         AHRIMAN_OUTPUT: console
         AHRIMAN_PORT: 8080
         AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman-web.sock
-      options: --privileged
+      options: --privileged --user root
       volumes:
         - repo:/var/lib/ahriman
 
@@ -40,7 +40,9 @@ jobs:
       - run: pacman -Sy
 
       - name: Init repository
-        run: entrypoint help
+        run: |
+          chown ahriman:ahriman /var/lib/ahriman
+          sudo -E -u ahriman -- entrypoint help
 
       - name: Print configuration
         run: |
