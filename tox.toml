@@ -3,6 +3,7 @@ env_list = [
     "tests",
 ]
 requires = [
+    "ahriman-tox-plugins @ file://{tox_root}/tools/tox_plugins",
     "tox-uv",
 ]
 labels.release = [

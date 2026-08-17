@@ -70,7 +70,6 @@ exclude = [
     "/conftest.py",
     "/github-logo.png",
     "/tox.toml",
-    "/toxfile.py",
     "/web.png",
 ]
 
