@@ -10,41 +10,32 @@ Initial setup
 
    .. code-block:: shell
 
-      sudo ahriman -a x86_64 -r aur service-setup ...
+      sudo -u ahriman -- ahriman -a x86_64 -r aur service-setup \
+          --packager "ahriman bot <ahriman@example.com>" ...
 
    .. admonition:: Details
       :collapsible: closed
 
-      ``service-setup`` literally does the following steps:
+      ``service-setup`` does the following steps:
 
       #.
-         Create ``/var/lib/ahriman/.makepkg.conf`` with ``makepkg.conf`` overrides if required (at least you might want to set ``PACKAGER``):
-
-         .. code-block:: shell
-
-            echo 'PACKAGER="ahriman bot <ahriman@example.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
+         Create a repository-specific ahriman configuration below
+         ``/var/lib/ahriman/.config/ahriman/ahriman.ini.d``. This configuration stores the
+         packager identity, ``MAKEFLAGS`` and other options supplied on the command line.
 
       #.
-         Configure build tools (it is required for correct dependency management system):
+         Generate the devtools pacman configuration in
+         ``/var/lib/ahriman/.config/ahriman/pacman.conf.d``. The file is based on the
+         configuration selected by ``--from-configuration`` and contains the requested mirror,
+         multilib settings and the ahriman repository path.
 
-          #.
-             Create configuration file ``{name}.conf`` or ``{name}-{arch}.conf``, where ``name`` is the repostory name and ``arch`` is the repository architecture, e.g.:
+      #.
+         Create the repository directories, initialize the package repository and synchronize
+         its pacman database.
 
-             .. code-block:: shell
-
-                cp /usr/share/devtools/pacman.conf.d/{extra,aur-x86_64}.conf
-
-          #.
-             Change configuration file, add your own repository, add multilib repository etc:
-
-             .. code-block:: shell
-
-                echo '[multilib]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-                echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-
-                echo '[aur]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-                echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
-                echo 'Server = file:///var/lib/ahriman/repository/$repo/$arch' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+      Both configuration locations are below the repository root and must be writable by the
+      user running ahriman. Existing system-wide overrides remain supported; see
+      :doc:`the 2.22.0 migration guide <migrations/2.22.0>` when upgrading.
 
    This command supports several arguments, kindly refer to its help message.
 
@@ -53,14 +44,14 @@ Initial setup
 
    .. code-block:: shell
 
-       systemctl enable --now ahriman@x86_64-aur.timer
+       sudo systemctl enable --now ahriman@x86_64-aur.timer
 
 #. 
    Start and enable status page:
 
    .. code-block:: shell
 
-       systemctl enable --now ahriman-web
+       sudo systemctl enable --now ahriman-web
 
 #. 
    Add packages by using ``ahriman package-add {package}`` command:

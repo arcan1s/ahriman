@@ -94,7 +94,7 @@ class Setup(Handler):
         """
         parser = root.add_parser("service-setup", aliases=["init", "repo-init", "repo-setup", "setup"],
                                  help="initial service configuration",
-                                 description="create initial service configuration, requires root",
+                                 description="create initial service configuration as the repository owner",
                                  epilog="Create minimal configuration for the service according to provided options.")
         parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
         parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
