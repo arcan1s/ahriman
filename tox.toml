@@ -266,6 +266,7 @@ description = "Build frontend HTML and JS"
 allowlist_externals = [
     "npm",
 ]
+skip_install = true
 commands = [
     { replace = "ref", of = ["commands", "npm_install"], extend = true },
     [
