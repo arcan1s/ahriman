@@ -8,7 +8,7 @@ ARG BUILD_DATE
 RUN useradd -m -d "/home/build" -s "/usr/bin/nologin" build
 
 ## extract container creation date and set mirror for this timestamp, set PKGEXT and refresh database next
-RUN echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE//-/\/}/\$repo/os/\$arch" > "/etc/pacman.d/mirrorlist" && \
+RUN echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE//-//}/\$repo/os/\$arch" > "/etc/pacman.d/mirrorlist" && \
     pacman -Syyuu --noconfirm
 ## setup package cache
 RUN runuser -u build -- mkdir "/tmp/pkg" && \
