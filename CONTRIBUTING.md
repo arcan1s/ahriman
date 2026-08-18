@@ -247,13 +247,19 @@ tox -e docs
 
 Must be usually done if there are changes in modules structure.
 
+### Before making a new release
+
+1. Make sure that all pipelines are green.
+2. Make sure that documentation is up-to-date.
+3. Run [regress job](https://github.com/arcan1s/ahriman/actions/workflows/regress.yml). The successful link must be attached to release.
+
 ### Create release
 
 ```shell
 tox -m release -- major.minor.patch
 ```
 
-The command above will generate documentation, tags, etc., and will push them to GitHub. Other things will be handled by GitHub workflows automatically.
+The command above will generate documentation, tags, etc., and will push them to GitHub. Other things will be handled by GitHub workflows automatically. As soon as related github action completes, there will be a new release created. Edit it to add additional information if needed.
 
 ### Hotfixes policy
 
