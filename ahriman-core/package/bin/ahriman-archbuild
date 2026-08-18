@@ -8,7 +8,6 @@ usage() {
     echo "    -r <repository>    Repository name"
     echo "    -a <architecture>  Repository architecture"
     echo "    -c <directory>     Read devtools pacman configurations from this directory"
-    exit 1
 }
 
 repository=
@@ -20,12 +19,18 @@ while getopts ":r:a:c:" arg; do
         r) repository="$OPTARG" ;;
         a) architecture="$OPTARG" ;;
         c) pacman_config_dir="$OPTARG" ;;
-        *) usage ;;
+        *) usage >&2; exit 1 ;;
     esac
 done
 
 if [[ -z $repository || -z $architecture ]]; then
-    usage
+    usage >&2
+    exit 1
+fi
+
+if [[ -n $pacman_config_dir && ! -d $pacman_config_dir ]]; then
+    echo "devtools configuration directory does not exist: $pacman_config_dir" >&2
+    exit 1
 fi
 
 source "/usr/share/devtools/lib/archroot.sh"
@@ -35,13 +40,13 @@ check_root "SOURCE_DATE_EPOCH,SRCDEST,SRCPKGDEST,PKGDEST,LOGDEST,NPROC,MAKEFLAGS
 # here is a workaround, which uses unshare to bind-mount directory with configuration files
 # for specific process
 if [[ -n $pacman_config_dir && -z ${AHRIMAN_ARCHBUILD_MOUNTED:-} ]]; then
+    pacman_config_dir="$(readlink -e -- "$pacman_config_dir")"
     export AHRIMAN_ARCHBUILD_MOUNTED=1
-    exec unshare --mount --propagation private bash -e -c '
-        mount --bind "$0" /usr/share/devtools/pacman.conf.d
-        exec "$@"
-    ' "$(readlink -f "$pacman_config_dir")" "${BASH_SOURCE[0]}" "$@"
+
+    exec unshare --mount --propagation private \
+        bash -c 'mount --bind -- "$0" /usr/share/devtools/pacman.conf.d && exec "$@"' \
+        "$pacman_config_dir" "${BASH_SOURCE[0]}" "$@"
 fi
 
-exec bash -c '
-    source "$1" "${@:2}"
-' "${repository}-${architecture}-build" "archbuild" "${@:$OPTIND}"
+exec bash -c 'source "/usr/bin/archbuild" "$@"' \
+    "${repository}-${architecture}-build" "${@:$OPTIND}"
