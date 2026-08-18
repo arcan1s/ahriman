@@ -52,3 +52,5 @@ The repository root inside the Docker image has changed from ``/var/lib/ahriman/
 
 #.
    Start the containers again.
+
+Please note, that some environment variables - ``AHRIMAN_FORCE_ROOT`` and ``AHRIMAN_REPOSITORY_ROOT`` - have been also removed and not supported anymore. ``AHRIMAN_POSTSETUP_COMMAND`` and ``AHRIMAN_PRESETUP_COMMAND`` are now executed as non-root user.
