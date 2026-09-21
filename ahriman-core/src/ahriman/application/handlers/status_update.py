@@ -22,7 +22,6 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
-from ahriman.core.utils import enum_values
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.repository_id import RepositoryId
@@ -97,7 +96,7 @@ class StatusUpdate(Handler):
                                             "If no packages supplied, service status will be updated",
                             nargs="*")
         parser.add_argument("-s", "--status", help="new package build status",
-                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
+                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum), default=BuildStatusEnum.Success)
         parser.set_defaults(action=Action.Update, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
@@ -115,7 +114,7 @@ class StatusUpdate(Handler):
         parser = root.add_parser("repo-status-update", help="update repository status",
                                  description="update repository status on the status page")
         parser.add_argument("-s", "--status", help="new status",
-                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
+                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum), default=BuildStatusEnum.Success)
         parser.set_defaults(action=Action.Update, lock=None, package=[], quiet=True, report=False, unsafe=True)
         return parser
 

@@ -31,7 +31,6 @@ import subprocess
 
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import asdict
-from enum import Enum
 from filelock import FileLock
 from pathlib import Path
 from pwd import getpwuid
@@ -46,7 +45,6 @@ __all__ = [
     "check_output",
     "check_user",
     "dataclass_view",
-    "enum_values",
     "extract_user",
     "filelock",
     "filter_json",
@@ -240,19 +238,6 @@ def dataclass_view(instance: Any) -> dict[str, Any]:
         dict[str, Any]: JSON representation of the dataclass with empty field removed
     """
     return asdict(instance, dict_factory=lambda fields: {key: value for key, value in fields if value is not None})
-
-
-def enum_values(enum: type[Enum]) -> list[str]:
-    """
-    generate list of enumeration values from the source
-
-    Args:
-        enum(type[Enum]): source enumeration class
-
-    Returns:
-        list[str]: available enumeration values as string
-    """
-    return [str(key.value) for key in enum]  # explicit str conversion for typing
 
 
 def extract_user() -> str | None:

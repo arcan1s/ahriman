@@ -22,7 +22,7 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
-from ahriman.core.utils import enum_values, extract_user
+from ahriman.core.utils import extract_user
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
@@ -88,7 +88,7 @@ class Rebuild(Handler):
         parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
                             action="store_true")
         parser.add_argument("-s", "--status", help="filter packages by status. Requires --from-database to be set",
-                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
+                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum))
         parser.add_argument("-u", "--username", help="build as user", default=extract_user())
         return parser
 

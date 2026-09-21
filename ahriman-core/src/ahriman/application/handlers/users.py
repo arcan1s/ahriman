@@ -25,7 +25,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import PasswordError
 from ahriman.core.formatters import UserPrinter
-from ahriman.core.utils import enum_values
 from ahriman.models.action import Action
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user import User
@@ -89,7 +88,7 @@ class Users(Handler):
             "-p", "--password", help="user password. Blank password will be treated as empty password, "
             "which is in particular must be used for OAuth2 authorization type.")
         parser.add_argument("-R", "--role", help="user access level",
-                            type=UserAccess, choices=enum_values(UserAccess), default=UserAccess.Read)
+                            type=UserAccess, choices=tuple(UserAccess), default=UserAccess.Read)
         parser.set_defaults(action=Action.Update, architecture="", exit_code=False, lock=None, quiet=True,
                             report=False, repository="")
         return parser
@@ -110,8 +109,7 @@ class Users(Handler):
         parser.add_argument("username", help="filter users by username", nargs="?")
         parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
                             action="store_true")
-        parser.add_argument("-R", "--role", help="filter users by role", type=UserAccess,
-                            choices=enum_values(UserAccess))
+        parser.add_argument("-R", "--role", help="filter users by role", type=UserAccess, choices=tuple(UserAccess))
         parser.set_defaults(action=Action.List, architecture="", lock=None, quiet=True, report=False, repository="",
                             unsafe=True)
         return parser

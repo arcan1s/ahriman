@@ -26,7 +26,6 @@ from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import PackagePrinter, StatusPrinter
 from ahriman.core.types import Comparable
-from ahriman.core.utils import enum_values
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
@@ -93,7 +92,7 @@ class Status(Handler):
         parser.add_argument("--info", help="show additional package information",
                             action=argparse.BooleanOptionalAction, default=False)
         parser.add_argument("-s", "--status", help="filter packages by status",
-                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
+                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum))
         parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
         return parser
 

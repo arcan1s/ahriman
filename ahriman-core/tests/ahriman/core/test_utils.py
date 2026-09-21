@@ -221,15 +221,6 @@ def test_dataclass_view_without_none(package_ahriman: Package) -> None:
     assert Package.from_json(result) == package_ahriman
 
 
-def test_enum_values() -> None:
-    """
-    must correctly generate choices from enumeration classes
-    """
-    values = enum_values(PackageSource)
-    for value in values:
-        assert PackageSource(value).value == value
-
-
 def test_extract_user() -> None:
     """
     must extract user from system environment

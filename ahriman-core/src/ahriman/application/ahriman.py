@@ -28,7 +28,6 @@ from ahriman import __version__
 from ahriman.application.handlers.handler import Handler
 from ahriman.application.help_formatter import _HelpFormatter
 from ahriman.core.module_loader import implementations
-from ahriman.core.utils import enum_values
 from ahriman.models.log_handler import LogHandler
 
 
@@ -75,7 +74,7 @@ Start web service (requires additional configuration):
     parser.add_argument("-l", "--lock", help="lock file", type=Path, default=Path("ahriman.pid"))
     parser.add_argument("--log-handler", help="explicit log handler specification. If none set, the handler will be "
                                               "guessed from environment",
-                        type=LogHandler, choices=enum_values(LogHandler))
+                        type=LogHandler, choices=tuple(LogHandler))
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--report", help="force enable or disable reporting to web service",
                         action=argparse.BooleanOptionalAction, default=True)

@@ -29,7 +29,6 @@ from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeError, MissingArchitectureError
-from ahriman.core.utils import enum_values
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user import User
@@ -112,7 +111,7 @@ class Setup(Handler):
         parser.add_argument("--server", help="server to be used for devtools. If none set, local files will be used")
         parser.add_argument("--sign-key", help="sign key id")
         parser.add_argument("--sign-target", help="sign options", action="append",
-                            type=SignSettings.from_option, choices=enum_values(SignSettings))
+                            type=SignSettings.from_option, choices=tuple(SignSettings))
         parser.add_argument("--web-port", help="port of the web service", type=int)
         parser.add_argument("--web-unix-socket", help="path to unix socket used for interprocess communications",
                             type=Path)
