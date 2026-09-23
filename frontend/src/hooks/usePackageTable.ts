@@ -30,8 +30,8 @@ export interface UsePackageTableResult {
     filterModel: GridFilterModel;
     handleRefreshDatabase: () => Promise<void>;
     handleReload: () => void;
-    handleRemove: () => Promise<void>;
-    handleUpdate: () => Promise<void>;
+    handleRemove: (packages: string[]) => Promise<void>;
+    handleUpdate: (packages: string[]) => Promise<void>;
     isAuthorized: boolean;
     isLoading: boolean;
     paginationModel: { page: number; pageSize: number };
@@ -52,7 +52,7 @@ export interface UsePackageTableResult {
 export function usePackageTable(): UsePackageTableResult {
     const { rows, isLoading, isAuthorized, status } = usePackageData();
     const tableState = useTableState();
-    const actions = usePackageActions(tableState.selectionModel, tableState.setSelectionModel);
+    const actions = usePackageActions();
 
     return {
         isLoading,

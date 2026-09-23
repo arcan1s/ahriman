@@ -24,29 +24,27 @@ import { useClient } from "hooks/useClient";
 import { useNotification } from "hooks/useNotification";
 import { useRepository } from "hooks/useRepository";
 import type { RepositoryId } from "models/RepositoryId";
+import { useCallback } from "react";
 
 export interface UsePackageActionsResult {
     handleRefreshDatabase: () => Promise<void>;
     handleReload: () => void;
-    handleRemove: () => Promise<void>;
-    handleUpdate: () => Promise<void>;
+    handleRemove: (packages: string[]) => Promise<void>;
+    handleUpdate: (packages: string[]) => Promise<void>;
 }
 
-export function usePackageActions(
-    selectionModel: string[],
-    setSelectionModel: (model: string[]) => void,
-): UsePackageActionsResult {
+export function usePackageActions(): UsePackageActionsResult {
     const client = useClient();
     const { currentRepository } = useRepository();
     const { showSuccess, showError } = useNotification();
     const queryClient = useQueryClient();
 
-    const invalidate = (repository: RepositoryId): void => {
+    const invalidate = useCallback((repository: RepositoryId): void => {
         void queryClient.invalidateQueries({ queryKey: QueryKeys.packages(repository) });
         void queryClient.invalidateQueries({ queryKey: QueryKeys.status(repository) });
-    };
+    }, [queryClient]);
 
-    const performAction = async (
+    const performAction = useCallback(async (
         action: (repository: RepositoryId) => Promise<string>,
         errorMessage: string,
     ): Promise<void> => {
@@ -57,11 +55,10 @@ export function usePackageActions(
             const successMessage = await action(currentRepository);
             showSuccess("Success", successMessage);
             invalidate(currentRepository);
-            setSelectionModel([]);
         } catch (exception) {
             showError("Action failed", `${errorMessage}: ${ApiError.errorDetail(exception)}`);
         }
-    };
+    }, [currentRepository, invalidate, showError, showSuccess]);
 
     const handleReload = (): void => {
         if (currentRepository !== null) {
@@ -69,14 +66,16 @@ export function usePackageActions(
         }
     };
 
-    const handleUpdate = (): Promise<void> => performAction(async (repository): Promise<string> => {
-        if (selectionModel.length === 0) {
-            await client.service.servicePackageUpdate(repository, { packages: [] });
-            return "Repository update has been run";
-        }
-        await client.service.servicePackageAdd(repository, { packages: selectionModel });
-        return `Run update for packages ${selectionModel.join(", ")}`;
-    }, "Packages update failed");
+    const handleUpdate = useCallback((packages: string[]): Promise<void> => {
+        return performAction(async (repository): Promise<string> => {
+            if (packages.length === 0) {
+                await client.service.servicePackageUpdate(repository, { packages: [] });
+                return "Repository update has been run";
+            }
+            await client.service.servicePackageAdd(repository, { packages });
+            return `Run update for packages ${packages.join(", ")}`;
+        }, "Packages update failed");
+    }, [client, performAction]);
 
     const handleRefreshDatabase = (): Promise<void> => performAction(async (repository): Promise<string> => {
         await client.service.servicePackageUpdate(repository, {
@@ -89,15 +88,15 @@ export function usePackageActions(
         return "Pacman database update has been requested";
     }, "Could not update pacman databases");
 
-    const handleRemove = (): Promise<void> => {
-        if (selectionModel.length === 0) {
+    const handleRemove = useCallback((packages: string[]): Promise<void> => {
+        if (packages.length === 0) {
             return Promise.resolve();
         }
         return performAction(async (repository): Promise<string> => {
-            await client.service.servicePackageRemove(repository, selectionModel);
-            return `Packages ${selectionModel.join(", ")} have been removed`;
+            await client.service.servicePackageRemove(repository, packages);
+            return `Packages ${packages.join(", ")} have been removed`;
         }, "Could not remove packages");
-    };
+    }, [client, performAction]);
 
     return {
         handleRefreshDatabase,

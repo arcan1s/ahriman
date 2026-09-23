@@ -17,10 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+import DeleteIcon from "@mui/icons-material/Delete";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { Box, Link } from "@mui/material";
 import {
     DataGrid,
     GRID_CHECKBOX_SELECTION_COL_DEF,
+    GridActionsCellItem,
     type GridColDef,
     type GridFilterModel,
     type GridRowId,
@@ -56,6 +59,7 @@ function createListColumn(
 
 export default function PackageTable(): React.JSX.Element {
     const table = usePackageTable();
+    const { handleRemove, handleUpdate, isAuthorized } = table;
     const apiRef = useGridApiRef();
     const debouncedSearch = useDebounce(table.searchText, 300);
 
@@ -96,8 +100,31 @@ export default function PackageTable(): React.JSX.Element {
                     <StatusCell isHeld={params.row.isHeld} status={params.row.status} />,
                 width: 120,
             },
+            ...isAuthorized ? [{
+                field: "actions",
+                type: "actions",
+                headerName: "actions",
+                width: 100,
+                disableExport: true,
+                getActions: ({ row }) => [
+                    <GridActionsCellItem
+                        key="update"
+                        icon={<PlayArrowIcon />}
+                        label={`Update ${row.base}`}
+                        title={`Update ${row.base}`}
+                        onClick={() => void handleUpdate([row.base])}
+                    />,
+                    <GridActionsCellItem
+                        key="remove"
+                        icon={<DeleteIcon />}
+                        label={`Remove ${row.base}`}
+                        title={`Remove ${row.base}`}
+                        onClick={() => void handleRemove([row.base])}
+                    />,
+                ],
+            } satisfies GridColDef<PackageRow>] : [],
         ],
-        [],
+        [handleRemove, handleUpdate, isAuthorized],
     );
 
     return <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
@@ -110,8 +137,10 @@ export default function PackageTable(): React.JSX.Element {
                 onRebuildClick: () => table.setDialogOpen("rebuild"),
                 onRefreshDatabaseClick: () => void table.handleRefreshDatabase(),
                 onReloadClick: table.handleReload,
-                onRemoveClick: () => void table.handleRemove(),
-                onUpdateClick: () => void table.handleUpdate(),
+                onRemoveClick: () => void table.handleRemove(table.selectionModel)
+                    .then(() => table.setSelectionModel([])),
+                onUpdateClick: () => void table.handleUpdate(table.selectionModel)
+                    .then(() => table.setSelectionModel([])),
             }}
             isAuthorized={table.isAuthorized}
             hasSelection={table.selectionModel.length > 0}
@@ -123,6 +152,7 @@ export default function PackageTable(): React.JSX.Element {
         <DataGrid
             apiRef={apiRef}
             checkboxSelection
+            localeText={{ checkboxSelectionHeaderName: "selection" }}
             columnVisibilityModel={table.columnVisibility}
             columns={columns}
             density="compact"
@@ -134,8 +164,8 @@ export default function PackageTable(): React.JSX.Element {
             }}
             loading={table.isLoading}
             onCellClick={(params, event) => {
-                // Don't open info dialog when clicking checkbox or link
-                if (params.field === GRID_CHECKBOX_SELECTION_COL_DEF.field) {
+                // Don't open info dialog when clicking checkbox, actions, or link
+                if (params.field === GRID_CHECKBOX_SELECTION_COL_DEF.field || params.field === "actions") {
                     return;
                 }
                 if ((event.target as HTMLElement).closest("a")) {
