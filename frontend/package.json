@@ -2,34 +2,37 @@
     "dependencies": {
         "@emotion/react": ">=11.14.0 <11.15.0",
         "@emotion/styled": ">=11.14.0 <11.15.0",
-        "@mui/icons-material": ">=9.3.0 <9.4.0",
-        "@mui/material": ">=9.3.0 <9.4.0",
-        "@mui/x-data-grid": ">=9.11.0 <9.12.0",
-        "@tanstack/react-query": ">=5.101.0 <5.102.0",
+        "@mui/icons-material": ">=9.5.0 <9.6.0",
+        "@mui/material": ">=9.5.0 <9.6.0",
+        "@mui/x-data-grid": ">=9.15.0 <9.16.0",
+        "@tanstack/react-query": ">=5.104.0 <5.105.0",
         "chart.js": ">=4.5.0 <4.6.0",
-        "react": ">=19.2.0 <19.3.0",
+        "react": ">=19.3.0 <19.4.0",
         "react-chartjs-2": ">=5.3.0 <5.4.0",
-        "react-dom": ">=19.2.0 <19.3.0",
+        "react-dom": ">=19.3.0 <19.4.0",
         "react-error-boundary": ">=6.1.0 <6.2.0",
         "react-syntax-highlighter": ">=16.1.0 <16.2.0"
     },
     "devDependencies": {
         "@eslint/js": ">=9.39.0 <9.40.0",
         "@stylistic/eslint-plugin": ">=5.10.0 <5.11.0",
-        "@types/react": ">=19.2.0 <19.3.0",
-        "@types/react-dom": ">=19.2.0 <19.3.0",
+        "@types/react": ">=19.3.0 <19.4.0",
+        "@types/react-dom": ">=19.3.0 <19.4.0",
         "@types/react-syntax-highlighter": ">=15.5.0 <15.6.0",
-        "@vitejs/plugin-react": ">=6.0.0 <6.1.0",
+        "@vitejs/plugin-react": ">=6.1.0 <6.2.0",
         "eslint": ">=9.39.0 <9.40.0",
         "eslint-plugin-react": ">=7.37.0 <7.38.0",
         "eslint-plugin-react-hooks": ">=7.1.0 <7.2.0",
         "eslint-plugin-react-refresh": ">=0.5.0 <0.6.0",
         "eslint-plugin-simple-import-sort": ">=14.0.0 <14.1.0",
         "typescript": ">=6.0.0 <6.1.0",
-        "typescript-eslint": ">=8.67.0 <8.68.0",
-        "vite": ">=8.2.0 <8.3.0"
+        "typescript-eslint": ">=8.71.0 <8.72.0",
+        "vite": ">=8.3.0 <8.4.0"
     },
     "name": "ahriman",
+    "overrides": {
+        "@mui/x-internals": "$@mui/x-data-grid"
+    },
     "private": true,
     "scripts": {
         "build": "tsc && vite build",
