@@ -87,7 +87,8 @@ class EventBusView(BaseView):
         """
         while response.is_connected():
             try:
-                event_type, data = await wait_for(queue.get(), timeout=response.ping_interval)
+                # pylint: disable=protected-access
+                event_type, data = await wait_for(queue.get(), timeout=response._ping_interval)
             except TimeoutError:
                 continue
             except QueueShutDown:

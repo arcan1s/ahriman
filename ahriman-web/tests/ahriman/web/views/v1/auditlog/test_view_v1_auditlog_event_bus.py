@@ -3,6 +3,7 @@ import pytest
 
 from aiohttp.test_utils import TestClient
 from aiohttp.web import HTTPBadRequest
+from aiohttp_sse import EventSourceResponse
 from asyncio import Queue
 from multidict import MultiDict
 from pytest_mock import MockerFixture
@@ -95,20 +96,19 @@ def test_routes() -> None:
 
 async def test_run_timeout() -> None:
     """
-    must handle timeout and continue loop
+    must recheck the connection after a queue timeout
     """
-    queue = Queue()
+    queue = AsyncMock(spec_set=Queue)
+    queue.get.side_effect = TimeoutError
+    response = AsyncMock(spec_set=EventSourceResponse())
+    response._ping_interval = 0.01
+    response.is_connected.side_effect = [True, False]
 
-    async def _shutdown() -> None:
-        await asyncio.sleep(0.05)
-        queue.shutdown()
-
-    response = AsyncMock()
-    response.is_connected = lambda: True
-    response.ping_interval = 0.01
-
-    asyncio.create_task(_shutdown())
     await EventBusView._run(response, queue)
+
+    assert response.is_connected.call_count == 2
+    queue.get.assert_awaited_once()
+    response.send.assert_not_awaited()
 
 
 def test_topics() -> None:
