@@ -5,7 +5,7 @@ digraph G {
     rankdir = TB;
     node [style=filled,fillcolor="#ffffff",fontcolor="#000000",fontname=Helvetica,fontsize=10];
 
-    ahriman_application_ahriman [fillcolor="#814b37",fontcolor="#ffffff",label="ahriman\.\napplication\.\nahriman"];
+    ahriman_application_ahriman [fillcolor="#884f3a",fontcolor="#ffffff",label="ahriman\.\napplication\.\nahriman"];
     ahriman_application_application [fillcolor="blue",fontcolor="white",label="ahriman\.\napplication\.\napplication",shape="box"];
     ahriman_application_application_application [fillcolor="blue",fontcolor="white",label="ahriman\.\napplication\.\napplication\.\napplication",shape="box"];
     ahriman_application_application_application_packages [fillcolor="blue",fontcolor="white",label="ahriman\.\napplication\.\napplication\.\napplication_packages",shape="box"];
@@ -41,12 +41,12 @@ digraph G {
     ahriman_application_handlers_run [fillcolor="#8f533d",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nrun"];
     ahriman_application_handlers_search [fillcolor="#6b3e2e",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nsearch"];
     ahriman_application_handlers_service_updates [fillcolor="#814b37",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nservice_updates"];
-    ahriman_application_handlers_setup [fillcolor="#6b3e2e",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nsetup"];
+    ahriman_application_handlers_setup [fillcolor="#724331",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nsetup"];
     ahriman_application_handlers_shell [fillcolor="#814b37",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nshell"];
     ahriman_application_handlers_sign [fillcolor="#884f3a",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nsign"];
     ahriman_application_handlers_statistics [fillcolor="#6b3e2e",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nstatistics"];
     ahriman_application_handlers_status [fillcolor="#6b3e2e",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nstatus"];
-    ahriman_application_handlers_status_update [fillcolor="#724331",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nstatus_update"];
+    ahriman_application_handlers_status_update [fillcolor="#794734",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nstatus_update"];
     ahriman_application_handlers_structure [fillcolor="#794734",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\nstructure"];
     ahriman_application_handlers_tree_migrate [fillcolor="#814b37",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\ntree_migrate"];
     ahriman_application_handlers_triggers [fillcolor="#8a472e",fontcolor="#ffffff",label="ahriman\.\napplication\.\nhandlers\.\ntriggers"];
@@ -1080,19 +1080,14 @@ digraph G {
     ahriman_core_upload_upload -> ahriman_core_upload_s3 [fillcolor="blue",weight="3"];
     ahriman_core_upload_upload -> ahriman_core_upload_upload_trigger [fillcolor="blue",weight="3"];
     ahriman_core_upload_upload_trigger -> ahriman_core_upload [fillcolor="blue",weight="3"];
-    ahriman_core_utils -> ahriman_application_ahriman [fillcolor="#db4005",minlen="2"];
     ahriman_core_utils -> ahriman_application_application_application_packages [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_handlers_add [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_handlers_daemon [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_handlers_rebuild [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_handlers_rollback [fillcolor="#db4005",minlen="3"];
-    ahriman_core_utils -> ahriman_application_handlers_setup [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_handlers_statistics [fillcolor="#db4005",minlen="3"];
-    ahriman_core_utils -> ahriman_application_handlers_status [fillcolor="#db4005",minlen="3"];
-    ahriman_core_utils -> ahriman_application_handlers_status_update [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_handlers_tree_migrate [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_handlers_update [fillcolor="#db4005",minlen="3"];
-    ahriman_core_utils -> ahriman_application_handlers_users [fillcolor="#db4005",minlen="3"];
     ahriman_core_utils -> ahriman_application_lock [fillcolor="#db4005",minlen="2"];
     ahriman_core_utils -> ahriman_core_alpm_pacman [fillcolor="#db4005",minlen="2",weight="2"];
     ahriman_core_utils -> ahriman_core_alpm_repo [fillcolor="#db4005",minlen="2",weight="2"];
