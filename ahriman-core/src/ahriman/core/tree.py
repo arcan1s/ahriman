@@ -22,7 +22,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from functools import partial
 
-from ahriman.core.exceptions import PartitionError
+from ahriman.core.exceptions import DependencyResolutionError, PartitionError
 from ahriman.core.utils import minmax, partition
 from ahriman.models.package import Package
 
@@ -226,6 +226,9 @@ class Tree:
 
         Returns:
             list[list[Package]]: sorted list of packages lists based on their dependencies
+
+        Raises:
+            DependencyResolutionError: dependency cycle prevents ordering packages
         """
         unsorted: list[list[Leaf]] = []
 
@@ -235,6 +238,8 @@ class Tree:
             # additional workaround with partial in order to hide cell-var-from-loop pylint warning
             predicate = partial(Leaf.is_root, packages=unprocessed)
             new_level, unprocessed = partition(unprocessed, predicate)
+            if not new_level:
+                raise DependencyResolutionError([leaf.package.base for leaf in unprocessed])
             unsorted.append(new_level)
 
         # move leaves to the end if they are not required at the next level

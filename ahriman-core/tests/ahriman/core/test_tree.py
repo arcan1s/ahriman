@@ -1,6 +1,6 @@
 import pytest
 
-from ahriman.core.exceptions import PartitionError
+from ahriman.core.exceptions import DependencyResolutionError, PartitionError
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
@@ -270,3 +270,14 @@ def test_tree_partitions() -> None:
     first, second = tree.partitions(count=3)
     assert first == [leaf1.package, leaf2.package, leaf3.package, leaf5.package]
     assert second == [leaf4.package]
+
+
+def test_tree_levels_cycle(leaf_ahriman: Leaf, leaf_python_schedule: Leaf) -> None:
+    """
+    must raise an exception if dependencies contain a cycle
+    """
+    leaf_ahriman.dependencies = set(leaf_python_schedule.items)
+    leaf_python_schedule.dependencies = set(leaf_ahriman.items)
+
+    with pytest.raises(DependencyResolutionError):
+        Tree([leaf_ahriman, leaf_python_schedule]).levels()

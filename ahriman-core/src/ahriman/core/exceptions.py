@@ -83,6 +83,15 @@ Process stderr:
 {self.stderr}"""
 
 
+class DependencyResolutionError(RuntimeError):
+    """
+    exception raised when package dependencies cannot be resolved
+    """
+
+    def __init__(self, unprocessed: list[str]) -> None:
+        RuntimeError.__init__(self, f"Could not process dependencies. Unresolved packages: {unprocessed}")
+
+
 class DuplicateRunError(RuntimeError):
     """
     exception which will be raised if there is another application instance
