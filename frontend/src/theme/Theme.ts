@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import { createTheme, type Theme } from "@mui/material/styles";
+import type {} from "@mui/x-data-grid/themeAugmentation";
 
 export function createAppTheme(mode: "light" | "dark"): Theme {
     return createTheme({
@@ -25,6 +26,14 @@ export function createAppTheme(mode: "light" | "dark"): Theme {
             MuiButton: {
                 styleOverrides: {
                     startIcon: {
+                        alignItems: "center",
+                        display: "flex",
+                    },
+                },
+            },
+            MuiDataGrid: {
+                styleOverrides: {
+                    cell: {
                         alignItems: "center",
                         display: "flex",
                     },
