@@ -257,6 +257,8 @@ There are few ways for packages to be marked as out-of-date and hence requiring 
 #. In addition to the above, if package is named as VCS (e.g. has suffix ``-git``) and the last update was more than specified threshold ago, the service will also try to fetch sources and check if the revision is newer than the built one.
 #. In addition, there is ability to check if the dependencies of the package have been updated (e.g. if linked library has been renamed or the modules directory - e.g. in case of python and ruby packages - has been changed). And if so, the package will be marked as out-of-date as well.
 
+Held packages and bases listed in ``build.ignore_packages`` are excluded from automatic AUR, official-repository, local-source, and broken-dependency update checks. These checks leave their package status unchanged. Manual updates and explicit rebuilds remain available.
+
 Update packages
 ^^^^^^^^^^^^^^^
 

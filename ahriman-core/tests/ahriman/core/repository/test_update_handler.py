@@ -14,6 +14,20 @@ from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
 
 
+def test_updates_ignored(update_handler: UpdateHandler, package_ahriman: Package,
+                         package_python_schedule: Package, mocker: MockerFixture) -> None:
+    """
+    must combine configured ignored packages and held packages only
+    """
+    update_handler._ignore_list = ["ignored-package"]
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_get", return_value=[
+        (package_ahriman, BuildStatus(is_held=True)),
+        (package_python_schedule, BuildStatus(is_held=False)),
+    ])
+
+    assert update_handler._updates_ignored() == {"ignored-package", package_ahriman.base}
+
+
 def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
                      mocker: MockerFixture) -> None:
     """
@@ -194,6 +208,18 @@ def test_updates_dependencies(update_handler: UpdateHandler, package_ahriman: Pa
                                        pytest.helpers.anyvar(str, True))
 
 
+def test_updates_dependencies_ignore(update_handler: UpdateHandler, package_ahriman: Package,
+                                     mocker: MockerFixture) -> None:
+    """
+    must skip held packages when checking broken dependencies
+    """
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_get",
+                 return_value=[(package_ahriman, BuildStatus(is_held=True))])
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+
+    assert update_handler.updates_dependencies([]) == []
+
+
 def test_updates_dependencies_skip_unknown(update_handler: UpdateHandler, package_ahriman: Package,
                                            mocker: MockerFixture) -> None:
     """
@@ -247,6 +273,19 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.configuration,
         calculate_version=True)
+
+
+def test_updates_local_ignore(update_handler: UpdateHandler, package_ahriman: Package,
+                              mocker: MockerFixture) -> None:
+    """
+    must skip held packages before fetching local sources
+    """
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_get",
+                 return_value=[(package_ahriman, BuildStatus(is_held=True))])
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
+
+    assert update_handler.updates_local(vcs=True) == []
 
 
 def test_updates_local_ignore_vcs(update_handler: UpdateHandler, package_ahriman: Package,
@@ -304,6 +343,22 @@ def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahri
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception)
 
     assert not update_handler.updates_local(vcs=True)
+
+
+def test_updates_local_held_metadata(update_handler: UpdateHandler, package_ahriman: Package,
+                                     mocker: MockerFixture) -> None:
+    """
+    must respect the held base even when the source directory has a different name
+    """
+    package_ahriman.remote = RemoteSource(source=PackageSource.Local)
+    mocker.patch.object(update_handler.reporter, "package_get",
+                        return_value=[(package_ahriman, BuildStatus(is_held=True))])
+    mocker.patch.object(update_handler, "packages", return_value=[package_ahriman])
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path("different-base")])
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
+
+    assert update_handler.updates_local(vcs=True) == []
 
 
 def test_updates_manual_clear(update_handler: UpdateHandler, mocker: MockerFixture) -> None:

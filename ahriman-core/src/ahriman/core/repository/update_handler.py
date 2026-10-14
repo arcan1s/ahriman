@@ -36,6 +36,17 @@ class UpdateHandler(PackageInfo, Cleaner):
     trait to get package update list
     """
 
+    def _updates_ignored(self) -> set[str]:
+        """
+        collect package bases excluded from automatic updates
+
+        Returns:
+            set[str]: held and configured ignored package bases
+        """
+        return set(self._ignore_list) | {
+            package.base for package, status in self.reporter.package_get(None) if status.is_held
+        }
+
     def updates_aur(self, filter_packages: Iterable[str], *, vcs: bool) -> list[Package]:
         """
         check AUR for updates
@@ -58,9 +69,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                     continue
             raise UnknownPackageError(package.base)
 
-        ignore_list = self._ignore_list + [
-            package.base for package, status in self.reporter.package_get(None) if status.is_held
-        ]
+        ignore_list = self._updates_ignored()
 
         result: list[Package] = []
         for local in self.packages(filter_packages):
@@ -106,8 +115,13 @@ class UpdateHandler(PackageInfo, Cleaner):
 
             return files
 
+        ignore_list = self._updates_ignored()
+
         result: list[Package] = []
         for local in self.packages(filter_packages):
+            if local.base in ignore_list:
+                self.logger.info("package %s is held, skip update check", local.base)
+                continue
             dependencies = self.reporter.package_dependencies_get(local.base)
             if not dependencies.paths:
                 continue  # skip check if no package dependencies found
@@ -141,9 +155,13 @@ class UpdateHandler(PackageInfo, Cleaner):
         """
         packages = {local.base: local for local in self.packages()}
         local_versions = {package_base: package.version for package_base, package in packages.items()}
+        ignore_list = self._updates_ignored()
 
         result: list[Package] = []
         for cache_dir in self.paths.cache.iterdir():
+            if cache_dir.name in ignore_list:
+                self.logger.info("package %s is held, skip update check", cache_dir.name)
+                continue
             with self.in_package_context(cache_dir.name, local_versions.get(cache_dir.name)):
                 try:
                     source = RemoteSource(
@@ -162,6 +180,9 @@ class UpdateHandler(PackageInfo, Cleaner):
                         continue  # we don't add packages automatically
                     if local.remote.is_remote:
                         continue  # avoid checking AUR packages
+                    if local.base in ignore_list:
+                        self.logger.info("package %s is held, skip update check", local.base)
+                        continue
 
                     if PackageVersion(local).is_outdated(remote, self.configuration, calculate_version=vcs):
                         self.reporter.set_pending(local.base)
