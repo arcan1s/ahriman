@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import PauseCircleIcon from "@mui/icons-material/PauseCircle";
-import { Chip } from "@mui/material";
+import { Chip, Tooltip } from "@mui/material";
 import type { BuildStatus } from "models/BuildStatus";
 import type React from "react";
 import { StatusColors } from "theme/StatusColors";
@@ -29,14 +29,17 @@ interface StatusCellProps {
 }
 
 export default function StatusCell({ isHeld, status }: StatusCellProps): React.JSX.Element {
-    return <Chip
-        icon={isHeld ? <PauseCircleIcon /> : undefined}
-        label={status}
-        size="small"
-        sx={{
-            backgroundColor: StatusColors[status],
-            color: "common.white",
-            fontWeight: 500,
-        }}
-    />;
+    return <Tooltip title={isHeld ? "Held: automatic updates are skipped" : ""}>
+        <Chip
+            aria-label={isHeld ? `${status}; held: automatic updates are skipped` : status}
+            icon={isHeld ? <PauseCircleIcon /> : undefined}
+            label={status}
+            size="small"
+            sx={{
+                backgroundColor: StatusColors[status],
+                color: "common.white",
+                fontWeight: 500,
+            }}
+        />
+    </Tooltip>;
 }
