@@ -48,19 +48,19 @@ export interface ToolbarActions {
 
 interface PackageTableToolbarProps {
     actions: ToolbarActions;
-    hasSelection: boolean;
     isAuthorized: boolean;
     onSearchChange: (text: string) => void;
     searchText: string;
+    selectedPackageCount: number;
     status?: BuildStatus;
 }
 
 export default function PackageTableToolbar({
     actions,
-    hasSelection,
     isAuthorized,
     onSearchChange,
     searchText,
+    selectedPackageCount,
     status,
 }: PackageTableToolbarProps): React.JSX.Element {
     const [packagesAnchorEl, setPackagesAnchorEl] = useState<HTMLElement | null>(null);
@@ -103,7 +103,8 @@ export default function PackageTableToolbar({
                     <MenuItem onClick={() => {
                         setPackagesAnchorEl(null); actions.onUpdateClick();
                     }}>
-                        <PlayArrowIcon fontSize="small" sx={{ mr: 1 }} /> update
+                        <PlayArrowIcon fontSize="small" sx={{ mr: 1 }} />
+                        {selectedPackageCount === 0 ? "update all packages" : `update selected packages (${selectedPackageCount})`}
                     </MenuItem>
                     <MenuItem onClick={() => {
                         setPackagesAnchorEl(null); actions.onRefreshDatabaseClick();
@@ -116,7 +117,7 @@ export default function PackageTableToolbar({
                         <ReplayIcon fontSize="small" sx={{ mr: 1 }} /> rebuild
                     </MenuItem>
                     <Divider />
-                    <MenuItem disabled={!hasSelection} onClick={() => {
+                    <MenuItem disabled={selectedPackageCount === 0} onClick={() => {
                         setPackagesAnchorEl(null); actions.onRemoveClick();
                     }}>
                         <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> remove

@@ -143,9 +143,9 @@ export default function PackageTable(): React.JSX.Element {
                     .then(() => table.setSelectionModel([])),
             }}
             isAuthorized={table.isAuthorized}
-            hasSelection={table.selectionModel.length > 0}
             onSearchChange={table.setSearchText}
             searchText={table.searchText}
+            selectedPackageCount={table.selectionModel.length}
             status={table.status}
         />
 
