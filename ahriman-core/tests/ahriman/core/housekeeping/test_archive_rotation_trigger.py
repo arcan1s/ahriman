@@ -22,10 +22,10 @@ def test_configuration_sections(configuration: Configuration) -> None:
 def test_archives_remove(archive_rotation_trigger: ArchiveRotationTrigger, package_ahriman: Package,
                          repository: Repository, mocker: MockerFixture) -> None:
     """
-    must remove older packages
+    must keep the current package and the configured amount of additional packages
     """
     packages = []
-    for i in range(5):
+    for i in range(1, 7):
         generated = replace(package_ahriman, version=str(i))
         generated.packages = {
             key: replace(value, filename=str(i))
@@ -33,14 +33,17 @@ def test_archives_remove(archive_rotation_trigger: ArchiveRotationTrigger, packa
         }
         packages.append(generated)
 
+    archive_rotation_trigger.keep_built_packages = 2
+    mocker.patch.object(repository, "packages", return_value=[replace(package_ahriman, version="3")])
     mocker.patch("ahriman.core.repository.package_info.PackageInfo.package_archives", return_value=packages)
-    mocker.patch("pathlib.Path.glob", return_value=[Path(str(i)) for i in range(5)])
+    mocker.patch("pathlib.Path.glob", side_effect=lambda pattern: [Path(pattern.removesuffix("*"))])
     unlink_mock = mocker.patch("pathlib.Path.unlink", autospec=True)
 
     archive_rotation_trigger.archives_remove(package_ahriman, repository)
     unlink_mock.assert_has_calls([
-        MockCall(Path("0")),
         MockCall(Path("1")),
+        MockCall(Path("2")),
+        MockCall(Path("4")),
     ])
 
 

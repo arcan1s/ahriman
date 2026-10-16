@@ -207,7 +207,7 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 
 Describes settings for packages archives management extensions.
 
-* ``keep_built_packages`` - keep this amount of built packages with different versions, integer, required. ``0`` will effectively disable archives removal.
+* ``keep_built_packages`` - keep this amount of additional built package versions alongside the version currently published in the repository, integer, required. ``0`` will effectively disable archives removal.
 
 ``keyring`` group
 -----------------

@@ -44,7 +44,7 @@ This trigger will be called right after build process (``on_result``). It will p
 ``ahriman.core.housekeeping.ArchiveRotationTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This trigger removes old package versions from the archive directory. It implements ``on_result`` and, after each build, compares available versions for updated packages and removes the older ones, keeping only the last N versions as configured by ``keep_built_packages`` option.
+This trigger removes old package versions from the archive directory. It implements ``on_result`` and, after each build, compares available versions for updated packages and removes older ones, keeping the version currently published in the repository plus the last N other versions as configured by ``keep_built_packages`` option.
 
 ``ahriman.core.housekeeping.LogsRotationTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

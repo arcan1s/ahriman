@@ -87,7 +87,12 @@ class ArchiveRotationTrigger(Trigger):
         if self.keep_built_packages == 0:
             return
 
-        to_remove = repository.package_archives(package.base)
+        current = next(iter(repository.packages([package.base])), None)
+        to_remove = [
+            single
+            for single in repository.package_archives(package.base)
+            if current is None or single.version != current.version
+        ]
 
         for single in to_remove[:-self.keep_built_packages]:
             self.logger.info("removing version %s of package %s", single.version, single.base)
