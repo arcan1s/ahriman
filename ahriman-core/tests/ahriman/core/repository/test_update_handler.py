@@ -361,17 +361,16 @@ def test_updates_local_held_metadata(update_handler: UpdateHandler, package_ahri
     assert update_handler.updates_local(vcs=True) == []
 
 
-def test_updates_manual_clear(update_handler: UpdateHandler, mocker: MockerFixture) -> None:
+def test_updates_manual_preserves_queue(update_handler: UpdateHandler, package_ahriman: Package,
+                                        mocker: MockerFixture) -> None:
     """
-    requesting manual updates must clear packages directory
+    discovery must leave manual requests queued for execution
     """
-    mocker.patch("pathlib.Path.iterdir", return_value=[])
-    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages")
+    update_handler.database.build_queue_insert(package_ahriman)
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
 
-    update_handler.updates_manual()
-
-    from ahriman.core.repository.cleaner import Cleaner
-    Cleaner.clear_queue.assert_called_once_with()
+    assert update_handler.updates_manual() == [package_ahriman]
+    assert update_handler.database.build_queue_get() == [package_ahriman]
 
 
 def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahriman: Package,

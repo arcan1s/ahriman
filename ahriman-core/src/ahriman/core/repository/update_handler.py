@@ -212,7 +212,6 @@ class UpdateHandler(PackageInfo, Cleaner):
                     self.reporter.set_pending(local.base)
                 self.event(local.base, EventType.PackageOutdated, "Manual update is requested")
 
-            self.clear_queue()
         except Exception:
             self.logger.exception("could not load packages from database")
 

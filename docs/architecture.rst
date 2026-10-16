@@ -259,6 +259,8 @@ There are few ways for packages to be marked as out-of-date and hence requiring 
 
 Held packages and bases listed in ``build.ignore_packages`` are excluded from automatic AUR, official-repository, local-source, and broken-dependency update checks. These checks leave their package status unchanged. Manual updates and explicit rebuilds remain available.
 
+Reading manual updates, including during ``repo-update --dry-run``, leaves the build queue intact. Execution removes requests by package base after a build chunk returns or a remote worker accepts it; successful prebuilt imports also remove requests by package base. Interrupted chunks and work that was not selected remain queued. Concurrent requests for the same package base are not distinguished; request revisions and crash recovery are separate work.
+
 Update packages
 ^^^^^^^^^^^^^^^
 

@@ -188,6 +188,7 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     """
     must process package updates
     """
+    application_repository.database.build_queue_insert(package_ahriman)
     paths = [package.filepath for package in package_ahriman.packages.values()]
     tree = Tree([Leaf(package_ahriman)])
     prebuilt_result = Result()
@@ -207,12 +208,15 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     update_mock.assert_called_once_with(paths, Packagers("username"))
     on_result_mock.assert_has_calls([MockCall(prebuilt_result), MockCall(result)])
 
+    assert application_repository.database.build_queue_get() == []
+
 
 def test_update_prebuilt_filter(application_repository: ApplicationRepository, package_ahriman: Package, result: Result,
                                 mocker: MockerFixture) -> None:
     """
     must filter out packages which were successfully prebuilt
     """
+    application_repository.database.build_queue_insert(package_ahriman)
     paths = [package.filepath for package in package_ahriman.packages.values()]
 
     resolve_mock = mocker.patch("ahriman.application.application.workers.local_updater.LocalUpdater.partition",
@@ -223,6 +227,8 @@ def test_update_prebuilt_filter(application_repository: ApplicationRepository, p
 
     application_repository.update([package_ahriman], Packagers("username"), bump_pkgrel=True)
     resolve_mock.assert_called_once_with([])
+
+    assert application_repository.database.build_queue_get() == []
 
 
 def test_update_empty(application_repository: ApplicationRepository, package_ahriman: Package, result: Result,

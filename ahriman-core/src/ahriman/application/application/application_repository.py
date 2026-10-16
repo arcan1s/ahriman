@@ -158,6 +158,8 @@ class ApplicationRepository(ApplicationProperties):
         # process already built packages if any
         if built_packages := self.repository.packages_built():  # speedup a bit
             build_result = self.repository.process_update(built_packages, packagers)
+            for package in build_result.success:
+                self.database.build_queue_clear(package.base)
             self.on_result(build_result)
             result.merge(build_result)
 
@@ -172,6 +174,8 @@ class ApplicationRepository(ApplicationProperties):
         for num, partition in enumerate(partitions):
             self.logger.info("processing chunk #%i %s", num, [package.base for package in partition])
             build_result = builder.update(partition, packagers, bump_pkgrel=bump_pkgrel)
+            for package in partition:
+                self.database.build_queue_clear(package.base)
             self.on_result(build_result)
             result.merge(build_result)
 
