@@ -165,7 +165,7 @@ class Sources(LazyLogging):
 
         # extract local files...
         files = ["PKGBUILD", ".SRCINFO"] + [str(path) for path in Pkgbuild.local_files(sources_dir)]
-        instance.add(sources_dir, *files)
+        instance.add(sources_dir, *files, force=True)
         # ...and commit them
         instance.commit(sources_dir)
 
@@ -232,7 +232,7 @@ class Sources(LazyLogging):
         git_url, branch = remote.git_source()
         check_output(*instance.git(), "push", "--quiet", git_url, branch, cwd=sources_dir, logger=instance.logger)
 
-    def add(self, sources_dir: Path, *pattern: str, intent_to_add: bool = False) -> None:
+    def add(self, sources_dir: Path, *pattern: str, intent_to_add: bool = False, force: bool = False) -> None:
         """
         track found files via git
 
@@ -241,6 +241,7 @@ class Sources(LazyLogging):
             *pattern(str): glob patterns
             intent_to_add(bool, optional): record only the fact that it will be added later, acts as
                 --intent-to-add git flag (Default value = False)
+            force(bool, optional): allow adding ignored files (Default value = False)
         """
         # glob directory to find files which match the specified patterns
         found_files: list[Path] = []
@@ -251,6 +252,8 @@ class Sources(LazyLogging):
         self.logger.info("found matching files %s", found_files)
         # add them to index
         args = ["--intent-to-add"] if intent_to_add else []
+        if force:
+            args.append("--force")
         check_output(*self.git(), "add", *args, *[str(fn.relative_to(sources_dir)) for fn in found_files],
                      cwd=sources_dir, logger=self.logger)
 

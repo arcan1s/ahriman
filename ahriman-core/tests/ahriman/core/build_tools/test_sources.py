@@ -195,7 +195,7 @@ def test_init(sources: Sources, mocker: MockerFixture) -> None:
     sources.init(local)
     check_output_mock.assert_called_once_with(*sources.git(), "init", "--quiet", "--initial-branch",
                                               sources.DEFAULT_BRANCH, cwd=local, logger=pytest.helpers.anyvar(int))
-    add_mock.assert_called_once_with(local, "PKGBUILD", ".SRCINFO", "local")
+    add_mock.assert_called_once_with(local, "PKGBUILD", ".SRCINFO", "local", force=True)
     commit_mock.assert_called_once_with(local)
 
 
@@ -345,6 +345,17 @@ def test_add_skip(sources: Sources, mocker: MockerFixture) -> None:
 
     sources.add(Path("local"), "pattern1")
     check_output_mock.assert_not_called()
+
+
+def test_add_force(sources: Sources, tmp_path: Path, mocker: MockerFixture) -> None:
+    """
+    must add files to git with --force flag
+    """
+    mocker.patch("pathlib.Path.glob", return_value=[Path("local/1"), Path("local/2")])
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
+
+    sources.add(Path("local"), "PKGBUILD", force=True)
+    assert "--force" in check_output_mock.call_args.args
 
 
 def test_commit(sources: Sources, mocker: MockerFixture) -> None:
