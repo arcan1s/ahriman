@@ -60,7 +60,9 @@ RUN runuser -u build -- install-aur-package \
         python-aiohttp-session \
         python-aiohttp-security \
         python-aiohttp-sse-git \
-        python-requests-unixsocket2
+        python-requests-unixsocket2 \
+        python-tree-sitter \
+        python-tree-sitter-bash
 
 # install ahriman
 ## copy tree
