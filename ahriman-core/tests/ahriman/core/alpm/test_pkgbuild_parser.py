@@ -1,6 +1,6 @@
 import pytest
 
-from io import StringIO
+from io import BytesIO
 from pathlib import Path
 
 from ahriman.core.alpm.pkgbuild_parser import PkgbuildParser
@@ -12,60 +12,46 @@ def test_expand_array() -> None:
     """
     must correctly expand array
     """
-    assert PkgbuildParser._expand_array(["${pkgbase}{", ",", "-libs", ",", "-fortran}"]) == [
-        "${pkgbase}", "${pkgbase}-libs", "${pkgbase}-fortran"
-    ]
-    assert PkgbuildParser._expand_array(["first", "prefix{1", ",", "2", ",", "3}suffix", "last"]) == [
-        "first", "prefix1suffix", "prefix2suffix", "prefix3suffix", "last"
-    ]
+    parser = PkgbuildParser(BytesIO(b"array=(prefix{only}suffix)"))
+    assert list(parser.parse()) == [PkgbuildPatch("array", ["prefix{only}suffix"])]
 
+    parser = PkgbuildParser(BytesIO(b"array=(prefix{first,second}suffix)"))
+    assert list(parser.parse()) == [PkgbuildPatch("array", ["prefixfirstsuffix", "prefixsecondsuffix"])]
 
-def test_expand_array_no_comma() -> None:
-    """
-    must skip array extraction if there is no comma
-    """
-    assert PkgbuildParser._expand_array(["${pkgbase}{", "-libs", "-fortran}"]) == ["${pkgbase}{", "-libs", "-fortran}"]
-
-
-def test_expand_array_short() -> None:
-    """
-    must skip array extraction if it is short
-    """
-    assert PkgbuildParser._expand_array(["${pkgbase}{", ","]) == ["${pkgbase}{", ","]
-
-
-def test_expand_array_exception() -> None:
-    """
-    must raise exception if there is unclosed element
-    """
-    with pytest.raises(PkgbuildParserError):
-        assert PkgbuildParser._expand_array(["${pkgbase}{", ",", "-libs"])
-
-
-def test_is_escaped_exception(resource_path_root: Path) -> None:
-    """
-    must raise PkgbuildParserError if no valid utf symbols found
-    """
-    utf8 = resource_path_root / "models" / "utf8"
-    with utf8.open(encoding="utf8") as content:
-        content.seek(2)
-        with pytest.raises(PkgbuildParserError):
-            assert not PkgbuildParser(content)._is_escaped()
+    parser = PkgbuildParser(BytesIO(b"""array=("prefix{first,second}suffix")"""))
+    assert list(parser.parse()) == [PkgbuildPatch("array", ["prefix{first,second}suffix"])]
 
 
 def test_parse_array() -> None:
     """
     must parse array
     """
-    parser = PkgbuildParser(StringIO("var=(first second)"))
+    parser = PkgbuildParser(BytesIO(b"var=(first second)"))
     assert list(parser.parse()) == [PkgbuildPatch("var", ["first", "second"])]
+
+
+def test_parse_array_escaped() -> None:
+    """
+    must correctly process quoted brackets
+    """
+    parser = PkgbuildParser(BytesIO(b"""var=(first "(" second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", "(", "second"])]
+
+    parser = PkgbuildParser(BytesIO(b"""var=(first ")" second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
+
+    parser = PkgbuildParser(BytesIO(b"""var=(first ')' second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
+
+    parser = PkgbuildParser(BytesIO(b"""var=(first \\) second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
 
 
 def test_parse_array_comment() -> None:
     """
     must parse array with comments inside
     """
-    parser = PkgbuildParser(StringIO("""validpgpkeys=(
+    parser = PkgbuildParser(BytesIO(b"""validpgpkeys=(
   'F3691687D867B81B51CE07D9BBE43771487328A9'  # bpiotrowski@archlinux.org
   '86CFFCA918CF3AF47147588051E8B148A9999C34'  # evangelos@foutrelis.com
   '13975A70E63C361C73AE69EF6EEB81F8981C74C7'  # richard.guenther@gmail.com
@@ -79,28 +65,11 @@ def test_parse_array_comment() -> None:
     ])]
 
 
-def test_parse_array_escaped() -> None:
-    """
-    must correctly process quoted brackets
-    """
-    parser = PkgbuildParser(StringIO("""var=(first "(" second)"""))
-    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", "(", "second"])]
-
-    parser = PkgbuildParser(StringIO("""var=(first ")" second)"""))
-    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
-
-    parser = PkgbuildParser(StringIO("""var=(first ')' second)"""))
-    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
-
-    parser = PkgbuildParser(StringIO("""var=(first \\) second)"""))
-    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
-
-
 def test_parse_array_exception() -> None:
     """
     must raise exception if there is no closing bracket
     """
-    parser = PkgbuildParser(StringIO("var=(first second"))
+    parser = PkgbuildParser(BytesIO(b"var=(first second"))
     with pytest.raises(PkgbuildParserError):
         assert list(parser.parse())
 
@@ -109,86 +78,75 @@ def test_parse_function() -> None:
     """
     must parse function
     """
-    parser = PkgbuildParser(StringIO("var() { echo hello world } "))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ echo hello world }")]
+    parser = PkgbuildParser(BytesIO(b"var() { echo hello world; } "))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ echo hello world; }")]
 
 
 def test_parse_function_eof() -> None:
     """
     must parse function with "}" at the end of the file
     """
-    parser = PkgbuildParser(StringIO("var() { echo hello world }"))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ echo hello world }")]
-
-
-def test_parse_function_spaces() -> None:
-    """
-    must parse function with spaces in declaration
-    """
-    parser = PkgbuildParser(StringIO("var ( ) { echo hello world } "))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ echo hello world }")]
-
-
-def test_parse_function_inner_shell() -> None:
-    """
-    must parse function with inner shell
-    """
-    parser = PkgbuildParser(StringIO("var ( ) { { echo hello world } } "))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ { echo hello world } }")]
+    parser = PkgbuildParser(BytesIO(b"var() { echo hello world; }"))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ echo hello world; }")]
 
 
 def test_parse_function_escaped() -> None:
     """
     must parse function with bracket in quotes
     """
-    parser = PkgbuildParser(StringIO("""var ( ) { echo "hello world {" } """))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo "hello world {" }""")]
+    parser = PkgbuildParser(BytesIO(b"""var() { echo "hello world {"; } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo "hello world {"; }""")]
 
-    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world "{" } """))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world "{" }""")]
+    parser = PkgbuildParser(BytesIO(b"""var() { echo hello world "{"; } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world "{"; }""")]
 
-    parser = PkgbuildParser(StringIO("""var ( ) { echo "hello world }" } """))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo "hello world }" }""")]
+    parser = PkgbuildParser(BytesIO(b"""var() { echo "hello world }"; } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo "hello world }"; }""")]
 
-    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world "}" } """))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world "}" }""")]
+    parser = PkgbuildParser(BytesIO(b"""var() { echo hello world "}"; } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world "}"; }""")]
 
-    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world '}' } """))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world '}' }""")]
+    parser = PkgbuildParser(BytesIO(b"""var() { echo hello world '}'; } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world '}'; }""")]
 
-    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world \\} } """))
-    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world \\} }""")]
+    parser = PkgbuildParser(BytesIO(b"""var() { echo hello world \\}; } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world \\}; }""")]
 
 
 def test_parse_function_exception() -> None:
     """
     must raise exception if no bracket found
     """
-    parser = PkgbuildParser(StringIO("var() echo hello world } "))
+    parser = PkgbuildParser(BytesIO(b"var() echo hello world } "))
     with pytest.raises(PkgbuildParserError):
         assert list(parser.parse())
 
-    parser = PkgbuildParser(StringIO("var() { echo hello world"))
+    parser = PkgbuildParser(BytesIO(b"var() { echo hello world"))
     with pytest.raises(PkgbuildParserError):
         assert list(parser.parse())
 
 
-def test_parse_token_assignment() -> None:
+def test_parse_function_inner_shell() -> None:
     """
-    must parse simple assignment
+    must parse function with inner shell
     """
-    parser = PkgbuildParser(StringIO())
-    assert next(parser._parse_token("var=value")) == PkgbuildPatch("var", "value")
-    assert next(parser._parse_token("var=$value")) == PkgbuildPatch("var", "$value")
-    assert next(parser._parse_token("var=${value}")) == PkgbuildPatch("var", "${value}")
-    assert next(parser._parse_token("var=${value/-/_}")) == PkgbuildPatch("var", "${value/-/_}")
+    parser = PkgbuildParser(BytesIO(b"var() { { echo hello world; }; } "))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ { echo hello world; }; }")]
+
+
+def test_parse_function_spaces() -> None:
+    """
+    must parse function with spaces before body
+    """
+    parser = PkgbuildParser(BytesIO(b"var()   { echo hello world; } "))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", "{ echo hello world; }")]
 
 
 def test_parse_token_comment() -> None:
     """
     must correctly parse comment
     """
-    parser = PkgbuildParser(StringIO("""first=1 # comment
+    parser = PkgbuildParser(BytesIO(b"""first=1 # comment
     # comment line
     second=2
     #third=3
@@ -199,58 +157,12 @@ def test_parse_token_comment() -> None:
     ]
 
 
-def test_read_comment() -> None:
-    """
-    must read comment correctly
-    """
-    io = StringIO("# comment\nnew line")
-    io.seek(2)
-
-    PkgbuildParser(io)._read_comment()
-    assert io.tell() == 10
-
-
-def test_read_comment_skip() -> None:
-    """
-    must skip reading new line if comment ends with new line
-    """
-    io = StringIO("#comment\nnew line")
-    io.seek(7)
-
-    PkgbuildParser(io)._read_comment()
-    assert io.tell() == 9
-
-
-def test_read_last() -> None:
-    """
-    must read last symbol from current position
-    """
-    io = StringIO("mock")
-    io.seek(2)
-    assert PkgbuildParser(io)._read_last() == (1, "o")
-
-
-def test_read_last_starting() -> None:
-    """
-    must raise exception if it reads from starting position
-    """
-    with pytest.raises(PkgbuildParserError):
-        assert PkgbuildParser(StringIO("mock"))._read_last()
-
-
-def test_read_last_from_position() -> None:
-    """
-    must read last symbol from the specified position
-    """
-    assert PkgbuildParser(StringIO("mock"))._read_last(2) == (2, "c")
-
-
 def test_parse(resource_path_root: Path) -> None:
     """
     must parse complex file
     """
     pkgbuild = resource_path_root / "models" / "pkgbuild"
-    with pkgbuild.open(encoding="utf8") as content:
+    with pkgbuild.open("rb") as content:
         parser = PkgbuildParser(content)
         assert list(parser.parse()) == [
             PkgbuildPatch("var", "value"),
@@ -277,53 +189,58 @@ def test_parse(resource_path_root: Path) -> None:
             PkgbuildPatch("array", ["first", ")", "second"]),
             PkgbuildPatch("array", ["first", "(", "second"]),
             PkgbuildPatch("array", ["first", ")", "second"]),
-            PkgbuildPatch("function()", """{ single line }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{ single line; }"""),
+            PkgbuildPatch("func()", """{
     multi
     line
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     c
     multi
     line
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     # comment
     multi
     line
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     body
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     body
 }"""),
-            PkgbuildPatch("function_with-package-name()", """{ body }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("function_with-package-name()", """{ body; }"""),
+            PkgbuildPatch("func()", """{
     first
-    { inner shell }
+    { inner shell; }
     last
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     body "{" argument
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     body "}" argument
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     body '{' argument
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     body '}' argument
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
     # we don't care about unclosed quotation in comments
     body # no, I said we really don't care
 }"""),
-            PkgbuildPatch("function()", """{
+            PkgbuildPatch("func()", """{
   mv "$pkgdir"/usr/share/fonts/站酷小薇体 "$pkgdir"/usr/share/fonts/zcool-xiaowei-regular
   mv "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.站酷小薇体 "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.zcool-xiaowei-regular
 }"""),
             PkgbuildPatch("var", "value"),
             PkgbuildPatch("array", ["first", "second", "third"]),
+            PkgbuildPatch("pkgver()", """{
+  cd aften
+  _ver="$(cat CMakeLists.txt | grep -e SO_MAJOR_VERSION -e SO_MINOR_VERSION -e SO_BUILD_VERSION | cut -d '"' -f2 | head -n3)"
+  echo "$(echo ${_ver} | tr ' ' .).r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)"
+}"""),
         ]

@@ -138,7 +138,7 @@ prepare() {
 
     # apply patch level commits on top of annotated tag for pacman
     if [[ -n ${_git_patch_level_commit} ]]; then
-        if [[ v${_git_tag} != $(git describe --tags --abbrev=0 "${_git_patch_level_commit}") ]] then
+        if [[ v${_git_tag} != $(git describe --tags --abbrev=0 "${_git_patch_level_commit}") ]]; then
             error "patch level commit ${_git_patch_level_commit} is not a descendant of v${_git_tag}"
             exit 1
         fi

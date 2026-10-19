@@ -1,6 +1,6 @@
 import pytest
 
-from io import BytesIO, StringIO
+from io import BytesIO
 from pathlib import Path
 from pytest_mock import MockerFixture
 
@@ -33,10 +33,11 @@ def test_from_file(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
 
 def test_from_file_latin(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
     """
-    must correctly load from file with latin encoding
+    must correctly load bytes containing latin encoding
     """
     open_mock = mocker.patch("pathlib.Path.open")
     open_mock.return_value.__enter__.return_value = BytesIO("contént".encode("latin-1"))
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_io", return_value=pkgbuild_ahriman)
     load_mock = mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_io", return_value=pkgbuild_ahriman)
 
     assert Pkgbuild.from_file(Path("local"))
@@ -50,7 +51,7 @@ def test_from_io(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
     """
     load_mock = mocker.patch("ahriman.core.alpm.pkgbuild_parser.PkgbuildParser.parse",
                              return_value=pkgbuild_ahriman.fields.values())
-    assert Pkgbuild.from_io(StringIO("mock")) == pkgbuild_ahriman
+    assert Pkgbuild.from_io(BytesIO(b"mock")) == pkgbuild_ahriman
     load_mock.assert_called_once_with()
 
 
@@ -64,9 +65,9 @@ def test_from_io_pkgbase(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> N
         [value for key, value in pkgbuild_ahriman.fields.items()] + [PkgbuildPatch("pkgbase", "pkgbase")],
     ])
 
-    assert Pkgbuild.from_io(StringIO("mock"))["pkgbase"] == pkgbuild_ahriman["pkgname"]
-    assert "pkgbase" not in Pkgbuild.from_io(StringIO("mock"))
-    assert Pkgbuild.from_io(StringIO("mock"))["pkgbase"] == "pkgbase"
+    assert Pkgbuild.from_io(BytesIO(b"mock"))["pkgbase"] == pkgbuild_ahriman["pkgname"]
+    assert "pkgbase" not in Pkgbuild.from_io(BytesIO(b"mock"))
+    assert Pkgbuild.from_io(BytesIO(b"mock"))["pkgbase"] == "pkgbase"
 
 
 def test_from_io_empty(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
@@ -75,7 +76,7 @@ def test_from_io_empty(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> Non
     """
     mocker.patch("ahriman.core.alpm.pkgbuild_parser.PkgbuildParser.parse",
                  return_value=list(pkgbuild_ahriman.fields.values()) + [PkgbuildPatch("", "")])
-    assert Pkgbuild.from_io(StringIO("mock")) == pkgbuild_ahriman
+    assert Pkgbuild.from_io(BytesIO(b"mock")) == pkgbuild_ahriman
 
 
 def test_local_files(mocker: MockerFixture, resource_path_root: Path) -> None:
@@ -567,7 +568,6 @@ def test_parse_pacman_static(resource_path_root: Path) -> None:
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_pacman-static_pkgbuild")
     values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
-    print(values)
     assert values == {
         "pkgbase": "pacman-static",
         "pkgname": "pacman-static",

@@ -10,15 +10,15 @@ echo -e '[arcanisrepo]\nServer = https://repo.arcanis.me/$arch\nSigLevel = Never
 # refresh the image
 pacman -Syyu --noconfirm
 # main dependencies
-pacman -S --noconfirm devtools git npm pyalpm python-bcrypt python-filelock python-inflection python-pyelftools python-requests python-systemd sudo
+pacman -S --noconfirm --asdeps devtools git pyalpm python-bcrypt python-filelock python-inflection python-pyelftools python-requests python-tree-sitter python-tree-sitter-bash
 # make dependencies
-pacman -S --noconfirm --asdeps base-devel python-build python-hatchling python-installer python-tox python-wheel
+pacman -S --noconfirm --asdeps base-devel npm python-build python-hatchling python-installer python-tox python-wheel
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
     # web server
-    pacman -S --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-aiohttp-sse-git python-cryptography python-jinja
+    pacman -S --noconfirm --asdeps python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-aiohttp-sse-git python-cryptography python-jinja
     # additional features
-    pacman -S --noconfirm gnupg ipython python-boto3 python-cerberus python-matplotlib rsync
+    pacman -S --noconfirm --asdeps gnupg ipython python-boto3 python-cerberus python-matplotlib python-systemd rsync
 fi
 # FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
 cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"

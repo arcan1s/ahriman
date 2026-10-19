@@ -12,6 +12,8 @@ dependencies = [
     "inflection",
     "pyelftools",
     "requests",
+    "tree-sitter",
+    "tree-sitter-bash",
 ]
 description = "ArcH linux ReposItory MANager, core package"
 dynamic = [

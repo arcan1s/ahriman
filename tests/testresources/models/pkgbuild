@@ -41,55 +41,55 @@ array=(first '(' second)
 array=(first ')' second)
 
 # functions
-function() { single line }
-function() {
+func() { single line; }
+func() {
     multi
     line
 }
-function()
+func()
 {
     c
     multi
     line
 }
-function() {
+func() {
     # comment
     multi
     line
 }
-function () {
+func() {
     body
 }
-function ( ){
+func() {
     body
 }
-function_with-package-name() { body }
-function() {
+function_with-package-name() { body; }
+func() {
     first
-    { inner shell }
+    { inner shell; }
     last
 }
-function() {
+func() {
     body "{" argument
 }
-function() {
+func() {
     body "}" argument
 }
-function() {
+func() {
     body '{' argument
 }
-function() {
+func() {
     body '}' argument
 }
 
 # special case with quotes in comments
-function() {
+func() {
     # we don't care about unclosed quotation in comments
     body # no, I said we really don't care
 }
 
 # some random unicode symbols
-function() {
+func() {
   mv "$pkgdir"/usr/share/fonts/站酷小薇体 "$pkgdir"/usr/share/fonts/zcool-xiaowei-regular
   mv "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.站酷小薇体 "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.zcool-xiaowei-regular
 }
@@ -107,3 +107,9 @@ array=(
     second #comment-without-whitespace
     third
 )
+
+pkgver() {
+  cd aften
+  _ver="$(cat CMakeLists.txt | grep -e SO_MAJOR_VERSION -e SO_MINOR_VERSION -e SO_BUILD_VERSION | cut -d '"' -f2 | head -n3)"
+  echo "$(echo ${_ver} | tr ' ' .).r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)"
+}
