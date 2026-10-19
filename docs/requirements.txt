@@ -125,6 +125,10 @@ sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 stdlib-list==0.11.1
     # via pydeps
+tree-sitter==0.26.0
+    # via ahriman-core
+tree-sitter-bash==0.25.1
+    # via ahriman-core
 urllib3==2.4.0
     # via
     #   botocore
