@@ -426,13 +426,13 @@ There are several supported synchronization providers, currently they are ``rsyn
 PKGBUILD parsing
 ^^^^^^^^^^^^^^^^
 
-The application provides a house-made shell parser ``ahriman.core.alpm.pkgbuild_parser.PkgbuildParser`` to process PKGBUILDs and extract package data from them. It relies on the ``shlex.shlex`` parser with some configuration tweaks and adds some token post-processing.
+The application uses the tree-sitter bash grammar in ``ahriman.core.alpm.pkgbuild_parser.PkgbuildParser`` to process
+PKGBUILDs without executing them. It extracts assignment and function nodes from the syntax tree and preserves function
+bodies from the original source.
 
-#. During the parser process, firstly, it extracts the next token from the source file (basically, the word) and tries to match it to the variable assignment. If so, then just processes accordingly.
-#. If it is not an assignment, the parser checks if the token was quoted.
-#. If it wasn't quoted then the parser tries to match the array starts (two consecutive tokens like ``array=`` and ``(``) or it is function (``function``, ``()`` and ``{``).
-#. The arrays are processed until the next closing bracket ``)``. After extraction, the parser tries to expand an array according to bash rules (``prefix{first,second}suffix`` constructions).
-#. The functions are just read until the closing bracket ``}`` and then reread whole text from the input string without a tokenization.
+#. Assignments, arrays, and functions are read from the syntax tree. Quote and escape handling follows bash syntax.
+#. Function bodies are sliced from the source so their original formatting is preserved.
+#. Bash syntax errors raise ``PkgbuildParserError`` with the source location.
 
 All extracted fields are packed as ``ahriman.models.pkgbuild_patch.PkgbuildPatch`` and then can be used as ``ahriman.models.pkgbuild.Pkgbuild`` instance.
 

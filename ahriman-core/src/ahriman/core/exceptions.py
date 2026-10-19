@@ -238,16 +238,12 @@ class PkgbuildParserError(ValueError):
     exception raises in case of PKGBUILD parser errors
     """
 
-    def __init__(self, reason: str, source: Any = None) -> None:
+    def __init__(self, reason: str) -> None:
         """
         Args:
             reason(str): parser error reason
-            source(Any, optional): source line if available (Default value = None)
         """
-        message = f"Could not parse PKGBUILD: {reason}"
-        if source is not None:
-            message += f", source: `{source}`"
-        ValueError.__init__(self, message)
+        ValueError.__init__(self, f"Could not parse PKGBUILD: {reason}")
 
 
 class PasswordError(ValueError):

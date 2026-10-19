@@ -19,12 +19,12 @@
 #
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
-from io import StringIO
+from io import BytesIO
 from pathlib import Path
-from typing import Any, ClassVar, IO, Self
+from typing import Any, IO, Self
 from urllib.parse import urlparse
 
-from ahriman.core.alpm.pkgbuild_parser import PkgbuildParser, PkgbuildToken
+from ahriman.core.alpm.pkgbuild_parser import PkgbuildParser
 from ahriman.core.utils import srcinfo_property_list
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
@@ -35,13 +35,10 @@ class Pkgbuild(Mapping[str, Any]):
     model and proxy for PKGBUILD properties
 
     Attributes:
-        DEFAULT_ENCODINGS(str): (class attribute) default encoding to be applied on the file content
         fields(dict[str, PkgbuildPatch]): PKGBUILD fields
     """
 
     fields: dict[str, PkgbuildPatch]
-
-    DEFAULT_ENCODINGS: ClassVar[str] = "utf8"
 
     @property
     def variables(self) -> dict[str, str]:
@@ -59,37 +56,26 @@ class Pkgbuild(Mapping[str, Any]):
         }
 
     @classmethod
-    def from_file(cls, path: Path, encoding: str | None = None) -> Self:
+    def from_file(cls, path: Path) -> Self:
         """
         parse PKGBUILD from the file
 
         Args:
             path(Path): path to the PKGBUILD file
-            encoding(str | None, optional): the encoding of the file (Default value = None)
 
         Returns:
             Self: constructed instance of self
-
-        Raises:
-            EncodeError: if encoding is unknown
         """
-        # read raw bytes from file
         with path.open("rb") as input_file:
-            content = input_file.read()
-
-        # decode bytes content based on either
-        encoding = encoding or cls.DEFAULT_ENCODINGS
-        io = StringIO(content.decode(encoding, errors="backslashreplace"))
-
-        return cls.from_io(io)
+            return cls.from_io(input_file)
 
     @classmethod
-    def from_io(cls, stream: IO[str]) -> Self:
+    def from_io(cls, stream: IO[bytes]) -> Self:
         """
         parse PKGBUILD from input stream
 
         Args:
-            stream(IO[str]): input stream containing PKGBUILD content
+            stream(IO[bytes]): input stream containing PKGBUILD content
 
         Returns:
             Self: constructed instance of self
@@ -162,10 +148,10 @@ class Pkgbuild(Mapping[str, Any]):
         """
         packages = [self["pkgname"]] if isinstance(self["pkgname"], str) else self["pkgname"]
 
-        def io(package_name: str) -> IO[str]:
+        def io(package_name: str) -> IO[bytes]:
             # try to read package specific function and fallback to default otherwise
             content = self.get(f"package_{package_name}") or self.get("package") or ""
-            return StringIO(content)
+            return BytesIO(content.encode("utf8"))
 
         return {package: self.from_io(io(package)) for package in packages}
 
@@ -185,8 +171,8 @@ class Pkgbuild(Mapping[str, Any]):
         """
         value = self.fields.get(item)
         # if the key wasn't found and user didn't ask for function explicitly, we can try to get by function name
-        if value is None and not item.endswith(PkgbuildToken.FunctionDeclaration):
-            value = self.fields.get(f"{item}{PkgbuildToken.FunctionDeclaration}")
+        if value is None and not item.endswith("()"):
+            value = self.fields.get(f"{item}()")
 
         # if we still didn't find anything, we can just raise the exception
         if value is None:
