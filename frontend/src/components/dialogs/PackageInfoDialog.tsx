@@ -126,6 +126,7 @@ export default function PackageInfoDialog({
         try {
             const newHeldStatus = !(status?.is_held ?? false);
             await client.service.servicePackageHold(localPackageBase, currentRepository, newHeldStatus);
+            showSuccess("Success", `Package ${newHeldStatus ? "held" : "unheld"}`);
             void queryClient.invalidateQueries({ queryKey: QueryKeys.package(localPackageBase, currentRepository) });
         } catch (exception) {
             showError("Action failed", `Could not update hold status: ${ApiError.errorDetail(exception)}`);
