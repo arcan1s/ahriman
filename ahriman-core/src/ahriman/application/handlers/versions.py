@@ -23,7 +23,6 @@ import sys
 
 from collections.abc import Iterator
 from importlib import metadata
-from typing import ClassVar
 
 from ahriman import __version__
 from ahriman.application.handlers.handler import Handler, SubParserAction
@@ -35,13 +34,10 @@ from ahriman.models.repository_id import RepositoryId
 class Versions(Handler):
     """
     version handler
-
-    Attributes:
-        PEP423_PACKAGE_NAME(re.Pattern[str]): (class attribute) special regex for valid PEP423 package name
     """
 
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
-    PEP423_PACKAGE_NAME: ClassVar[re.Pattern[str]] = re.compile(r"^[A-Za-z0-9._-]+")
+    _PEP423_PACKAGE_NAME = re.compile(r"^[A-Za-z0-9._-]+")
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
@@ -57,7 +53,7 @@ class Versions(Handler):
         """
         VersionPrinter(f"Module version {__version__}",
                        {"Python": sys.version})(verbose=False, separator=" ")
-        packages = Versions.package_dependencies("ahriman")
+        packages = Versions.package_dependencies("ahriman-core", "ahriman-triggers", "ahriman-web")
         VersionPrinter("Installed packages", dict(packages))(verbose=False, separator=" ")
 
     @staticmethod
@@ -77,15 +73,15 @@ class Versions(Handler):
         return parser
 
     @staticmethod
-    def package_dependencies(root: str) -> Iterator[tuple[str, str]]:
+    def package_dependencies(*roots: str) -> Iterator[tuple[str, str]]:
         """
-        extract list of ahriman package dependencies installed into system with their versions
+        extract installed root packages and their dependencies with their versions
 
         Args:
-            root(str): root package name
+            *roots(str): root package names
 
         Yields:
-            tuple[str, str]: map of installed dependency to its version
+            tuple[str, str]: map of installed package to its version
         """
         def dependencies_by_key(key: str) -> Iterator[str]:
             # in importlib it returns requires in the following format
@@ -95,10 +91,10 @@ class Versions(Handler):
             except metadata.PackageNotFoundError:
                 return
             for entry in requires or []:
-                yield from Versions.PEP423_PACKAGE_NAME.findall(entry)
+                yield from Versions._PEP423_PACKAGE_NAME.findall(entry)
 
         keys: list[str] = []
-        portion = set(dependencies_by_key(root))
+        portion = set(roots)
         while portion:
             keys.extend(portion)
             portion = {

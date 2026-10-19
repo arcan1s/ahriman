@@ -17,7 +17,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
 
     _, repository_id = configuration.check_loaded()
     Versions.run(args, repository_id, configuration, report=False)
-    application_mock.assert_called_once_with("ahriman")
+    application_mock.assert_called_once_with("ahriman-core", "ahriman-triggers", "ahriman-web")
     print_mock.assert_has_calls([
         MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=" "),
         MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=" "),
@@ -37,7 +37,7 @@ def test_package_dependencies_missing() -> None:
     """
     must extract package dependencies even if some of them are missing
     """
-    packages = dict(Versions.package_dependencies("ahriman"))
+    packages = dict(Versions.package_dependencies("ahriman-core"))
     assert packages
     assert packages.get("pyalpm") is not None
     assert packages.get("Sphinx") is None
