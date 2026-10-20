@@ -59,7 +59,7 @@ RUN runuser -u build -- install-aur-package \
         python-aiohttp-jinja2 \
         python-aiohttp-session \
         python-aiohttp-security \
-        python-aiohttp-sse-git \
+        python-aiohttp-sse \
         python-requests-unixsocket2 \
         python-tree-sitter \
         python-tree-sitter-bash
