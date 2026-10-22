@@ -37,7 +37,9 @@ import PackageRebuildDialog from "components/dialogs/PackageRebuildDialog";
 import PackageTableToolbar from "components/table/PackageTableToolbar";
 import StatusCell from "components/table/StatusCell";
 import { useDebounce } from "hooks/useDebounce";
+import { navigate, packageHref } from "hooks/useLocationQuery";
 import { usePackageTable } from "hooks/usePackageTable";
+import { useRepository } from "hooks/useRepository";
 import type { PackageRow } from "models/PackageRow";
 import React, { useMemo } from "react";
 
@@ -59,6 +61,7 @@ function createListColumn(
 
 export default function PackageTable(): React.JSX.Element {
     const table = usePackageTable();
+    const { currentRepository } = useRepository();
     const { handleRemove, handleUpdate, isAuthorized } = table;
     const apiRef = useGridApiRef();
     const debouncedSearch = useDebounce(table.searchText, 300);
@@ -79,11 +82,20 @@ export default function PackageTable(): React.JSX.Element {
                 headerName: "package base",
                 minWidth: 150,
                 renderCell: params =>
-                    params.row.webUrl ?
-                        <Link href={params.row.webUrl} rel="noopener noreferrer" target="_blank" underline="hover">
-                            {params.value as string}
-                        </Link>
-                        : params.value as string,
+                    <Link
+                        href={packageHref(currentRepository?.key ?? "", params.row.base)}
+                        onClick={event => {
+                            const modified = event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
+                            if (event.button === 0 && !modified) {
+                                event.preventDefault();
+                                navigate(packageHref(currentRepository?.key ?? "", params.row.base));
+                            }
+                        }}
+                        tabIndex={params.tabIndex}
+                        underline="hover"
+                    >
+                        {params.value as string}
+                    </Link>,
             },
             { align: "right", field: "version", headerAlign: "right", headerName: "version", width: 180 },
             createListColumn("packages", "packages", { flex: 1, minWidth: 120 }),
@@ -124,7 +136,7 @@ export default function PackageTable(): React.JSX.Element {
                 ],
             } satisfies GridColDef<PackageRow>] : [],
         ],
-        [handleRemove, handleUpdate, isAuthorized],
+        [currentRepository, handleRemove, handleUpdate, isAuthorized],
     );
 
     return <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
@@ -195,6 +207,7 @@ export default function PackageTable(): React.JSX.Element {
         <PackageRebuildDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "rebuild"} />
         <KeyImportDialog onClose={() => table.setDialogOpen(null)} open={table.dialogOpen === "keyImport"} />
         <PackageInfoDialog
+            key={`${currentRepository?.key}/${table.selectedPackage}`}
             onClose={() => table.setSelectedPackage(null)}
             open={table.selectedPackage !== null}
             packageBase={table.selectedPackage}

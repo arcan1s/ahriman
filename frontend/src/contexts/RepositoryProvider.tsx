@@ -18,31 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import { RepositoryContext } from "contexts/RepositoryContext";
+import { navigate, packageHref, useLocationQuery } from "hooks/useLocationQuery";
 import type { RepositoryId } from "models/RepositoryId";
-import React, { type ReactNode, useCallback, useMemo, useState, useSyncExternalStore } from "react";
-
-function subscribeToHash(callback: () => void): () => void {
-    window.addEventListener("hashchange", callback);
-    return () => window.removeEventListener("hashchange", callback);
-}
-
-function getHashSnapshot(): string {
-    return window.location.hash.replace("#", "");
-}
+import React, { type ReactNode, useCallback, useMemo, useState } from "react";
 
 export function RepositoryProvider({ children }: { children: ReactNode }): React.JSX.Element {
     const [repositories, setRepositories] = useState<RepositoryId[]>([]);
-    const hash = useSyncExternalStore(subscribeToHash, getHashSnapshot);
+    const repositoryKey = new URLSearchParams(useLocationQuery()).get("repository_id");
 
     const currentRepository = useMemo(() => {
         if (repositories.length === 0) {
             return null;
         }
-        return repositories.find(repository => repository.key === hash) ?? repositories[0] ?? null;
-    }, [repositories, hash]);
+        return repositories.find(repository => repository.key === repositoryKey) ?? repositories[0] ?? null;
+    }, [repositories, repositoryKey]);
 
     const setCurrentRepository = useCallback((repository: RepositoryId) => {
-        window.location.hash = repository.key;
+        navigate(packageHref(repository.key, null));
     }, []);
 
     const value = useMemo(() => ({

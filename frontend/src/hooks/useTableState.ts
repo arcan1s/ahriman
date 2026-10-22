@@ -19,6 +19,8 @@
  */
 import type { GridFilterModel } from "@mui/x-data-grid";
 import { useLocalStorage } from "hooks/useLocalStorage";
+import { navigate, packageHref, useLocationQuery } from "hooks/useLocationQuery";
+import { useRepository } from "hooks/useRepository";
 import { useState } from "react";
 
 export type DialogType = "dashboard" | "add" | "rebuild" | "keyImport";
@@ -43,7 +45,14 @@ export interface UseTableStateResult {
 export function useTableState(): UseTableStateResult {
     const [selectionModel, setSelectionModel] = useState<string[]>([]);
     const [dialogOpen, setDialogOpen] = useState<DialogType | null>(null);
-    const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+    const { currentRepository } = useRepository();
+    const packageBase = new URLSearchParams(useLocationQuery()).get("package");
+    const selectedPackage = currentRepository && packageBase ? packageBase : null;
+    const setSelectedPackage = (base: string | null): void => {
+        if (currentRepository) {
+            navigate(packageHref(currentRepository.key, base));
+        }
+    };
     const [searchText, setSearchText] = useState("");
 
     const [paginationModel, setPaginationModel] = useLocalStorage("ahriman-packages-pagination", {
