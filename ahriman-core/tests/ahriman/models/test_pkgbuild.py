@@ -491,6 +491,8 @@ def test_parse_pacman_static(resource_path_root: Path) -> None:
         "CXXFLAGS": "${CXXFLAGS/-fstack-protector-strong/}",
         "PKGEXT": ".pkg.tar.xz",
     }
+
+
 def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
     """
     must parse real PKGBUILDs correctly (python-pytest-loop)
