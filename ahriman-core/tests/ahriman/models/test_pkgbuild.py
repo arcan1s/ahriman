@@ -50,7 +50,7 @@ def test_from_io(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
     must correctly load from io
     """
     load_mock = mocker.patch("ahriman.core.alpm.pkgbuild_parser.PkgbuildParser.parse",
-                             return_value=pkgbuild_ahriman.fields.values())
+                             return_value=iter(pkgbuild_ahriman.fields.values()))
     assert Pkgbuild.from_io(BytesIO(b"mock")) == pkgbuild_ahriman
     load_mock.assert_called_once_with()
 
@@ -60,9 +60,9 @@ def test_from_io_pkgbase(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> N
     must assign missing pkgbase if pkgname is presented
     """
     mocker.patch("ahriman.core.alpm.pkgbuild_parser.PkgbuildParser.parse", side_effect=[
-        [value for key, value in pkgbuild_ahriman.fields.items() if key not in ("pkgbase",)],
-        [value for key, value in pkgbuild_ahriman.fields.items() if key not in ("pkgbase", "pkgname",)],
-        [value for key, value in pkgbuild_ahriman.fields.items()] + [PkgbuildPatch("pkgbase", "pkgbase")],
+        iter([value for key, value in pkgbuild_ahriman.fields.items() if key not in ("pkgbase",)]),
+        iter([value for key, value in pkgbuild_ahriman.fields.items() if key not in ("pkgbase", "pkgname",)]),
+        iter([value for key, value in pkgbuild_ahriman.fields.items()] + [PkgbuildPatch("pkgbase", "pkgbase")]),
     ])
 
     assert Pkgbuild.from_io(BytesIO(b"mock"))["pkgbase"] == pkgbuild_ahriman["pkgname"]
@@ -75,7 +75,7 @@ def test_from_io_empty(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> Non
     must skip empty patches
     """
     mocker.patch("ahriman.core.alpm.pkgbuild_parser.PkgbuildParser.parse",
-                 return_value=list(pkgbuild_ahriman.fields.values()) + [PkgbuildPatch("", "")])
+                 return_value=iter(list(pkgbuild_ahriman.fields.values()) + [PkgbuildPatch("", "")]))
     assert Pkgbuild.from_io(BytesIO(b"mock")) == pkgbuild_ahriman
 
 

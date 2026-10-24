@@ -21,7 +21,7 @@ import re
 import shlex
 import tree_sitter_bash
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from enum import StrEnum
 from tree_sitter import Language, Node, Parser
 from typing import IO, cast
@@ -78,7 +78,7 @@ class PkgbuildNodeField(StrEnum):
     Value = "value"
 
 
-class PkgbuildParser:
+class PkgbuildParser(Iterable[PkgbuildPatch]):
     """
     PKGBUILD parser implementation in python
 
@@ -97,24 +97,29 @@ class PkgbuildParser:
     original source, with their formatting preserved. Assignments inside shell statements and control-flow nodes are
     extracted without checking whether those statements would run.
 
+    Each iteration parses the stored source independently, starting from the beginning.
+
     Examples:
         Parse package assignments::
 
             >>> source = b"pkgname=example\\npkgver=1\\n"
-            >>> for patch in PkgbuildParser(BytesIO(source)).parse():
+            >>> for patch in PkgbuildParser(BytesIO(source)):
             ...     print(patch.key, patch.value)
 
         Function bodies are returned as function patches::
 
             >>> source = b"pkgver() { printf 1; }"
-            >>> for patch in list(PkgbuildParser(BytesIO(source)).parse())
+            >>> for patch in PkgbuildParser(BytesIO(source)):
             ...     print(patch.key, patch.value)
     """
 
     _BRACE_EXPANSION = re.compile(r"(.*)\{([^{}]+)\}(.*)")
 
     def __init__(self, stream: IO[bytes]) -> None:
-        """"""
+        """
+        Args:
+            stream(IO[bytes]): input PKGBUILD stream
+        """
         self._content = stream.read()
 
     @staticmethod
@@ -256,3 +261,12 @@ class PkgbuildParser:
             )
 
         yield from self._read(tree.root_node)
+
+    def __iter__(self) -> Iterator[PkgbuildPatch]:
+        """
+        iterate over the parsed entries
+
+        Returns:
+            Iterator[PkgbuildPatch]: parsed entries
+        """
+        return self.parse()

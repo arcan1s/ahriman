@@ -71,7 +71,7 @@ def test_parse_array_exception() -> None:
     """
     parser = PkgbuildParser(BytesIO(b"var=(first second"))
     with pytest.raises(PkgbuildParserError):
-        assert list(parser.parse())
+        list(parser.parse())
 
 
 def test_parse_function() -> None:
@@ -119,11 +119,11 @@ def test_parse_function_exception() -> None:
     """
     parser = PkgbuildParser(BytesIO(b"var() echo hello world } "))
     with pytest.raises(PkgbuildParserError):
-        assert list(parser.parse())
+        list(parser.parse())
 
     parser = PkgbuildParser(BytesIO(b"var() { echo hello world"))
     with pytest.raises(PkgbuildParserError):
-        assert list(parser.parse())
+        list(parser.parse())
 
 
 def test_parse_function_inner_shell() -> None:

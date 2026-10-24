@@ -80,8 +80,7 @@ class Pkgbuild(Mapping[str, Any]):
         Returns:
             Self: constructed instance of self
         """
-        parser = PkgbuildParser(stream)
-        fields = {patch.key: patch for patch in parser.parse()}
+        fields = {patch.key: patch for patch in PkgbuildParser(stream)}
 
         # pkgbase is optional field, the pkgname must be used instead if not set
         # however, pkgname is not presented is "package()" functions which we are parsing here too,
