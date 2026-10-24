@@ -399,169 +399,6 @@ def test_parse_jellyfin_ffmpeg6_bin(resource_path_root: Path) -> None:
     }
 
 
-def test_parse_tpacpi_bat_git(resource_path_root: Path) -> None:
-    """
-    must parse real PKGBUILDs correctly (tpacpi-bat-git)
-    """
-    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_tpacpi-bat-git_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
-    assert values == {
-        "pkgbase": "tpacpi-bat-git",
-        "pkgname": "tpacpi-bat-git",
-        "pkgver": "3.1.r13.g4959b52",
-        "pkgrel": "1",
-        "pkgdesc": "A Perl script with ACPI calls for recent ThinkPads which are not supported by tp_smapi",
-        "arch": ["any"],
-        "url": "https://github.com/teleshoes/tpacpi-bat",
-        "license": ["GPL3"],
-        "depends": ["perl", "acpi_call"],
-        "makedepends": ["git"],
-        "provides": ["tpacpi-bat"],
-        "conflicts": ["tpacpi-bat"],
-        "backup": ["etc/conf.d/tpacpi"],
-        "source": ["git+https://github.com/teleshoes/tpacpi-bat.git"],
-        "b2sums": ["SKIP"],
-    }
-
-
-def test_parse_yay(resource_path_root: Path) -> None:
-    """
-    must parse real PKGBUILDs correctly (yay)
-    """
-    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_yay_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
-    assert values == {
-        "pkgbase": "yay",
-        "pkgname": "yay",
-        "pkgver": "12.3.5",
-        "pkgrel": "1",
-        "pkgdesc": "Yet another yogurt. Pacman wrapper and AUR helper written in go.",
-        "arch": [
-            "i686",
-            "pentium4",
-            "x86_64",
-            "arm",
-            "armv7h",
-            "armv6h",
-            "aarch64",
-            "riscv64",
-        ],
-        "url": "https://github.com/Jguer/yay",
-        "options": ["!lto"],
-        "license": ["GPL-3.0-or-later"],
-        "depends": [
-            "pacman>6.1",
-            "git",
-        ],
-        "optdepends": [
-            "sudo: privilege elevation",
-            "doas: privilege elevation",
-        ],
-        "makedepends": ["go>=1.21"],
-        "source": ["${pkgname}-${pkgver}.tar.gz::https://github.com/Jguer/yay/archive/v${pkgver}.tar.gz"],
-        "sha256sums": ["2fb6121a6eb4c5e6afaf22212b2ed15022500a4bc34bb3dc0f9782c1d43c3962"],
-    }
-
-
-def test_parse_vim_youcompleteme_git(resource_path_root: Path) -> None:
-    """
-    must parse real PKGBUILDs correctly (vim-youcompleteme-git)
-    """
-    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_vim-youcompleteme-git_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
-    assert values == {
-        "pkgbase": "vim-youcompleteme-git",
-        "_gocode": "y",
-        "_typescript": "y",
-        "_tern": "n",
-        "_java": "y",
-        "_use_system_clang": "ON",
-        "_use_system_abseil": "OFF",
-        "_neovim": "$NEOVIM_YOUCOMPLETEME",
-        "pkgname": "vim-youcompleteme-git",
-        "pkgver": "r3216.0d855962",
-        "pkgrel": "1",
-        "pkgdesc": "A code-completion engine for Vim",
-        "arch": ["x86_64"],
-        "url": "https://ycm-core.github.io/YouCompleteMe/",
-        "license": ["GPL3"],
-        "groups": ["vim-plugins"],
-        "depends": [
-            "vim",
-            "python>=3.6",
-            "python-watchdog",
-            "python-bottle",
-            "clang"
-        ],
-        "makedepends": [
-            "git",
-            "cmake",
-            "pybind11",
-        ],
-        "optdepends": [
-            "gopls: Go semantic completion",
-            "nodejs-tern: JavaScript semantic completion",
-            "rust-analyzer: Rust semantic completion",
-            "typescript: Typescript semantic completion",
-            "python-jedi: Python semantic completion",
-            "python-numpydoc: Python semantic completion",
-            "python-regex: Better Unicode support",
-            "omnisharp-roslyn: C# semantic completion",
-            "java-environment>=11: Java semantic completion",
-            "jdtls: Java semantic completion",
-            "abseil-cpp: if setting _use_system_abseil ON",
-        ],
-        "source": [
-            "git+https://github.com/ycm-core/YouCompleteMe.git",
-            "git+https://github.com/ycm-core/ycmd.git",
-            "clangd-15.0.1.tar.bz2::https://github.com/ycm-core/llvm/releases/download/15.0.1/clangd-15.0.1-x86_64-unknown-linux-gnu.tar.bz2",
-            "libclang-15.0.1.tar.bz2::https://github.com/ycm-core/llvm/releases/download/15.0.1/libclang-15.0.1-x86_64-unknown-linux-gnu.tar.bz2",
-        ],
-        "sha256sums": [
-            "SKIP",
-            "SKIP",
-            "10a64c468d1dd2a384e0e5fd4eb2582fd9f1dfa706b6d2d2bb88fb0fbfc2718d",
-            "9a5bee818a4995bc52e91588059bef42728d046808206bfb93977f4e3109e50c",
-        ],
-    }
-
-
-def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
-    """
-    must parse real PKGBUILDs correctly (python-pytest-loop)
-    """
-    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_python-pytest-loop_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
-    assert values == {
-        "pkgbase": "python-pytest-loop",
-        "_pname": "${pkgbase#python-}",
-        "_pyname": "${_pname//-/_}",
-        "pkgname": ["python-${_pname}"],
-        "pkgver": "1.0.13",
-        "pkgrel": "1",
-        "pkgdesc": "Pytest plugin for looping test execution.",
-        "arch": ["any"],
-        "url": "https://github.com/anogowski/pytest-loop",
-        "license": ["MPL-2.0"],
-        "makedepends": [
-            "python-hatchling",
-            "python-versioningit",
-            "python-wheel",
-            "python-build",
-            "python-installer",
-        ],
-        "checkdepends": [
-            "python-pytest",
-        ],
-        "source": [
-            "https://files.pythonhosted.org/packages/source/${_pyname:0:1}/${_pyname}/${_pyname}-${pkgver}.tar.gz",
-        ],
-        "md5sums": [
-            "98365f49606d5068f92350f1d2569a5f",
-        ],
-    }
-
-
 def test_parse_pacman_static(resource_path_root: Path) -> None:
     """
     must parse real PKGBUILDs correctly (pacman-static)
@@ -653,4 +490,249 @@ def test_parse_pacman_static(resource_path_root: Path) -> None:
         "CFLAGS": "${CFLAGS/-fstack-protector-strong/}",
         "CXXFLAGS": "${CXXFLAGS/-fstack-protector-strong/}",
         "PKGEXT": ".pkg.tar.xz",
+    }
+def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (python-pytest-loop)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_python-pytest-loop_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    assert values == {
+        "pkgbase": "python-pytest-loop",
+        "_pname": "${pkgbase#python-}",
+        "_pyname": "${_pname//-/_}",
+        "pkgname": ["python-${_pname}"],
+        "pkgver": "1.0.13",
+        "pkgrel": "1",
+        "pkgdesc": "Pytest plugin for looping test execution.",
+        "arch": ["any"],
+        "url": "https://github.com/anogowski/pytest-loop",
+        "license": ["MPL-2.0"],
+        "makedepends": [
+            "python-hatchling",
+            "python-versioningit",
+            "python-wheel",
+            "python-build",
+            "python-installer",
+        ],
+        "checkdepends": [
+            "python-pytest",
+        ],
+        "source": [
+            "https://files.pythonhosted.org/packages/source/${_pyname:0:1}/${_pyname}/${_pyname}-${pkgver}.tar.gz",
+        ],
+        "md5sums": [
+            "98365f49606d5068f92350f1d2569a5f",
+        ],
+    }
+
+
+def test_parse_tpacpi_bat_git(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (tpacpi-bat-git)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_tpacpi-bat-git_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    assert values == {
+        "pkgbase": "tpacpi-bat-git",
+        "pkgname": "tpacpi-bat-git",
+        "pkgver": "3.1.r13.g4959b52",
+        "pkgrel": "1",
+        "pkgdesc": "A Perl script with ACPI calls for recent ThinkPads which are not supported by tp_smapi",
+        "arch": ["any"],
+        "url": "https://github.com/teleshoes/tpacpi-bat",
+        "license": ["GPL3"],
+        "depends": ["perl", "acpi_call"],
+        "makedepends": ["git"],
+        "provides": ["tpacpi-bat"],
+        "conflicts": ["tpacpi-bat"],
+        "backup": ["etc/conf.d/tpacpi"],
+        "source": ["git+https://github.com/teleshoes/tpacpi-bat.git"],
+        "b2sums": ["SKIP"],
+    }
+
+
+def test_parse_ttf_google_fonts_git(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (ttf-google-fonts-git)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_ttf-google-fonts-git_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    assert "ttf-google-fonts-git" in pkgbuild.packages()
+    assert values == {
+        "pkgname": "ttf-google-fonts-git",
+        "pkgver": "r11002.cdabad3d0",
+        "pkgrel": "1",
+        "epoch": "1",
+        "pkgdesc": "TrueType fonts from the Google Fonts project (git version)",
+        "arch": ["any"],
+        "url": "https://github.com/google/fonts",
+        "license": ["custom:SIL Open Font License", "custom:Ubuntu Font License v1.0"],
+        "depends": [
+            "adobe-source-code-pro-fonts",
+            "adobe-source-sans-fonts",
+            "adobe-source-serif-fonts",
+            "cantarell-fonts",
+            "noto-fonts",
+            "noto-fonts-extra",
+            "ttf-anonymous-pro",
+            "ttf-caladea",
+            "ttf-croscore",
+            "ttf-fira-sans",
+            "ttf-fira-mono",
+            "ttf-inconsolata",
+            "ttf-lato",
+            "ttf-merriweather",
+            "ttf-merriweather-sans",
+            "ttf-opensans",
+            "ttf-oswald",
+            "ttf-quintessential",
+            "ttf-roboto",
+            "ttf-roboto-mono",
+            "ttf-signika",
+            "ttf-ubuntu-font-family",
+        ],
+        "makedepends": ["git", "fontconfig"],
+        "conflicts": [
+            "jsmath-fonts",
+            "lohit-fonts",
+            "ttf-andika",
+            "ttf-arabeyes-fonts",
+            "ttf-cardo",
+            "ttf-comfortaa",
+            "ttf-google-fonts-typewolf",
+            "ttf-lora-cyrillic",
+            "ttf-lekton",
+            "ttf-medievalsharp",
+            "ttf-nova",
+            "ttf-oxygen",
+            "ttf-oxygen-git",
+            "ttf-pt-fonts",
+            "ttf-source-code-pro-ibx",
+            "ttf-source-sans-pro-ibx",
+            "ttf-vollkorn-ibx",
+        ],
+        "provides": [
+            "jsmath-fonts",
+            "lohit-fonts",
+            "ttf-andika",
+            "ttf-cardo",
+            "ttf-carlito",
+            "ttf-comfortaa",
+            "ttf-lora-cyrillic",
+            "ttf-lekton",
+            "ttf-medievalsharp",
+            "ttf-nova",
+            "ttf-oxygen",
+            "ttf-oxygen-git",
+            "ttf-pt-fonts",
+            "ttf-source-code-pro-ibx",
+            "ttf-source-sans-pro-ibx",
+            "ttf-vollkorn-ibx",
+        ],
+        "source": ["git+${url}.git"],
+        "sha512sums": ["SKIP"],
+        "pkgbase": "ttf-google-fonts-git",
+    }
+
+
+def test_parse_vim_youcompleteme_git(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (vim-youcompleteme-git)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_vim-youcompleteme-git_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    assert values == {
+        "pkgbase": "vim-youcompleteme-git",
+        "_gocode": "y",
+        "_typescript": "y",
+        "_tern": "n",
+        "_java": "y",
+        "_use_system_clang": "ON",
+        "_use_system_abseil": "OFF",
+        "_neovim": "$NEOVIM_YOUCOMPLETEME",
+        "pkgname": "vim-youcompleteme-git",
+        "pkgver": "r3216.0d855962",
+        "pkgrel": "1",
+        "pkgdesc": "A code-completion engine for Vim",
+        "arch": ["x86_64"],
+        "url": "https://ycm-core.github.io/YouCompleteMe/",
+        "license": ["GPL3"],
+        "groups": ["vim-plugins"],
+        "depends": [
+            "vim",
+            "python>=3.6",
+            "python-watchdog",
+            "python-bottle",
+            "clang"
+        ],
+        "makedepends": [
+            "git",
+            "cmake",
+            "pybind11",
+        ],
+        "optdepends": [
+            "gopls: Go semantic completion",
+            "nodejs-tern: JavaScript semantic completion",
+            "rust-analyzer: Rust semantic completion",
+            "typescript: Typescript semantic completion",
+            "python-jedi: Python semantic completion",
+            "python-numpydoc: Python semantic completion",
+            "python-regex: Better Unicode support",
+            "omnisharp-roslyn: C# semantic completion",
+            "java-environment>=11: Java semantic completion",
+            "jdtls: Java semantic completion",
+            "abseil-cpp: if setting _use_system_abseil ON",
+        ],
+        "source": [
+            "git+https://github.com/ycm-core/YouCompleteMe.git",
+            "git+https://github.com/ycm-core/ycmd.git",
+            "clangd-15.0.1.tar.bz2::https://github.com/ycm-core/llvm/releases/download/15.0.1/clangd-15.0.1-x86_64-unknown-linux-gnu.tar.bz2",
+            "libclang-15.0.1.tar.bz2::https://github.com/ycm-core/llvm/releases/download/15.0.1/libclang-15.0.1-x86_64-unknown-linux-gnu.tar.bz2",
+        ],
+        "sha256sums": [
+            "SKIP",
+            "SKIP",
+            "10a64c468d1dd2a384e0e5fd4eb2582fd9f1dfa706b6d2d2bb88fb0fbfc2718d",
+            "9a5bee818a4995bc52e91588059bef42728d046808206bfb93977f4e3109e50c",
+        ],
+    }
+
+
+def test_parse_yay(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (yay)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_yay_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    assert values == {
+        "pkgbase": "yay",
+        "pkgname": "yay",
+        "pkgver": "12.3.5",
+        "pkgrel": "1",
+        "pkgdesc": "Yet another yogurt. Pacman wrapper and AUR helper written in go.",
+        "arch": [
+            "i686",
+            "pentium4",
+            "x86_64",
+            "arm",
+            "armv7h",
+            "armv6h",
+            "aarch64",
+            "riscv64",
+        ],
+        "url": "https://github.com/Jguer/yay",
+        "options": ["!lto"],
+        "license": ["GPL-3.0-or-later"],
+        "depends": [
+            "pacman>6.1",
+            "git",
+        ],
+        "optdepends": [
+            "sudo: privilege elevation",
+            "doas: privilege elevation",
+        ],
+        "makedepends": ["go>=1.21"],
+        "source": ["${pkgname}-${pkgver}.tar.gz::https://github.com/Jguer/yay/archive/v${pkgver}.tar.gz"],
+        "sha256sums": ["2fb6121a6eb4c5e6afaf22212b2ed15022500a4bc34bb3dc0f9782c1d43c3962"],
     }

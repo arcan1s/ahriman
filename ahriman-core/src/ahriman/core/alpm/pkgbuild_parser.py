@@ -169,6 +169,11 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         value = cast(Node, node.child_by_field_name(PkgbuildNodeField.Value))
         key = self._text(name)
 
+        # bash permits assignments without a value (for example ``IFS=``).
+        # tree-sitter represents those assignments without a value node.
+        if value is None:
+            return PkgbuildPatch(key, "")
+
         match value.type:
             case PkgbuildNodeType.Array:
                 array_values = []
