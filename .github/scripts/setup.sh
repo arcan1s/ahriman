@@ -61,6 +61,6 @@ sudo -u ahriman -- ahriman --log-handler console package-add --now ahriman
 # check if package was actually installed
 test -n "$(find "/var/lib/ahriman/repository/github/x86_64" -name "ahriman*pkg*")"
 # run package check
-sudo -u ahriman -- ahriman repo-update
+sudo -u ahriman -- ahriman --log-handler console repo-update --refresh
 # stop web service lol
 [[ -z $WEB_PID ]] || kill $WEB_PID
