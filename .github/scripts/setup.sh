@@ -41,6 +41,7 @@ systemd-machine-id-setup
 
 # remove unused dependencies
 pacman -Qdtq | pacman -Rscn --noconfirm -
+find "/var/cache/pacman/pkg" -type f -delete
 
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
