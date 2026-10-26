@@ -229,6 +229,17 @@ The projects also uses typing checks (provided by `mypy`) and some linter checks
 
 Frontend checks normally are performed by `eslint` (e.g. `npx run eslint`).
 
+## AI usage policy
+
+AI tools may be used when working on the project, including writing code, tests, and documentation, debugging problems, and preparing issue reports. Contributors remain responsible for everything they submit, including content generated or suggested by AI.
+
+* Review and understand every submitted change. You must be able to explain the implementation, respond to review feedback, and correct any problems.
+* Do not list AI tools as commit authors or co-authors, including in `Co-authored-by` trailers. Authorship must remain with the human contributors responsible for the changes.
+* Discussions in issues and pull requests must be led by humans. Participate personally, explain your reasoning, and respond to questions and review feedback yourself. AI tools may help with wording or translation, but must not conduct discussions on your behalf.
+* Verify claims, references, and reproduction steps before submitting an issue or pull request. Do not submit unreviewed AI output or claim that checks passed unless they were run and you verified the results.
+
+Maintainers may close submissions that do not meet these requirements. Using AI does not transfer responsibility for reviewing or fixing a contribution to maintainers.
+
 ## Developers how to
 
 ### Run automated checks
