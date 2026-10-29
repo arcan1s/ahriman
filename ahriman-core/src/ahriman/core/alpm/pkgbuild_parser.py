@@ -186,19 +186,34 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             case _:
                 return PkgbuildPatch(key, self._value(value))
 
-    def _read(self, node: Node) -> Iterator[PkgbuildPatch]:
+    def _read(self, node: Node, values: dict[str | None, PkgbuildPatch]) -> Iterator[PkgbuildPatch]:
         """
         find assignments and functions in a syntax tree node
 
         Args:
             node(Node): syntax tree node to inspect
+            values(dict[str | None, PkgbuildPatch]): cached assignments
 
         Yields:
             PkgbuildPatch: parsed entries
         """
         match node.type:
-            case PkgbuildNodeType.VariableAssignment if not any(child.type == PkgbuildNodeType.Append for child in node.children):
-                yield self._assignment(node)
+            case PkgbuildNodeType.VariableAssignment if any(child.type == PkgbuildNodeType.Append for child in node.children):
+                patch = self._assignment(node)
+                match values.get(patch.key), patch.value:
+                    case PkgbuildPatch(value=str() as previous), str() as appended:
+                        patch = PkgbuildPatch(patch.key, previous + appended)
+                    case PkgbuildPatch(value=str() as previous), list() as appended:
+                        patch = PkgbuildPatch(patch.key, [previous, *appended])
+                    case PkgbuildPatch(value=list() as previous), list() as appended:
+                        patch = PkgbuildPatch(patch.key, previous + appended)
+                values[patch.key] = patch
+                yield patch
+
+            case PkgbuildNodeType.VariableAssignment:
+                patch = self._assignment(node)
+                values[patch.key] = patch
+                yield patch
 
             case PkgbuildNodeType.FunctionDefinition:
                 name = cast(Node, node.child_by_field_name(PkgbuildNodeField.Name))
@@ -215,7 +230,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
                             PkgbuildNodeType.String,
                             PkgbuildNodeType.Word,
                     ):
-                        yield from self._read(child)
+                        yield from self._read(child, values)
 
     def _value(self, node: Node) -> str:
         """
@@ -265,7 +280,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
                 f"syntax error at line {error.start_point.row + 1}, column {error.start_point.column + 1}"
             )
 
-        yield from self._read(tree.root_node)
+        yield from self._read(tree.root_node, {})
 
     def __iter__(self) -> Iterator[PkgbuildPatch]:
         """

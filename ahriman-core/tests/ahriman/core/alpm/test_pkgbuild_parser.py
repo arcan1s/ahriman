@@ -22,6 +22,34 @@ def test_expand_array() -> None:
     assert list(parser.parse()) == [PkgbuildPatch("array", ["prefix{first,second}suffix"])]
 
 
+def test_parse_append_array() -> None:
+    """
+    must retain original array elements when appending and iterating again
+    """
+    parser = PkgbuildParser(BytesIO(
+        b"source=(base.patch)\nsource+=(extra.patch)\nsource+=(last.patch)\nsource=(reset.patch)\nsource+=(extra.patch)"
+    ))
+    expected = [
+        PkgbuildPatch("source", ["base.patch"]),
+        PkgbuildPatch("source", ["base.patch", "extra.patch"]),
+        PkgbuildPatch("source", ["base.patch", "extra.patch", "last.patch"]),
+        PkgbuildPatch("source", ["reset.patch"]),
+        PkgbuildPatch("source", ["reset.patch", "extra.patch"]),
+    ]
+    assert list(parser) == expected
+
+
+def test_parse_append_array_to_string() -> None:
+    """
+    must preserve a string as the first element when appending an array
+    """
+    parser = PkgbuildParser(BytesIO(b"source=base.patch\nsource+=(extra.patch)"))
+    assert list(parser) == [
+        PkgbuildPatch("source", "base.patch"),
+        PkgbuildPatch("source", ["base.patch", "extra.patch"]),
+    ]
+
+
 def test_parse_array() -> None:
     """
     must parse array
