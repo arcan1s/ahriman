@@ -18,8 +18,19 @@ def test_expand_array() -> None:
     parser = PkgbuildParser(BytesIO(b"array=(prefix{first,second}suffix)"))
     assert list(parser.parse()) == [PkgbuildPatch("array", ["prefixfirstsuffix", "prefixsecondsuffix"])]
 
+    parser = PkgbuildParser(BytesIO(br"array=(prefix{first\,second,third}suffix)"))
+    assert list(parser.parse()) == [PkgbuildPatch("array", ["prefixfirst,secondsuffix", "prefixthirdsuffix"])]
+
     parser = PkgbuildParser(BytesIO(b"""array=("prefix{first,second}suffix")"""))
     assert list(parser.parse()) == [PkgbuildPatch("array", ["prefix{first,second}suffix"])]
+
+    parser = PkgbuildParser(BytesIO(b"""array=(x"{a,b}" x'{a,b}' "{x,y}"{a,b})"""))
+    assert list(parser) == [PkgbuildPatch("array", ["x{a,b}", "x{a,b}", "{x,y}a", "{x,y}b"])]
+
+    parser = PkgbuildParser(BytesIO(b"""array=(${v:-a,b}suffix ${v:-a,b}{,.sig} $(echo '{a,b}')suffix)"""))
+    assert list(parser) == [PkgbuildPatch("array", [
+        "${v:-a,b}suffix", "${v:-a,b}", "${v:-a,b}.sig", "$(echo '{a,b}')suffix",
+    ])]
 
 
 def test_parse_append_array() -> None:

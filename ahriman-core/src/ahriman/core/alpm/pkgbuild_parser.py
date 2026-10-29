@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import re
 import shlex
 import tree_sitter_bash
 
@@ -26,6 +25,7 @@ from enum import StrEnum
 from tree_sitter import Language, Node, Parser
 from typing import IO, cast
 
+from ahriman.core.configuration.shell_interpolator import ShellInterpolator
 from ahriman.core.exceptions import PkgbuildParserError
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
@@ -113,34 +113,12 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             ...     print(patch.key, patch.value)
     """
 
-    _BRACE_EXPANSION = re.compile(r"(.*)\{([^{}]+)\}(.*)")
-
     def __init__(self, stream: IO[bytes]) -> None:
         """
         Args:
             stream(IO[bytes]): input PKGBUILD stream
         """
         self._content = stream.read()
-
-    @staticmethod
-    def _expand_array(value: str, *, expand: bool = True) -> list[str]:
-        """
-        expand comma-separated brace expressions in a value
-
-        Args:
-            value(str): value that may contain a brace expression
-            expand(bool, optional): whether brace expansion is allowed (Default value = True)
-
-        Returns:
-            list[str]: expanded values if applicable
-        """
-        match = PkgbuildParser._BRACE_EXPANSION.fullmatch(value)
-        # if there is no comma inside it should be treated as normal value
-        if match is None or not expand or "," not in match.group(2):
-            return [value]
-
-        prefix, values, suffix = match.groups()
-        return [f"{prefix}{item}{suffix}" for item in values.split(",")]
 
     @staticmethod
     def _text(node: Node) -> str:
@@ -154,6 +132,19 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             str: source text for the node
         """
         return cast(bytes, node.text).decode("utf8", errors="backslashreplace")
+
+    @staticmethod
+    def _unquote(value: str) -> str:
+        """
+        remove shell quotes and escapes from a single value
+
+        Args:
+            value(str): shell value to unquote
+
+        Returns:
+            str: unquoted value
+        """
+        return "".join(shlex.split(value, comments=False, posix=True))
 
     def _assignment(self, node: Node) -> PkgbuildPatch:
         """
@@ -178,13 +169,45 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             case PkgbuildNodeType.Array:
                 array_values = []
                 for element in filter(lambda child: child.type != PkgbuildNodeType.Comment, value.named_children):
-                    item = self._value(element)
-                    values = self._expand_array(item, expand=element.type == PkgbuildNodeType.Concatenation)
-                    array_values.extend(values)
+                    array_values.extend(self._expand_array(element))
                 return PkgbuildPatch(key, array_values)
 
             case _:
                 return PkgbuildPatch(key, self._value(value))
+
+    def _expand_array(self, node: Node) -> list[str]:
+        """
+        expand simple comma-separated brace groups in an array element
+
+        Args:
+            node(Node): array element to expand
+
+        Returns:
+            list[str]: expanded element values
+        """
+        if node.type != PkgbuildNodeType.Concatenation:
+            return [self._value(node)]
+
+        values = [""]
+        children = node.named_children
+        while children:
+            match children[:3]:
+                case [
+                    Node(type=PkgbuildNodeType.Word, text=b"{"),
+                    Node(type=PkgbuildNodeType.Word) as content,
+                    Node(type=PkgbuildNodeType.Word, text=b"}"),
+                ] if "," in (escaped := self._text(content).replace("\\,", ShellInterpolator.DATA_LINK_ESCAPE)):
+                    parts = [
+                        self._unquote(part).replace(ShellInterpolator.DATA_LINK_ESCAPE, ",")
+                        for part in escaped.split(",")
+                    ]
+                    children = children[3:]
+
+                case [head, *_]:
+                    parts = [self._value(head)]
+                    children = children[1:]
+            values = [prefix + part for prefix in values for part in parts]
+        return values
 
     def _read(self, node: Node, values: dict[str | None, PkgbuildPatch]) -> Iterator[PkgbuildPatch]:
         """
@@ -254,7 +277,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             case _:
                 return value
 
-        return "".join(shlex.split(value, comments=False, posix=True))
+        return self._unquote(value)
 
     def parse(self) -> Iterator[PkgbuildPatch]:
         """
