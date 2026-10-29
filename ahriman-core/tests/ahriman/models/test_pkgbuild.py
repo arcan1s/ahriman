@@ -222,7 +222,7 @@ def test_parse_ahriman(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (ahriman)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_ahriman_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "ahriman",
         "pkgname": "ahriman",
@@ -279,6 +279,8 @@ def test_parse_ahriman(resource_path_root: Path) -> None:
             "53d37efec812afebf86281716259f9ea78a307b83897166c72777251c3eebcb587ecee375d907514781fb2a5c808cbb24ef9f3f244f12740155d0603bf213131",
             "62b2eccc352d33853ef243c9cddd63663014aa97b87242f1b5bc5099a7dbd69ff3821f24ffc58e1b7f2387bd4e9e9712cc4c67f661b1724ad99cdf09b3717794",
         ],
+        "build()": None,
+        "package()": None,
     }
 
 
@@ -287,7 +289,7 @@ def test_parse_gcc10(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (gcc10)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_gcc10_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "gcc10",
         "pkgname": [
@@ -354,6 +356,12 @@ def test_parse_gcc10(resource_path_root: Path) -> None:
         "_CHOST": "${CHOST:=}",
         "_MAKEFLAGS": "${MAKEFLAGS:=}",
         "_libdir": "usr/lib/gcc/${CHOST}/${pkgver%%+*}",
+        "prepare()": None,
+        "build()": None,
+        "check()": None,
+        "package_gcc10-libs()": None,
+        "package_gcc10()": None,
+        "package_gcc10-fortran()": None,
     }
 
 
@@ -362,7 +370,7 @@ def test_parse_jellyfin_ffmpeg6_bin(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (jellyfin-ffmpeg6-bin)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_jellyfin-ffmpeg6-bin_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "jellyfin-ffmpeg6-bin",
         "pkgname": "jellyfin-ffmpeg6-bin",
@@ -396,6 +404,7 @@ def test_parse_jellyfin_ffmpeg6_bin(resource_path_root: Path) -> None:
         "source_aarch64": ["https://repo.jellyfin.org/releases/ffmpeg/${pkgver}-${pkgrel}/jellyfin-ffmpeg_${pkgver}-${pkgrel}_portable_linuxarm64-gpl.tar.xz"],
         "sha256sums_x86_64": ["32cbe40942d26072faa1182835ccc89029883766de11778c731b529aa632ff37"],
         "sha256sums_aarch64": ["22b8f2a3c92c6b1c9e6830a6631f08f3f0a7ae80739ace71ad30704a28045184"],
+        "package()": None,
     }
 
 
@@ -404,7 +413,7 @@ def test_parse_pacman_static(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (pacman-static)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_pacman-static_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "pacman-static",
         "pkgname": "pacman-static",
@@ -536,6 +545,9 @@ def test_parse_pacman_static(resource_path_root: Path) -> None:
         "CFLAGS": "${CFLAGS/-fstack-protector-strong/} -D_LARGEFILE64_SOURCE",
         "CXXFLAGS": "${CXXFLAGS/-fstack-protector-strong/} -D_LARGEFILE64_SOURCE",
         "PKGEXT": ".pkg.tar.xz",
+        "prepare()": None,
+        "build()": None,
+        "package()": None,
     }
 
 
@@ -544,7 +556,7 @@ def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (python-pytest-loop)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_python-pytest-loop_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "python-pytest-loop",
         "_pname": "${pkgbase#python-}",
@@ -572,6 +584,9 @@ def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
         "md5sums": [
             "98365f49606d5068f92350f1d2569a5f",
         ],
+        "build()": None,
+        "check()": None,
+        "package_python-pytest-loop()": None,
     }
 
 
@@ -580,7 +595,7 @@ def test_parse_tpacpi_bat_git(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (tpacpi-bat-git)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_tpacpi-bat-git_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "tpacpi-bat-git",
         "pkgname": "tpacpi-bat-git",
@@ -597,6 +612,8 @@ def test_parse_tpacpi_bat_git(resource_path_root: Path) -> None:
         "backup": ["etc/conf.d/tpacpi"],
         "source": ["git+https://github.com/teleshoes/tpacpi-bat.git"],
         "b2sums": ["SKIP"],
+        "pkgver()": None,
+        "package()": None,
     }
 
 
@@ -605,7 +622,7 @@ def test_parse_ttf_google_fonts_git(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (ttf-google-fonts-git)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_ttf-google-fonts-git_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert "ttf-google-fonts-git" in pkgbuild.packages()
     assert values == {
         "pkgname": "ttf-google-fonts-git",
@@ -681,6 +698,9 @@ def test_parse_ttf_google_fonts_git(resource_path_root: Path) -> None:
         "source": ["git+${url}.git"],
         "sha512sums": ["SKIP"],
         "pkgbase": "ttf-google-fonts-git",
+        "pkgver()": None,
+        "prepare()": None,
+        "package()": None,
     }
 
 
@@ -689,7 +709,7 @@ def test_parse_vim_youcompleteme_git(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (vim-youcompleteme-git)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_vim-youcompleteme-git_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "vim-youcompleteme-git",
         "_gocode": "y",
@@ -744,6 +764,10 @@ def test_parse_vim_youcompleteme_git(resource_path_root: Path) -> None:
             "10a64c468d1dd2a384e0e5fd4eb2582fd9f1dfa706b6d2d2bb88fb0fbfc2718d",
             "9a5bee818a4995bc52e91588059bef42728d046808206bfb93977f4e3109e50c",
         ],
+        "pkgver()": None,
+        "prepare()": None,
+        "build()": None,
+        "package()": None,
     }
 
 
@@ -752,7 +776,7 @@ def test_parse_yay(resource_path_root: Path) -> None:
     must parse real PKGBUILDs correctly (yay)
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_yay_pkgbuild")
-    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    values = {key: None if value.is_function else value.value for key, value in pkgbuild.fields.items()}
     assert values == {
         "pkgbase": "yay",
         "pkgname": "yay",
@@ -783,4 +807,6 @@ def test_parse_yay(resource_path_root: Path) -> None:
         "makedepends": ["go>=1.21"],
         "source": ["${pkgname}-${pkgver}.tar.gz::https://github.com/Jguer/yay/archive/v${pkgver}.tar.gz"],
         "sha256sums": ["2fb6121a6eb4c5e6afaf22212b2ed15022500a4bc34bb3dc0f9782c1d43c3962"],
+        "build()": None,
+        "package()": None,
     }
