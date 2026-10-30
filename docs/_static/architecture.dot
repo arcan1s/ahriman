@@ -65,7 +65,7 @@ digraph G {
     ahriman_core_alpm_pacman [fillcolor="#9f2b04",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\npacman"];
     ahriman_core_alpm_pacman_database [fillcolor="#a15035",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\npacman_database"];
     ahriman_core_alpm_pacman_handle [fillcolor="#cc5933",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\npacman_handle"];
-    ahriman_core_alpm_pkgbuild_parser [fillcolor="#a15035",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\npkgbuild_parser"];
+    ahriman_core_alpm_pkgbuild_parser [fillcolor="#914830",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\npkgbuild_parser"];
     ahriman_core_alpm_remote [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nalpm\.\nremote",shape="box"];
     ahriman_core_alpm_remote_aur [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nalpm\.\nremote\.\naur",shape="box"];
     ahriman_core_alpm_remote_official [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nalpm\.\nremote\.\nofficial",shape="box"];
@@ -567,7 +567,7 @@ digraph G {
     ahriman_core_alpm_pacman_database -> ahriman_core_alpm_pacman [fillcolor="#a15035",weight="3"];
     ahriman_core_alpm_pacman_handle -> ahriman_core_alpm_pacman [fillcolor="#cc5933",weight="3"];
     ahriman_core_alpm_pacman_handle -> ahriman_models_package [fillcolor="#cc5933",minlen="3"];
-    ahriman_core_alpm_pkgbuild_parser -> ahriman_models_pkgbuild [fillcolor="#a15035",minlen="3"];
+    ahriman_core_alpm_pkgbuild_parser -> ahriman_models_pkgbuild [fillcolor="#914830",minlen="3"];
     ahriman_core_alpm_remote -> ahriman_application_handlers_search [fillcolor="blue",minlen="3"];
     ahriman_core_alpm_remote -> ahriman_core_build_tools_package_archive [fillcolor="blue",minlen="2",weight="2"];
     ahriman_core_alpm_remote -> ahriman_core_repository_repository [fillcolor="blue",minlen="2",weight="2"];
@@ -667,6 +667,7 @@ digraph G {
     ahriman_core_configuration -> ahriman_application_lock [fillcolor="blue",minlen="2"];
     ahriman_core_configuration -> ahriman_core_alpm_pacman [fillcolor="blue",minlen="2",weight="2"];
     ahriman_core_configuration -> ahriman_core_alpm_pacman_database [fillcolor="blue",minlen="2",weight="2"];
+    ahriman_core_configuration -> ahriman_core_alpm_pkgbuild_parser [fillcolor="blue",minlen="2",weight="2"];
     ahriman_core_configuration -> ahriman_core_archive_archive_trigger [fillcolor="blue",minlen="2",weight="2"];
     ahriman_core_configuration -> ahriman_core_auth_auth [fillcolor="blue",minlen="2",weight="2"];
     ahriman_core_configuration -> ahriman_core_auth_mapping [fillcolor="blue",minlen="2",weight="2"];
@@ -734,6 +735,7 @@ digraph G {
     ahriman_core_configuration_configuration_multi_dict -> ahriman_core_configuration_configuration [fillcolor="#b85c3d",weight="3"];
     ahriman_core_configuration_schema -> ahriman_application_handlers_validate [fillcolor="#ce603b",minlen="3"];
     ahriman_core_configuration_schema -> ahriman_core_triggers_trigger [fillcolor="#ce603b",minlen="2",weight="2"];
+    ahriman_core_configuration_shell_interpolator -> ahriman_core_alpm_pkgbuild_parser [fillcolor="blue",minlen="2",weight="2"];
     ahriman_core_configuration_shell_interpolator -> ahriman_core_configuration_configuration [fillcolor="blue",weight="3"];
     ahriman_core_configuration_shell_template -> ahriman_core_configuration_shell_interpolator [fillcolor="#ce603b",weight="3"];
     ahriman_core_configuration_shell_template -> ahriman_models_pkgbuild_patch [fillcolor="#ce603b",minlen="3"];
