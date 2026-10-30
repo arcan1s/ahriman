@@ -282,4 +282,12 @@ def test_parse(resource_path_root: Path) -> None:
   _ver="$(cat CMakeLists.txt | grep -e SO_MAJOR_VERSION -e SO_MINOR_VERSION -e SO_BUILD_VERSION | cut -d '"' -f2 | head -n3)"
   echo "$(echo ${_ver} | tr ' ' .).r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)"
 }"""),
+            PkgbuildPatch("var", "say \"hello\""),
+            PkgbuildPatch("var", "a\\b"),
+            PkgbuildPatch("var", "$name"),
+            PkgbuildPatch("var", "`date`"),
+            PkgbuildPatch("var", "firstsecond"),
+            PkgbuildPatch("var", "a\\qb"),
+            PkgbuildPatch("var", "\\$name"),
+            PkgbuildPatch("var", "first\nsecond"),
         ]

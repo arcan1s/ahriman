@@ -113,3 +113,15 @@ pkgver() {
   _ver="$(cat CMakeLists.txt | grep -e SO_MAJOR_VERSION -e SO_MINOR_VERSION -e SO_BUILD_VERSION | cut -d '"' -f2 | head -n3)"
   echo "$(echo ${_ver} | tr ' ' .).r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)"
 }
+
+# escapes and newlines inside double-quoted assignments
+var="say \"hello\""
+var="a\\b"
+var="\$name"
+var="\`date\`"
+var="first\
+second"
+var="a\qb"
+var="\\\\$name"
+var="first
+second"

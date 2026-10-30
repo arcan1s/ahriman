@@ -113,6 +113,13 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             ...     print(patch.key, patch.value)
     """
 
+    _ESCAPED_CHARACTERS = {
+        "\\$": "$",
+        "\\`": "`",
+        "\\\"": "\"",
+        "\\\n": "",
+    }
+
     def __init__(self, stream: IO[bytes]) -> None:
         """
         Args:
@@ -121,7 +128,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         self._content = stream.read()
 
     @staticmethod
-    def _text(node: Node) -> str:
+    def text(node: Node) -> str:
         """
         read the original source text represented by a syntax tree node
 
@@ -134,7 +141,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         return cast(bytes, node.text).decode("utf8", errors="backslashreplace")
 
     @staticmethod
-    def _unquote(value: str) -> str:
+    def unquote(value: str) -> str:
         """
         remove shell quotes and escapes from a single value
 
@@ -146,6 +153,37 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         """
         return "".join(shlex.split(value, comments=False, posix=True))
 
+    @staticmethod
+    def value(node: Node) -> str:
+        """
+        extract a string value from a syntax tree node
+
+        Args:
+            node(Node): syntax tree node to extract
+
+        Returns:
+            str: extracted string value
+        """
+        def unescape(source: str) -> str:
+            for original, replacement in PkgbuildParser._ESCAPED_CHARACTERS.items():
+                source = source.replace(original, replacement)
+            return source
+
+        if node.type == PkgbuildNodeType.Concatenation:
+            return "".join(PkgbuildParser.value(child) for child in node.named_children)
+
+        value = PkgbuildParser.text(node)
+        match node.type:
+            case PkgbuildNodeType.String | PkgbuildNodeType.StringContent:
+                if node.type == PkgbuildNodeType.String:
+                    value = PkgbuildParser.unquote(value)
+                # protect escaped backslashes from being interpreted a second time.
+                return "\\".join(unescape(part) for part in value.split("\\\\"))
+            case PkgbuildNodeType.Number | PkgbuildNodeType.RawString | PkgbuildNodeType.Word:
+                return PkgbuildParser.unquote(value)
+            case _:
+                return value
+
     def _assignment(self, node: Node) -> PkgbuildPatch:
         """
         convert an assignment node
@@ -156,10 +194,8 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         Returns:
             PkgbuildPatch: parsed assignment
         """
-        name = cast(Node, node.child_by_field_name(PkgbuildNodeField.Name))
-        value = cast(Node, node.child_by_field_name(PkgbuildNodeField.Value))
-        key = self._text(name)
-
+        key = self.text(cast(Node, node.child_by_field_name(PkgbuildNodeField.Name)))
+        value = node.child_by_field_name(PkgbuildNodeField.Value)
         # bash permits assignments without a value (for example ``IFS=``).
         # tree-sitter represents those assignments without a value node.
         if value is None:
@@ -173,7 +209,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
                 return PkgbuildPatch(key, values)
 
             case _:
-                return PkgbuildPatch(key, self._value(value))
+                return PkgbuildPatch(key, self.value(value))
 
     def _expand_array(self, node: Node) -> list[str]:
         """
@@ -186,7 +222,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             list[str]: expanded element values
         """
         if node.type != PkgbuildNodeType.Concatenation:
-            return [self._value(node)]
+            return [self.value(node)]
 
         values = [""]
         children = node.named_children
@@ -196,15 +232,15 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
                     Node(type=PkgbuildNodeType.Word, text=b"{"),
                     Node(type=PkgbuildNodeType.Word) as content,
                     Node(type=PkgbuildNodeType.Word, text=b"}"),
-                ] if "," in (escaped := self._text(content).replace("\\,", ShellInterpolator.DATA_LINK_ESCAPE)):
+                ] if "," in (escaped := self.text(content).replace("\\,", ShellInterpolator.DATA_LINK_ESCAPE)):
                     parts = [
-                        self._unquote(part).replace(ShellInterpolator.DATA_LINK_ESCAPE, ",")
+                        self.unquote(part).replace(ShellInterpolator.DATA_LINK_ESCAPE, ",")
                         for part in escaped.split(",")
                     ]
                     children = children[3:]
 
                 case _:
-                    parts = [self._value(children.pop(0))]
+                    parts = [self.value(children.pop(0))]
 
             values = [prefix + part for prefix in values for part in parts]
 
@@ -242,7 +278,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             case PkgbuildNodeType.FunctionDefinition:
                 name = cast(Node, node.child_by_field_name(PkgbuildNodeField.Name))
                 body = cast(Node, node.child_by_field_name(PkgbuildNodeField.Body))
-                yield PkgbuildPatch(f"{self._text(name)}()", self._text(body))
+                yield PkgbuildPatch(f"{self.text(name)}()", self.text(body))
 
             case _:
                 # descend into statements, but skip command arguments and values
@@ -255,30 +291,6 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
                             PkgbuildNodeType.Word,
                     ):
                         yield from self._read(child, values)
-
-    def _value(self, node: Node) -> str:
-        """
-        extract a string value from a syntax tree node
-
-        Args:
-            node(Node): syntax tree node to extract
-
-        Returns:
-            str: extracted string value
-        """
-        if node.type in (PkgbuildNodeType.Concatenation, PkgbuildNodeType.String):
-            return "".join(self._value(child) for child in node.named_children)
-
-        value = self._text(node)
-        match node.type:
-            case PkgbuildNodeType.StringContent:
-                value = f'"{value}"'
-            case PkgbuildNodeType.Number | PkgbuildNodeType.RawString | PkgbuildNodeType.Word:
-                pass
-            case _:
-                return value
-
-        return self._unquote(value)
 
     def parse(self) -> Iterator[PkgbuildPatch]:
         """
