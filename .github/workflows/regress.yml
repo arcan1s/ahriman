@@ -103,11 +103,11 @@ jobs:
           
       - name: Update packages
         run: |
-          sudo -u ahriman ahriman \
+          ! sudo -u ahriman ahriman \
             --log-handler "$AHRIMAN_OUTPUT" \
             repo-update \
               --exit-code \
-          || true
+              --refresh
 
       - name: Add patch
         run: |
