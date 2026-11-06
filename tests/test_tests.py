@@ -29,6 +29,8 @@ def _test_path(source_root: Path, source_file: Path) -> Path:
                 return relative_path.parent / f"test_{source_name}"
             else:
                 return relative_path.parent / f"test_view_{source_name}"
+        case (*_, source_name) if source_name.startswith("__"):
+            return relative_path.parent / f"test_{source_name.replace("__", "")}"
         case _:
             return relative_path.parent / f"test_{source_file.name}"
 
@@ -37,6 +39,10 @@ def test_test_coverage() -> None:
     """
     must have test files for each source file
     """
+    def filter_files(filename: str) -> bool:
+        return filename.suffix == ".py" \
+            and filename.name not in ("__init__.py",)
+
     package_roots = [
         Path("ahriman-core"),
         Path("ahriman-triggers"),
@@ -46,6 +52,6 @@ def test_test_coverage() -> None:
     for package_root in package_roots:
         source_root = package_root / "src"
 
-        for source_file in filter(lambda fn: fn.suffix == ".py" and fn.name != "__init__.py", walk(source_root)):
+        for source_file in filter(filter_files, walk(source_root)):
             test_file = package_root / "tests" / _test_path(source_root, source_file)
             assert test_file.is_file(), test_file
