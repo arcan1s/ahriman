@@ -2,12 +2,12 @@ import argparse
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest.mock import call as MockCall
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.rebuild import Rebuild
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
+from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
@@ -48,15 +48,18 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on",
                                              return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
+    print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.Rebuild)
     extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.status, from_database=args.from_database)
     application_packages_mock.assert_called_once_with([package_ahriman], None)
-    application_mock.assert_called_once_with([package_ahriman], Packagers(args.username), bump_pkgrel=args.increment)
-    check_mock.assert_has_calls([MockCall(False, [package_ahriman]), MockCall(False, True)])
+    print_mock.assert_called_once_with(plan, pytest.helpers.anyvar(int), bump_pkgrel=args.increment)
+    application_mock.assert_called_once_with(plan, Packagers(args.username), bump_pkgrel=args.increment)
+    check_mock.assert_called_once_with(False, True)
     on_start_mock.assert_called_once_with()
 
 
@@ -94,8 +97,9 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
     application_mock.assert_not_called()
-    check_mock.assert_called_once_with(False, [package_ahriman])
-    print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.Rebuild)
+    check_mock.assert_called_once_with(False, plan)
+    print_mock.assert_called_once_with(plan, pytest.helpers.anyvar(int), bump_pkgrel=args.increment)
 
 
 def test_run_filter(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -109,6 +113,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, repo
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
+    mocker.patch("ahriman.application.application.Application.print_updates")
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
@@ -125,6 +130,7 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
+    mocker.patch("ahriman.application.application.Application.print_updates")
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
@@ -147,7 +153,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, [])
+    check_mock.assert_called_once_with(True, BuildPlan())
 
 
 def test_run_build_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -161,11 +167,12 @@ def test_run_build_empty_exception(args: argparse.Namespace, configuration: Conf
     mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
+    mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
-    check_mock.assert_has_calls([MockCall(True, [package_ahriman]), MockCall(True, False)])
+    check_mock.assert_called_once_with(True, False)
 
 
 def test_extract_packages(application: Application, mocker: MockerFixture) -> None:

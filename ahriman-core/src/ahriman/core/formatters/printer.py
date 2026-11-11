@@ -46,7 +46,7 @@ class Printer:
             if not verbose and not prop.is_required:
                 continue
             indent = "\t" * prop.indent
-            log_fn(f"{indent}{prop.name}{separator}{prop.value}")
+            log_fn(f"{indent}{prop.name}{separator if prop.separator is None else prop.separator}{prop.value}")
 
     def properties(self) -> list[Property]:
         """

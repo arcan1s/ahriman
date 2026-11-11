@@ -21,8 +21,10 @@ import argparse
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
+from ahriman.application.handlers.update import Update
 from ahriman.core.configuration import Configuration
 from ahriman.core.utils import extract_user
+from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
@@ -52,12 +54,14 @@ class Rebuild(Handler):
         packages = Rebuild.extract_packages(application, args.status, from_database=args.from_database)
         packages = application.repository.packages_depend_on(packages, args.depends_on)
 
-        Rebuild.check_status(args.exit_code, packages)
+        plan = BuildPlan().update(packages, BuildPlanReason.Rebuild)
+        application.print_updates(plan, Update.log_fn(application, dry_run=args.dry_run), bump_pkgrel=args.increment)
+
         if args.dry_run:
-            application.print_updates(packages, log_fn=print)
+            Rebuild.check_status(args.exit_code, plan)
             return
 
-        result = application.update(packages, Packagers(args.username), bump_pkgrel=args.increment)
+        result = application.update(plan, Packagers(args.username), bump_pkgrel=args.increment)
         Rebuild.check_status(args.exit_code, not result.is_empty)
 
     @staticmethod

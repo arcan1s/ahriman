@@ -23,6 +23,7 @@ from ahriman import __version__
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import UpdatePrinter
+from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 
@@ -56,7 +57,8 @@ class ServiceUpdates(Handler):
         if same_version:
             return
 
-        UpdatePrinter(remote, local_version)(verbose=True, separator=" -> ")
+        plan = BuildPlan().update([remote], BuildPlanReason.RegularUpdate)
+        UpdatePrinter(plan, {remote.base: local_version})(verbose=True)
         ServiceUpdates.check_status(args.exit_code, same_version)
 
     @staticmethod

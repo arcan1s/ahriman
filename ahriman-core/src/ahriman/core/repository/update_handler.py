@@ -188,6 +188,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                         self.reporter.set_pending(local.base)
                         self.event(local.base, EventType.PackageOutdated, "Locally pulled sources are outdated")
                         result.append(remote)
+
                 except Exception:
                     self.logger.exception("could not process package at %s", cache_dir)
 

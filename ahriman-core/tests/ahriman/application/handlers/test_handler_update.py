@@ -9,6 +9,7 @@ from ahriman.application.handlers.update import Update
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.package import Package
+from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 
@@ -65,22 +66,23 @@ def test_perform_action(args: argparse.Namespace, application: Application, pack
     result.add_updated(package_ahriman)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
     dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
-                                     return_value=[package_ahriman])
-    updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
+                                     return_value=plan)
+    updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=plan)
     changes_mock = mocker.patch("ahriman.application.application.Application.changes")
     print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
 
     Update.perform_action(application, args)
-    application_mock.assert_called_once_with([package_ahriman],
+    application_mock.assert_called_once_with(plan,
                                              Packagers(args.username, {package_ahriman.base: "packager"}),
                                              bump_pkgrel=args.increment)
     updates_mock.assert_called_once_with(
         args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs, check_files=args.check_files)
-    changes_mock.assert_called_once_with([package_ahriman])
-    dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
+    changes_mock.assert_called_once_with(plan)
+    dependencies_mock.assert_called_once_with(plan, process_dependencies=args.dependencies)
     check_mock.assert_called_once_with(False, True)
-    print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
+    print_mock.assert_called_once_with(plan, pytest.helpers.anyvar(int), bump_pkgrel=args.increment)
 
 
 def test_perform_action_empty_exception(args: argparse.Namespace, application: Application,
@@ -91,11 +93,13 @@ def test_perform_action_empty_exception(args: argparse.Namespace, application: A
     args = _default_args(args)
     args.exit_code = True
     args.dry_run = True
-    mocker.patch("ahriman.application.application.Application.updates", return_value=[])
+    mocker.patch("ahriman.application.application.Application.updates", return_value=BuildPlan())
+    print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     Update.perform_action(application, args)
-    check_mock.assert_called_once_with(True, [])
+    print_mock.assert_called_once_with(BuildPlan(), pytest.helpers.anyvar(int), bump_pkgrel=args.increment)
+    check_mock.assert_called_once_with(True, BuildPlan())
 
 
 def test_perform_action_update_empty_exception(args: argparse.Namespace, application: Application,
@@ -106,10 +110,11 @@ def test_perform_action_update_empty_exception(args: argparse.Namespace, applica
     args = _default_args(args)
     args.exit_code = True
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
-    mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
-    mocker.patch("ahriman.application.application.Application.with_dependencies", return_value=[package_ahriman])
-    mocker.patch("ahriman.application.application.Application.print_updates")
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    mocker.patch("ahriman.application.application.Application.updates", return_value=plan)
+    mocker.patch("ahriman.application.application.Application.with_dependencies", return_value=plan)
     mocker.patch("ahriman.application.application.Application.changes")
+    mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     Update.perform_action(application, args)
@@ -125,15 +130,21 @@ def test_perform_action_dry_run(args: argparse.Namespace, application: Applicati
     args.dry_run = True
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
-    updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
+    print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
+                                     return_value=plan)
+    updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=plan)
     changes_mock = mocker.patch("ahriman.application.application.Application.changes")
 
     Update.perform_action(application, args)
     updates_mock.assert_called_once_with(
         args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs, check_files=args.check_files)
     application_mock.assert_not_called()
-    changes_mock.assert_called_once_with([package_ahriman])
-    check_mock.assert_called_once_with(False, [package_ahriman])
+    changes_mock.assert_called_once_with(plan)
+    dependencies_mock.assert_called_once_with(plan, process_dependencies=args.dependencies)
+    print_mock.assert_called_once_with(plan, pytest.helpers.anyvar(int), bump_pkgrel=args.increment)
+    check_mock.assert_called_once_with(False, plan)
 
 
 def test_perform_action_no_changes(args: argparse.Namespace, application: Application, mocker: MockerFixture) -> None:
@@ -145,7 +156,9 @@ def test_perform_action_no_changes(args: argparse.Namespace, application: Applic
     args.changes = False
     mocker.patch("ahriman.application.application.Application.update")
     mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
-    mocker.patch("ahriman.application.application.Application.updates")
+    mocker.patch("ahriman.application.application.Application.updates", return_value=BuildPlan())
+    mocker.patch("ahriman.application.application.Application.with_dependencies", return_value=BuildPlan())
+    mocker.patch("ahriman.application.application.Application.print_updates")
     changes_mock = mocker.patch("ahriman.application.application.Application.changes")
 
     Update.perform_action(application, args)
