@@ -23,6 +23,7 @@ from ahriman.application.application.application_properties import ApplicationPr
 from ahriman.application.application.workers import Updater
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
+from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
@@ -182,7 +183,7 @@ class ApplicationRepository(ApplicationProperties):
         return result
 
     def updates(self, filter_packages: Iterable[str], *,
-                aur: bool, local: bool, manual: bool, vcs: bool, check_files: bool) -> list[Package]:
+                aur: bool, local: bool, manual: bool, vcs: bool, check_files: bool) -> BuildPlan:
         """
         get list of packages to run update process
 
@@ -193,25 +194,21 @@ class ApplicationRepository(ApplicationProperties):
             manual(bool): include or exclude manual updates
             vcs(bool): enable or disable checking of VCS packages
             check_files(bool): check for broken dependencies
-
         Returns:
-            list[Package]: list of out-of-dated packages
+            BuildPlan: selected packages and their reasons
         """
-        updates = {}
+        plan = BuildPlan()
 
         # always add already built packages, because they will be always added
-        updates.update({
-            package.base: package
-            for package in self.repository.load_archives(self.repository.packages_built())
-        })
+        plan.update(self.repository.load_archives(self.repository.packages_built()), BuildPlanReason.PreBuilt)
 
         if aur:
-            updates.update({package.base: package for package in self.repository.updates_aur(filter_packages, vcs=vcs)})
+            plan.update(self.repository.updates_aur(filter_packages, vcs=vcs), BuildPlanReason.RegularUpdate)
         if local:
-            updates.update({package.base: package for package in self.repository.updates_local(vcs=vcs)})
+            plan.update(self.repository.updates_local(vcs=vcs), BuildPlanReason.LocalSourceUpdate)
         if manual:
-            updates.update({package.base: package for package in self.repository.updates_manual()})
+            plan.update(self.repository.updates_manual(), BuildPlanReason.QueuedRequest)
         if check_files:
-            updates.update({package.base: package for package in self.repository.updates_dependencies(filter_packages)})
+            plan.update(self.repository.updates_dependencies(filter_packages), BuildPlanReason.BrokenImplicitDependency)
 
-        return [package for _, package in sorted(updates.items())]
+        return plan

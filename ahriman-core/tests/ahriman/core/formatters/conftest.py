@@ -23,6 +23,7 @@ from ahriman.core.formatters import (
     VersionPrinter
 )
 from ahriman.models.aur_package import AURPackage
+from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
@@ -219,7 +220,8 @@ def update_printer(package_ahriman: Package) -> UpdatePrinter:
     Returns:
         UpdatePrinter: update printer test instance
     """
-    return UpdatePrinter(package_ahriman, None)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    return UpdatePrinter(plan, {})
 
 
 @pytest.fixture

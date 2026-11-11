@@ -28,6 +28,14 @@ ahriman.models.auth\_settings module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.build\_plan module
+---------------------------------
+
+.. automodule:: ahriman.models.build_plan
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.build\_status module
 -----------------------------------
 

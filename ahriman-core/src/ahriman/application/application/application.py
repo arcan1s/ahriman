@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 
 from ahriman.application.application.application_packages import ApplicationPackages
 from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.formatters import UpdatePrinter
-from ahriman.core.tree import Tree
+from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -95,45 +95,41 @@ class Application(ApplicationPackages, ApplicationRepository):
         """
         self.repository.triggers.on_stop()
 
-    def print_updates(self, packages: list[Package], *, log_fn: Callable[[str], None]) -> None:
+    def print_updates(self, plan: BuildPlan, log_fn: Callable[[str], None], *, bump_pkgrel: bool = True) -> None:
         """
-        print list of packages to be built. This method will build dependency tree and print updates accordingly
+        print packages and their reasons, grouped by dependency step
 
         Args:
-            packages(list[Package]): package list to be printed
+            plan(BuildPlan): packages and selection reasons to be printed
             log_fn(Callable[[str], None]): logger function to log updates
+            bump_pkgrel(bool, optional): whether duplicate releases are expected to increment
         """
         local_versions = {package.base: package.version for package in self.repository.packages()}
+        UpdatePrinter(plan, local_versions, bump_pkgrel=bump_pkgrel)(verbose=True, log_fn=log_fn)
 
-        tree = Tree.resolve(packages)
-        for level in tree:
-            for package in level:
-                UpdatePrinter(package, local_versions.get(package.base))(verbose=True, log_fn=log_fn, separator=" -> ")
-
-    def with_dependencies(self, packages: list[Package], *, process_dependencies: bool) -> list[Package]:
+    def with_dependencies(self, plan: BuildPlan, *, process_dependencies: bool) -> BuildPlan:
         """
-        add missing dependencies to list of packages. This will extract known packages, check dependencies of
-        the supplied packages and add packages which are not presented in the list of known packages.
+        add missing dependencies to a build plan and record which packages require them
 
         Args:
-            packages(list[Package]): list of source packages of which dependencies have to be processed
+            plan(BuildPlan): selected packages and their reasons
             process_dependencies(bool): if set to ``False``, dependencies will not be processed
 
         Returns:
-            list[Package]: updated packages list. Packager for dependencies will be copied from the original package
+            BuildPlan: selected packages and their dependencies
 
         Examples:
             In the most cases, in order to avoid build failure, it is required to add missing packages, which can be
             done by calling::
 
                 >>> application = ...
-                >>> packages = application.with_dependencies(packages, process_dependencies=True)
-                >>> application.print_updates(packages, log_fn=print)
+                >>> plan = application.with_dependencies(plan, process_dependencies=True)
+                >>> application.update(plan)
         """
-        if not process_dependencies or not packages:
-            return packages
+        if not process_dependencies or not plan:
+            return plan
 
-        def missing_dependencies(sources: Iterable[Package]) -> dict[str, str | None]:
+        def missing_dependencies(sources: list[Package]) -> dict[str, str | None]:
             # append list of known packages with packages which are in current sources
             satisfied_packages = known_packages | {
                 single
@@ -148,9 +144,9 @@ class Application(ApplicationPackages, ApplicationRepository):
                 if dependency not in satisfied_packages
             }
 
-        def new_packages(root: Package) -> dict[str, Package]:
+        def new_packages(root: Package) -> list[Package]:
             portion = {root.base: root}
-            while missing := missing_dependencies(portion.values()):
+            while missing := missing_dependencies(list(portion.values())):
                 for package_name, packager in missing.items():
                     if (source_dir := self.repository.paths.cache_for(package_name)).is_dir():
                         # there is local cache, load package from it
@@ -162,15 +158,17 @@ class Application(ApplicationPackages, ApplicationRepository):
                     # register package in the database
                     self.reporter.set_unknown(leaf)
 
-            return portion
+            return [leaf for package_name, leaf in portion.items() if package_name != root.base]
 
         known_packages = self._known_packages()
-        with_dependencies: dict[str, Package] = {}
-        for package in packages:
+        for package in plan:
             with self.in_package_context(package.base, package.version):  # use the same context for the logger
                 try:
-                    with_dependencies |= new_packages(package)
+                    packages = new_packages(package)
                 except Exception:
                     self.logger.exception("could not process dependencies of %s, skip the package", package.base)
+                    continue
 
-        return list(with_dependencies.values())
+            plan.update(packages, BuildPlanReason.RequiredBy, package.base)
+
+        return plan

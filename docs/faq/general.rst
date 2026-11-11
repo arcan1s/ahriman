@@ -274,6 +274,8 @@ In this scenario, the update process must be separated into several stages. Firs
 
    sudo -u ahriman ahriman repo-check
 
+The command prints selected packages in dependency steps, with the old and proposed versions and the reason each package was selected. ``repo-update --dry-run`` uses the same preview. Proposed ``pkgrel`` values follow the ``--increment`` option. The preview describes current metadata; it does not freeze sources or guarantee later build inputs.
+
 During the check process, the service will generate changes from the last known commit and will send it to remote service. In order to verify source files changes, the web interface or special subcommand can be used:
 
 .. code-block:: shell

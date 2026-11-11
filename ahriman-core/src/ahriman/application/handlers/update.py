@@ -147,20 +147,19 @@ class Update(Handler):
             application(Application): application instance
             args(argparse.Namespace): command line args
         """
-        packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
-                                       check_files=args.check_files)
+        plan = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
+                                   check_files=args.check_files)
+        plan = application.with_dependencies(plan, process_dependencies=args.dependencies)
         if args.changes:  # generate changes if requested
-            application.changes(packages)
+            application.changes(plan)
 
+        application.print_updates(plan, Update.log_fn(application, dry_run=args.dry_run), bump_pkgrel=args.increment)
         if args.dry_run:  # exit from application if no build requested
-            Update.check_status(args.exit_code, packages)  # status code check
+            Update.check_status(args.exit_code, plan)  # status code check
             return
 
-        packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
-        packagers = Packagers(args.username, {package.base: package.packager for package in packages})
-
-        application.print_updates(packages, log_fn=application.logger.info)
-        result = application.update(packages, packagers, bump_pkgrel=args.increment)
+        packagers = Packagers(args.username, {package.base: package.packager for package in plan})
+        result = application.update(plan, packagers, bump_pkgrel=args.increment)
         Update.check_status(args.exit_code, not result.is_empty)
 
     arguments = [

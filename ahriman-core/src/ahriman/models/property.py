@@ -31,9 +31,11 @@ class Property:
         value(Any): property value
         is_required(bool): if set to ``True`` then this property is required
         indent(int): property indentation level
+        separator(str | None): optional override for separator
     """
 
     name: str
     value: Any
     is_required: bool = field(default=False, kw_only=True)
     indent: int = 1
+    separator: str | None = None

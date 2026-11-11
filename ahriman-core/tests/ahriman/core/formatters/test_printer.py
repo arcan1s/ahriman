@@ -53,6 +53,18 @@ def test_print_indent(mocker: MockerFixture) -> None:
     log_mock.assert_has_calls([MockCall("key: value"), MockCall("\tkey: value"), MockCall("\t\tkey: value")])
 
 
+def test_print_separator(mocker: MockerFixture) -> None:
+    """
+    must use property separator instead of default separator
+    """
+    log_mock = MagicMock()
+
+    mocker.patch("ahriman.core.formatters.Printer.properties", return_value=[Property("key", "value", separator=" ")])
+    Printer().print(verbose=True, log_fn=log_mock)
+
+    log_mock.assert_called_once_with("\tkey value")
+
+
 def test_properties() -> None:
     """
     must return empty properties list
