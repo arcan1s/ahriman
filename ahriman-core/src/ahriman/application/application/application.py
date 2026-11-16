@@ -144,7 +144,7 @@ class Application(ApplicationPackages, ApplicationRepository):
                 if dependency not in satisfied_packages
             }
 
-        def new_packages(root: Package) -> list[Package]:
+        def new_packages(root: Package) -> dict[str, Package]:
             portion = {root.base: root}
             while missing := missing_dependencies(portion.values()):
                 for package_name, packager in missing.items():
@@ -153,12 +153,15 @@ class Application(ApplicationPackages, ApplicationRepository):
                         leaf = Package.from_build(source_dir, self.repository.repository_id.architecture, packager)
                     else:
                         leaf = Package.from_aur(package_name, packager, include_provides=True)
-                    portion[leaf.base] = leaf
+                    # for split packages we need to load all available subpackages here
+                    if (existing := portion.get(leaf.base)) is not None:
+                        leaf.packages.update(existing.packages)
 
+                    portion[leaf.base] = leaf
                     # register package in the database
                     self.reporter.set_unknown(leaf)
 
-            return [leaf for package_name, leaf in portion.items() if package_name != root.base]
+            return portion
 
         known_packages = self._known_packages()
         for package in plan:
@@ -169,6 +172,10 @@ class Application(ApplicationPackages, ApplicationRepository):
                     self.logger.exception("could not process dependencies of %s, skip the package", package.base)
                     continue
 
-            plan.update(packages, BuildPlanReason.RequiredBy, package.base)
+            # update existing package
+            item = plan.item(package.base)
+            plan.add(packages.pop(package.base), item.reason, item.requester)
+            # append dependencies
+            plan.update(packages.values(), BuildPlanReason.RequiredBy, package.base)
 
         return plan

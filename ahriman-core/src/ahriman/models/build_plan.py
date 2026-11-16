@@ -122,12 +122,12 @@ class BuildPlan(Iterable[Package]):
         """
         return self._items[package_base]
 
-    def update(self, packages: list[Package], reason: BuildPlanReason, requester: str | None = None) -> Self:
+    def update(self, packages: Iterable[Package], reason: BuildPlanReason, requester: str | None = None) -> Self:
         """
         bulk update packages with the same reason
 
         Args:
-            packages(list[Package]): list of new packages to be added
+            packages(Iterable[Package]): list of new packages to be added
             reason(BuildPlanReason): reason for selecting them
             requester(str | None, optional): package requiring these dependencies (Default value = None)
 

@@ -4,8 +4,10 @@ from typing import Any
 from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.application.application import Application
+from ahriman.core.tree import Tree
 from ahriman.models.build_plan import BuildPlan, BuildPlanReason
 from ahriman.models.package import Package
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.result import Result
 
 
@@ -116,6 +118,42 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
         MockCall(packages["python"]),
         MockCall(packages["python-installer"]),
     ], any_order=True)
+
+
+def test_with_dependencies_split(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must preserve resolved subpackages during dependency resolution
+    """
+    def package(base: str, name: str, dependencies: list[str]) -> Package:
+        return Package(
+            base=base,
+            version="1-1",
+            remote=package_ahriman.remote,
+            packages={name: PackageDescription(depends=dependencies)},
+        )
+
+    packages = {
+        "ahriman-core": package("ahriman", "ahriman-core", ["python-tree-sitter-bash"]),
+        "ahriman-web": package("ahriman", "ahriman-web", ["ahriman-core"]),
+        "python-tree-sitter-bash": package("python-tree-sitter-bash", "python-tree-sitter-bash", []),
+    }
+    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=lambda name, *args, **kwargs: packages[name])
+    mocker.patch("ahriman.core.status.Client.set_unknown")
+
+    plan = BuildPlan().update([
+        package("ahriman", "ahriman", ["ahriman-core", "ahriman-web"])
+    ], BuildPlanReason.QueuedRequest)
+    result = application.with_dependencies(plan, process_dependencies=True)
+    assert [[item.base for item in level] for level in Tree.resolve(result)] == [
+        ["python-tree-sitter-bash"], ["ahriman"],
+    ]
+
+    plan_item = result.item("ahriman")
+    assert plan_item.package.packages.keys() == {"ahriman", "ahriman-core", "ahriman-web"}
+    assert plan_item.reason == BuildPlanReason.QueuedRequest
+    assert plan_item.requester is None
 
 
 def test_with_dependencies_exception(application: Application, package_ahriman: Package,
