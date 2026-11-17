@@ -124,6 +124,6 @@ class PAM(Mapping):
             return user.verify_access(required)
         # if username is in admin group, then we treat it as full access
         if username in self.group_members(self.full_access_group):
-            return UserAccess.Full.permits(required)
+            return UserAccess.FULL.permits(required)
         # fallback to read-only accounts
-        return UserAccess.Read.permits(required)
+        return UserAccess.READ.permits(required)

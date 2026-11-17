@@ -44,7 +44,7 @@ def test_smtp_session(email: Email) -> None:
     """
     must build normal SMTP session if SSL is disabled
     """
-    email.ssl = SmtpSSLSettings.Disabled
+    email.ssl = SmtpSSLSettings.DISABLED
     assert email._smtp_session == smtplib.SMTP
 
     email.ssl = SmtpSSLSettings.STARTTLS

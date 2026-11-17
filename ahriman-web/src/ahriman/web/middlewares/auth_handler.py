@@ -98,18 +98,18 @@ def _auth_handler(allow_read_only: bool) -> Middleware:
         if (unix_socket := request.get_extra_info("socket")) is not None and unix_socket.family == socket.AF_UNIX:
             # special case for unix sockets. We need to extract socket which is used for the request
             # and check its address family
-            permission = UserAccess.Unauthorized
+            permission = UserAccess.UNAUTHORIZED
         elif (permission_method := getattr(handler, "get_permission", None)) is not None:
             permission = await permission_method(request)
         elif isinstance(handler, types.MethodType):  # additional wrapper for static resources
             handler_instance = getattr(handler, "__self__", None)
-            permission = UserAccess.Unauthorized if isinstance(handler_instance, StaticResource) else UserAccess.Full
+            permission = UserAccess.UNAUTHORIZED if isinstance(handler_instance, StaticResource) else UserAccess.FULL
         else:
-            permission = UserAccess.Full
+            permission = UserAccess.FULL
 
-        if permission == UserAccess.Unauthorized:  # explicit if elif else for better code coverage
+        if permission == UserAccess.UNAUTHORIZED:  # explicit if elif else for better code coverage
             pass
-        elif allow_read_only and UserAccess.Read.permits(permission):
+        elif allow_read_only and UserAccess.READ.permits(permission):
             pass
         else:
             await aiohttp_security.check_permission(request, permission, request.path)

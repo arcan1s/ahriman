@@ -20,9 +20,10 @@
 import json
 import shlex
 
+from collections.abc import Iterator
 from dataclasses import dataclass, fields
 from pathlib import Path
-from typing import Any, Iterator, Self
+from typing import Any, Self
 
 from ahriman.core.configuration.shell_template import ShellTemplate
 from ahriman.core.utils import dataclass_view, filter_json

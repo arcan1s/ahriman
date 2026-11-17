@@ -15,10 +15,10 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await PatchesView.get_permission(request) == UserAccess.Reporter
+        assert await PatchesView.get_permission(request) == UserAccess.REPORTER
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await PatchesView.get_permission(request) == UserAccess.Full
+        assert await PatchesView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -34,7 +34,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     """
     patch = PkgbuildPatch("k", "v")
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/patches", json=patch.view())
     response_schema = pytest.helpers.schema_response(PatchesView.get)
 
@@ -51,7 +51,7 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     must create patch
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     request_schema = pytest.helpers.schema_request(PatchesView.post)
 
     payload = {"key": "k", "value": "v"}
@@ -69,7 +69,7 @@ async def test_post_full_diff(client: TestClient, package_ahriman: Package) -> N
     must create patch from full diff
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     request_schema = pytest.helpers.schema_request(PatchesView.post)
 
     payload = {"value": "v"}
@@ -87,7 +87,7 @@ async def test_post_array(client: TestClient, package_ahriman: Package) -> None:
     must create patch from list variable
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     request_schema = pytest.helpers.schema_request(PatchesView.post)
 
     payload = {"key": "k", "value": "(array value)"}

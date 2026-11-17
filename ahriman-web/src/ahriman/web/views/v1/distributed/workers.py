@@ -39,7 +39,7 @@ class WorkersView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    DELETE_PERMISSION = GET_PERMISSION = POST_PERMISSION = UserAccess.Full  # type: ClassVar[UserAccess]
+    DELETE_PERMISSION = GET_PERMISSION = POST_PERMISSION = UserAccess.FULL  # type: ClassVar[UserAccess]
     ROUTES = ["/api/v1/distributed"]
 
     @apidocs(

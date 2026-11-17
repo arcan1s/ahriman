@@ -57,7 +57,7 @@ class ServiceUpdates(Handler):
         if same_version:
             return
 
-        plan = BuildPlan().update([remote], BuildPlanReason.RegularUpdate)
+        plan = BuildPlan().update([remote], BuildPlanReason.REGULAR_UPDATE)
         UpdatePrinter(plan, {remote.base: local_version})(verbose=True)
         ServiceUpdates.check_status(args.exit_code, same_version)
 

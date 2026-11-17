@@ -54,7 +54,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.Rebuild)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REBUILD)
     extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.status, from_database=args.from_database)
     application_packages_mock.assert_called_once_with([package_ahriman], None)
     print_mock.assert_called_once_with(plan, pytest.helpers.anyvar(int), bump_pkgrel=args.increment)
@@ -97,7 +97,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
     application_mock.assert_not_called()
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.Rebuild)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REBUILD)
     check_mock.assert_called_once_with(False, plan)
     print_mock.assert_called_once_with(plan, pytest.helpers.anyvar(int), bump_pkgrel=args.increment)
 
@@ -189,10 +189,10 @@ def test_extract_packages_by_status(application: Application, mocker: MockerFixt
     must extract packages from database and filter them by status
     """
     packages_mock = mocker.patch("ahriman.core.database.SQLite.packages_get", return_value=[
-        ("package1", BuildStatus(BuildStatusEnum.Success)),
-        ("package2", BuildStatus(BuildStatusEnum.Failed)),
+        ("package1", BuildStatus(BuildStatusEnum.SUCCESS)),
+        ("package2", BuildStatus(BuildStatusEnum.FAILED)),
     ])
-    assert Rebuild.extract_packages(application, BuildStatusEnum.Failed, from_database=True) == ["package2"]
+    assert Rebuild.extract_packages(application, BuildStatusEnum.FAILED, from_database=True) == ["package2"]
     packages_mock.assert_called_once_with(application.repository_id)
 
 

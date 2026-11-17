@@ -220,7 +220,7 @@ def update_printer(package_ahriman: Package) -> UpdatePrinter:
     Returns:
         UpdatePrinter: update printer test instance
     """
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
     return UpdatePrinter(plan, {})
 
 

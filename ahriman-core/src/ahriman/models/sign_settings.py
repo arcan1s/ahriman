@@ -27,14 +27,14 @@ class SignSettings(StrEnum):
     sign targets enumeration
 
     Attributes:
-        Disabled(SignSettings): option which generates no report for testing purpose
-        Packages(SignSettings): sign each package
-        Repository(SignSettings): sign repository database file
+        DISABLED(SignSettings): option which generates no report for testing purpose
+        PACKAGES(SignSettings): sign each package
+        REPOSITORY(SignSettings): sign repository database file
     """
 
-    Disabled = "disabled"
-    Packages = "packages"
-    Repository = "repository"
+    DISABLED = "disabled"
+    PACKAGES = "packages"
+    REPOSITORY = "repository"
 
     @staticmethod
     def from_option(value: str) -> SignSettings:
@@ -49,8 +49,8 @@ class SignSettings(StrEnum):
         """
         match value.lower():
             case "package" | "packages" | "sign-package":
-                return SignSettings.Packages
+                return SignSettings.PACKAGES
             case "repository" | "sign-repository":
-                return SignSettings.Repository
+                return SignSettings.REPOSITORY
             case _:
-                return SignSettings.Disabled
+                return SignSettings.DISABLED

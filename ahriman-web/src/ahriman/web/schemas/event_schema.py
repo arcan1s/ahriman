@@ -35,7 +35,7 @@ class EventSchema(Schema):
     })
     event = fields.String(required=True, metadata={
         "description": "Event type",
-        "example": EventType.PackageUpdated,
+        "example": EventType.PACKAGE_UPDATED,
     })
     message = fields.String(metadata={
         "description": "Event message if available",

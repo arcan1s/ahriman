@@ -50,11 +50,11 @@ class Change(Handler):
         client = Application(repository_id, configuration, report=True).reporter
 
         match args.action:
-            case Action.List:
+            case Action.LIST:
                 changes = client.package_changes_get(args.package)
                 ChangesPrinter(changes)(verbose=True, separator="")
                 Change.check_status(args.exit_code, changes.changes is not None)
-            case Action.Remove:
+            case Action.REMOVE:
                 client.package_changes_update(args.package, Changes())
 
     @staticmethod
@@ -75,7 +75,7 @@ class Change(Handler):
         parser.add_argument("package", help="package base")
         parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
                             action="store_true")
-        parser.set_defaults(action=Action.List, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.LIST, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     @staticmethod
@@ -92,7 +92,7 @@ class Change(Handler):
         parser = root.add_parser("package-changes-remove", help="remove package changes",
                                  description="remove the package changes stored remotely")
         parser.add_argument("package", help="package base")
-        parser.set_defaults(action=Action.Remove, exit_code=False, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.REMOVE, exit_code=False, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     arguments = [_set_package_changes_parser, _set_package_changes_remove_parser]

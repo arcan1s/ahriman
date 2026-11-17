@@ -33,15 +33,15 @@ class ImportType(StrEnum):
         Future(MethodTypeOrder): (class attribute) from __future__ import
         Package(MethodTypeOrder): (class attribute) package import
         PackageFrom(MethodTypeOrder): (class attribute) package import, from clause
-        System(ImportType): (class attribute) system installed packages
+        SYSTEM(ImportType): (class attribute) system installed packages
         SystemFrom(MethodTypeOrder): (class attribute) system installed packages, from clause
     """
 
-    Future = "future"
-    Package = "package"
-    PackageFrom = "package-from"
-    System = "system"
-    SystemFrom = "system-from"
+    FUTURE = "future"
+    PACKAGE = "package"
+    PACKAGE_FROM = "package-from"
+    SYSTEM = "system"
+    SYSTEM_FROM = "system-from"
 
 
 class ImportOrder(BaseRawFileChecker):
@@ -50,17 +50,17 @@ class ImportOrder(BaseRawFileChecker):
     """
 
     msgs = {
-        "W6002": (
+        "E5201": (
             "Invalid import order %s, expected before %s",
             "imports-out-of-order",
             "Imports are defined out of recommended order.",
         ),
-        "W6003": (
+        "E5202": (
             "Import contains more than one package: %s",
             "multiple-package-imports",
             "Multiple package imports are not allowed.",
         ),
-        "W6004": (
+        "E5203": (
             "Invalid from import order %s, expected %s",
             "from-imports-out-of-order",
             "From imports are defined out of recommended order.",
@@ -157,17 +157,17 @@ class ImportOrder(BaseRawFileChecker):
             match statement:
                 case nodes.ImportFrom() if statement.modname == "__future__":
                     import_name = statement.modname
-                    import_type = ImportType.Future
+                    import_type = ImportType.FUTURE
                 case nodes.ImportFrom():
                     import_name = statement.modname
                     root, *_ = import_name.split(".", maxsplit=1)
-                    import_type = ImportType.PackageFrom if root_package == root else ImportType.SystemFrom
+                    import_type = ImportType.PACKAGE_FROM if root_package == root else ImportType.SYSTEM_FROM
                     # check from import itself
                     self.check_from_imports(statement)
                 case nodes.Import():
                     import_name = next(name for name, _ in statement.names)
                     root, *_ = import_name.split(".", maxsplit=1)
-                    import_type = ImportType.Package if root_package == root else ImportType.System
+                    import_type = ImportType.PACKAGE if root_package == root else ImportType.SYSTEM
                     # check import itself
                     self.check_package_imports(statement)
                 case _:

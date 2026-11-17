@@ -27,7 +27,7 @@ def test_init_with_local_cache(configuration: Configuration, mocker: MockerFixtu
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Enabled)
+        pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.ENABLED)
         assert pacman.handle
         sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=False)
 
@@ -45,7 +45,7 @@ def test_init_with_local_cache_forced(configuration: Configuration, mocker: Mock
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Force)
+        pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.FORCE)
         assert pacman.handle
         sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=True)
 

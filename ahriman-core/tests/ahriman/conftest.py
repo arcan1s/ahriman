@@ -96,7 +96,7 @@ def pacman(configuration: Configuration) -> Pacman:
         Pacman: pacman wrapper test instance
     """
     _, repository_id = configuration.check_loaded()
-    return Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Disabled)
+    return Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.DISABLED)
 
 
 @pytest.fixture

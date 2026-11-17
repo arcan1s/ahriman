@@ -42,12 +42,12 @@ class OAuth(Mapping):
     """
 
     def __init__(self, configuration: Configuration, database: SQLite,
-                 provider: AuthSettings = AuthSettings.OAuth) -> None:
+                 provider: AuthSettings = AuthSettings.OAUTH) -> None:
         """
         Args:
             configuration(Configuration): configuration instance
             database(SQLite): database instance
-            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.OAuth)
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.OAUTH)
         """
         Mapping.__init__(self, configuration, database, provider)
         self.client_id = configuration.get("auth", "client_id")

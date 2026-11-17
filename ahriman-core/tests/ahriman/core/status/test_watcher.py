@@ -48,20 +48,20 @@ async def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFi
     cache_mock.assert_called_once_with(None)
     package, status = watcher._known[package_ahriman.base]
     assert package == package_ahriman
-    assert status.status == BuildStatusEnum.Unknown
+    assert status.status == BuildStatusEnum.UNKNOWN
 
 
 async def test_load_known(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must correctly load packages with known statuses
     """
-    status = BuildStatus(BuildStatusEnum.Success)
+    status = BuildStatus(BuildStatusEnum.SUCCESS)
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_get", return_value=[(package_ahriman, status)])
     watcher._known = {package_ahriman.base: (package_ahriman, status)}
 
     await watcher.load()
     _, status = watcher._known[package_ahriman.base]
-    assert status.status == BuildStatusEnum.Success
+    assert status.status == BuildStatusEnum.SUCCESS
 
 
 async def test_logs_rotate(watcher: Watcher, mocker: MockerFixture) -> None:
@@ -92,7 +92,7 @@ async def test_package_get(watcher: Watcher, package_ahriman: Package) -> None:
     watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
     package, status = await watcher.package_get(package_ahriman.base)
     assert package == package_ahriman
-    assert status.status == BuildStatusEnum.Unknown
+    assert status.status == BuildStatusEnum.UNKNOWN
 
 
 async def test_package_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
@@ -161,7 +161,7 @@ async def test_package_hold_update(watcher: Watcher, package_ahriman: Package, m
     cache_mock.assert_called_once_with(package_ahriman.base, enabled=True)
     _, status = watcher._known[package_ahriman.base]
     assert status.is_held is True
-    broadcast_mock.assert_called_once_with(EventType.PackageHeld, package_ahriman.base, is_held=True)
+    broadcast_mock.assert_called_once_with(EventType.PACKAGE_HELD, package_ahriman.base, is_held=True)
 
 
 async def test_package_hold_update_unknown(watcher: Watcher, package_ahriman: Package) -> None:
@@ -182,7 +182,7 @@ async def test_package_logs_add(watcher: Watcher, package_ahriman: Package, mock
 
     await watcher.package_logs_add(log_record)
     cache_mock.assert_called_once_with(log_record)
-    broadcast_mock.assert_called_once_with(EventType.BuildLog, package_ahriman.base, **log_record.view())
+    broadcast_mock.assert_called_once_with(EventType.BUILD_LOG, package_ahriman.base, **log_record.view())
 
 
 async def test_package_logs_get(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -248,7 +248,7 @@ async def test_package_remove(watcher: Watcher, package_ahriman: Package, mocker
     await watcher.package_remove(package_ahriman.base)
     assert not watcher._known
     cache_mock.assert_called_once_with(package_ahriman.base)
-    broadcast_mock.assert_called_once_with(EventType.PackageRemoved, package_ahriman.base)
+    broadcast_mock.assert_called_once_with(EventType.PACKAGE_REMOVED, package_ahriman.base)
 
 
 async def test_package_remove_unknown(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -260,7 +260,7 @@ async def test_package_remove_unknown(watcher: Watcher, package_ahriman: Package
 
     await watcher.package_remove(package_ahriman.base)
     cache_mock.assert_called_once_with(package_ahriman.base)
-    broadcast_mock.assert_called_once_with(EventType.PackageRemoved, package_ahriman.base)
+    broadcast_mock.assert_called_once_with(EventType.PACKAGE_REMOVED, package_ahriman.base)
 
 
 async def test_package_status_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -271,13 +271,13 @@ async def test_package_status_update(watcher: Watcher, package_ahriman: Package,
     broadcast_mock = mocker.patch("ahriman.core.status.event_bus.EventBus.broadcast")
     watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
-    await watcher.package_status_update(package_ahriman.base, BuildStatusEnum.Success)
+    await watcher.package_status_update(package_ahriman.base, BuildStatusEnum.SUCCESS)
     cache_mock.assert_called_once_with(package_ahriman.base, pytest.helpers.anyvar(int))
     package, status = watcher._known[package_ahriman.base]
     assert package == package_ahriman
-    assert status.status == BuildStatusEnum.Success
+    assert status.status == BuildStatusEnum.SUCCESS
     broadcast_mock.assert_called_once_with(
-        EventType.PackageStatusChanged, package_ahriman.base, status=BuildStatusEnum.Success.value,
+        EventType.PACKAGE_STATUS_CHANGED, package_ahriman.base, status=BuildStatusEnum.SUCCESS.value,
     )
 
 
@@ -290,7 +290,7 @@ async def test_package_status_update_preserves_hold(watcher: Watcher, package_ah
     mocker.patch("ahriman.core.status.event_bus.EventBus.broadcast")
     watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus(is_held=True))}
 
-    await watcher.package_status_update(package_ahriman.base, BuildStatusEnum.Success)
+    await watcher.package_status_update(package_ahriman.base, BuildStatusEnum.SUCCESS)
     _, status = watcher._known[package_ahriman.base]
     assert status.is_held is True
 
@@ -300,7 +300,7 @@ async def test_package_status_update_unknown(watcher: Watcher, package_ahriman: 
     must fail on unknown package status update only
     """
     with pytest.raises(UnknownPackageError):
-        await watcher.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+        await watcher.package_status_update(package_ahriman.base, BuildStatusEnum.UNKNOWN)
 
 
 async def test_package_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -310,12 +310,12 @@ async def test_package_update(watcher: Watcher, package_ahriman: Package, mocker
     cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_update")
     broadcast_mock = mocker.patch("ahriman.core.status.event_bus.EventBus.broadcast")
 
-    await watcher.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    await watcher.package_update(package_ahriman, BuildStatusEnum.UNKNOWN)
     assert await watcher.packages()
     cache_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(int))
     broadcast_mock.assert_called_once_with(
-        EventType.PackageUpdated, package_ahriman.base,
-        status=BuildStatusEnum.Unknown.value, version=package_ahriman.version,
+        EventType.PACKAGE_UPDATED, package_ahriman.base,
+        status=BuildStatusEnum.UNKNOWN.value, version=package_ahriman.version,
     )
 
 
@@ -327,7 +327,7 @@ async def test_package_update_preserves_hold(watcher: Watcher, package_ahriman: 
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_update")
     watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus(is_held=True))}
 
-    await watcher.package_update(package_ahriman, BuildStatusEnum.Success)
+    await watcher.package_update(package_ahriman, BuildStatusEnum.SUCCESS)
     _, status = watcher._known[package_ahriman.base]
     assert status.is_held is True
 
@@ -357,9 +357,9 @@ async def test_status_update(watcher: Watcher, mocker: MockerFixture) -> None:
     """
     broadcast_mock = mocker.patch("ahriman.core.status.event_bus.EventBus.broadcast")
 
-    await watcher.status_update(BuildStatusEnum.Success)
-    assert watcher.status.status == BuildStatusEnum.Success
-    broadcast_mock.assert_called_once_with(EventType.ServiceStatusChanged, None, status=BuildStatusEnum.Success.value)
+    await watcher.status_update(BuildStatusEnum.SUCCESS)
+    assert watcher.status.status == BuildStatusEnum.SUCCESS
+    broadcast_mock.assert_called_once_with(EventType.SERVICE_STATUS_CHANGED, None, status=BuildStatusEnum.SUCCESS.value)
 
 
 def test_call(watcher: Watcher, package_ahriman: Package) -> None:

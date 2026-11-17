@@ -90,9 +90,9 @@ class RepositoryProperties(EventLogger, LazyLogging):
         """
         username = packagers.for_base(package_base)
         if username is None:  # none to search
-            return User(username="", password="", access=UserAccess.Read, packager_id=None, key=None)  # nosec
+            return User(username="", password="", access=UserAccess.READ, packager_id=None, key=None)  # nosec
 
         if (user := self.database.user_get(username)) is not None:  # found user
             return user
         # empty user with the username
-        return User(username=username, password="", access=UserAccess.Read, packager_id=None, key=None)  # nosec
+        return User(username=username, password="", access=UserAccess.READ, packager_id=None, key=None)  # nosec

@@ -38,7 +38,7 @@ from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
 from ahriman.web.apispec.info import setup_apispec
 from ahriman.web.cors import setup_cors
-from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey, WorkersKey
+from ahriman.web.keys import AUTH_KEY, CONFIGURATION_KEY, SPAWN_KEY, WATCHER_KEY, WORKERS_KEY
 from ahriman.web.middlewares.etag_handler import etag_handler
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.middlewares.metrics_handler import metrics_handler
@@ -121,7 +121,7 @@ async def _on_shutdown(application: Application) -> None:
     Args:
         application(Application): web application instance
     """
-    for watcher in application[WatcherKey].values():
+    for watcher in application[WATCHER_KEY].values():
         await watcher.shutdown()
     application.logger.warning("server terminated")
 
@@ -139,7 +139,7 @@ async def _on_startup(application: Application) -> None:
     application.logger.info("server started")
 
     try:
-        for watcher in application[WatcherKey].values():
+        for watcher in application[WATCHER_KEY].values():
             await watcher.load()
     except Exception:
         message = "could not load packages"
@@ -156,7 +156,7 @@ def run_server(application: Application) -> None:
     """
     application.logger.info("start server")
 
-    configuration = application[ConfigurationKey]
+    configuration = application[CONFIGURATION_KEY]
     host = configuration.get("web", "host")
     port = configuration.getint("web", "port")
     unix_socket = _create_socket(configuration, application)
@@ -201,25 +201,25 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     aiohttp_jinja2.setup(application, trim_blocks=True, lstrip_blocks=True, autoescape=True, loader=loader)
 
     application.logger.info("setup configuration")
-    application[ConfigurationKey] = configuration
+    application[CONFIGURATION_KEY] = configuration
 
     application.logger.info("setup services")
     # package cache
     if not repositories:
         raise InitializeError("No repositories configured, exiting")
     configuration_path, _ = configuration.check_loaded()
-    application[WatcherKey] = {
+    application[WATCHER_KEY] = {
         repository_id: _create_watcher(configuration_path, repository_id)
         for repository_id in repositories
     }
     # workers cache
-    application[WorkersKey] = WorkersCache(configuration)
+    application[WORKERS_KEY] = WorkersCache(configuration)
     # process spawner
-    application[SpawnKey] = spawner
+    application[SPAWN_KEY] = spawner
 
     application.logger.info("setup authorization")
     database = SQLite.load(configuration)
-    validator = application[AuthKey] = Auth.load(configuration, database)
+    validator = application[AUTH_KEY] = Auth.load(configuration, database)
     if validator.enabled:
         from ahriman.web.middlewares.auth_handler import setup_auth
         setup_auth(application, configuration, validator)

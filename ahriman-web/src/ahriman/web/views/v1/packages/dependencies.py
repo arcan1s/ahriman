@@ -37,8 +37,8 @@ class DependenciesView(StatusViewGuard, BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
-    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.REPORTER
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.FULL
     ROUTES = ["/api/v1/packages/{package}/dependencies"]
 
     @apidocs(

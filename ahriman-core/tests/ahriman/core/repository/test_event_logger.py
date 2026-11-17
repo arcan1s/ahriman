@@ -10,7 +10,7 @@ def test_event(repository: EventLogger, mocker: MockerFixture) -> None:
     """
     must log event
     """
-    event = Event(EventType.PackageUpdated, "base", "message", created=pytest.helpers.anyvar(int, True))
+    event = Event(EventType.PACKAGE_UPDATED, "base", "message", created=pytest.helpers.anyvar(int, True))
     event_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_add")
 
     repository.event(event.object_id, event.event, event.message)
@@ -21,7 +21,7 @@ def test_in_event(repository: EventLogger, mocker: MockerFixture) -> None:
     """
     must log success action
     """
-    event = Event(EventType.PackageUpdated, "base", "message",
+    event = Event(EventType.PACKAGE_UPDATED, "base", "message",
                   created=pytest.helpers.anyvar(int, True), took=pytest.helpers.anyvar(float, True))
     event_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_add")
 
@@ -34,7 +34,7 @@ def test_in_event_exception(repository: EventLogger, mocker: MockerFixture) -> N
     """
     must reraise exception in context
     """
-    event = Event(EventType.PackageUpdated, "base", "message",
+    event = Event(EventType.PACKAGE_UPDATED, "base", "message",
                   created=pytest.helpers.anyvar(int, True), took=pytest.helpers.anyvar(float, True))
     event_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_add")
 
@@ -48,11 +48,11 @@ def test_in_event_exception_event(repository: EventLogger, mocker: MockerFixture
     """
     must reraise exception in context and emit new event
     """
-    event = Event(EventType.PackageUpdateFailed, "base", created=pytest.helpers.anyvar(int, True),
+    event = Event(EventType.PACKAGE_UPDATE_FAILED, "base", created=pytest.helpers.anyvar(int, True),
                   took=pytest.helpers.anyvar(float, True))
     event_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_add")
 
     with pytest.raises(Exception):
-        with repository.in_event(event.object_id, EventType.PackageUpdated, failure=event.event):
+        with repository.in_event(event.object_id, EventType.PACKAGE_UPDATED, failure=event.event):
             raise Exception
     event_mock.assert_called_once_with(event)

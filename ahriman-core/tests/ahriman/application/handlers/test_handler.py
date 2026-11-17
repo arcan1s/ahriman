@@ -16,7 +16,7 @@ def test_call(args: argparse.Namespace, configuration: Configuration, mocker: Mo
     must call inside lock
     """
     args.configuration = Path("")
-    args.log_handler = LogHandler.Console
+    args.log_handler = LogHandler.CONSOLE
     args.quiet = False
     args.report = False
     mocker.patch("ahriman.application.handlers.handler.Handler.run")

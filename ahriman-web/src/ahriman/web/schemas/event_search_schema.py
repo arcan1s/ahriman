@@ -29,7 +29,7 @@ class EventSearchSchema(PaginationSchema):
 
     event = fields.String(metadata={
         "description": "Event type",
-        "example": EventType.PackageUpdated,
+        "example": EventType.PACKAGE_UPDATED,
     })
     from_date = fields.Integer(metadata={
         "description": "Minimal creation timestamp, inclusive",

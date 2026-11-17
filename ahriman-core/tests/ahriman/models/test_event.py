@@ -6,7 +6,7 @@ def test_init() -> None:
     must replace event type for known types
     """
     assert Event("random", "")
-    assert isinstance(Event(str(EventType.PackageUpdated), "").event, EventType)
+    assert isinstance(Event(str(EventType.PACKAGE_UPDATED), "").event, EventType)
 
     assert Event("", "", key="value").data == {"key": "value"}
 

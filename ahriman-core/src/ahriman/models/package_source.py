@@ -32,31 +32,31 @@ class PackageSource(StrEnum):
     package source for addition enumeration
 
     Attributes:
-        Auto(PackageSource): automatically determine type of the source
-        Archive(PackageSource): source is a package archive
+        AUTO(PackageSource): automatically determine type of the source
+        ARCHIVE(PackageSource): source is a package archive
         AUR(PackageSource): source is an AUR package for which it should search
-        Directory(PackageSource): source is a directory which contains packages
-        Local(PackageSource): source is locally stored PKGBUILD
-        Remote(PackageSource): source is remote (http, ftp etc...) link
-        Repository(PackageSource): source is official repository
+        DIRECTORY(PackageSource): source is a directory which contains packages
+        LOCAL(PackageSource): source is locally stored PKGBUILD
+        REMOTE(PackageSource): source is remote (http, ftp etc...) link
+        REPOSITORY(PackageSource): source is official repository
 
     Examples:
         In case if source is unknown the :func:`resolve()` and the source
         descriptor is available method must be used::
 
-            >>> real_source = PackageSource.Auto.resolve("ahriman", configuration.repository_paths)
+            >>> real_source = PackageSource.AUTO.resolve("ahriman", configuration.repository_paths)
 
-        the code above will ensure that the presudo-source :attr:`Auto`
+        the code above will ensure that the presudo-source :attr:`AUTO`
         will not be processed later.
     """
 
-    Auto = "auto"
-    Archive = "archive"
+    AUTO = "auto"
+    ARCHIVE = "archive"
     AUR = "aur"
-    Directory = "directory"
-    Local = "local"
-    Remote = "remote"
-    Repository = "repository"
+    DIRECTORY = "directory"
+    LOCAL = "local"
+    REMOTE = "remote"
+    REPOSITORY = "repository"
 
     def resolve(self, source: str, paths: RepositoryPaths) -> PackageSource:
         """
@@ -69,21 +69,21 @@ class PackageSource(StrEnum):
         Returns:
             PackageSource: non-auto type of the package source
         """
-        if self != PackageSource.Auto:
+        if self != PackageSource.AUTO:
             return self
 
         maybe_url = urlparse(source)  # handle file:// like paths
         maybe_path = Path(maybe_url.path)
 
         if maybe_url.scheme and maybe_url.scheme not in ("data", "file") and package_like(maybe_path):
-            return PackageSource.Remote
+            return PackageSource.REMOTE
         try:
             if (maybe_path / "PKGBUILD").is_file() or paths.cache_for(source).is_dir():
-                return PackageSource.Local
+                return PackageSource.LOCAL
             if maybe_path.is_dir():
-                return PackageSource.Directory
+                return PackageSource.DIRECTORY
             if maybe_path.is_file() and package_like(maybe_path):
-                return PackageSource.Archive
+                return PackageSource.ARCHIVE
         except PermissionError:
             # in some cases (e.g. if you run from your home directory with sudo)
             # it will try to read files to which it has no access.

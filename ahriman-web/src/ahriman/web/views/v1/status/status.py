@@ -41,8 +41,8 @@ class StatusView(StatusViewGuard, BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Read
-    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.READ
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.FULL
     ROUTES = ["/api/v1/status"]
 
     @apidocs(

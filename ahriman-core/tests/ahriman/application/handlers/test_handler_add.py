@@ -24,7 +24,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.package = ["ahriman"]
     args.now = False
     args.refresh = 0
-    args.source = PackageSource.Auto
+    args.source = PackageSource.AUTO
     args.username = "username"
     args.variable = None
     return args

@@ -34,7 +34,7 @@ def test_package_register(package_creator: PackageCreator, mocker: MockerFixture
     package = Package(
         base=package_creator.generator.pkgname,
         version=package_creator.generator.pkgver,
-        remote=RemoteSource(source=PackageSource.Local),
+        remote=RemoteSource(source=PackageSource.LOCAL),
         packages={package_creator.generator.pkgname: PackageDescription()},
     )
     client_mock = mocker.patch("ahriman.core._Context.get", return_value=Client())

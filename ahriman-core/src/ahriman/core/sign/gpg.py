@@ -53,7 +53,7 @@ class GPG(SyncHttpClient):
         Returns:
             list[str]: command line arguments for repo-add command to sign database
         """
-        if SignSettings.Repository not in self.targets:
+        if SignSettings.REPOSITORY not in self.targets:
             return []
         if self.default_key is None:
             self.logger.error("no default key set, skip repository sign")
@@ -88,7 +88,7 @@ class GPG(SyncHttpClient):
         targets: set[SignSettings] = set()
         for option in configuration.getlist("sign", "target", fallback=[]):
             target = SignSettings.from_option(option)
-            if target == SignSettings.Disabled:
+            if target == SignSettings.DISABLED:
                 continue
             targets.add(target)
         default_key = configuration.get("sign", "key") if targets else None
@@ -204,7 +204,7 @@ class GPG(SyncHttpClient):
             # the file was already signed before, just use its signature
             return [path, signature]
 
-        if SignSettings.Packages not in self.targets:
+        if SignSettings.PACKAGES not in self.targets:
             return [path]
 
         key = packager_key or self.default_key
@@ -226,7 +226,7 @@ class GPG(SyncHttpClient):
         Returns:
             list[Path]: list of generated files including original file
         """
-        if SignSettings.Repository not in self.targets:
+        if SignSettings.REPOSITORY not in self.targets:
             return [path]
         if self.default_key is None:
             self.logger.error("no default key set, skip repository sign")

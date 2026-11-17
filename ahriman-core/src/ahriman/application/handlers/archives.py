@@ -50,10 +50,10 @@ class Archives(Handler):
         application = Application(repository_id, configuration, report=True)
 
         match args.action:
-            case Action.List:
+            case Action.LIST:
                 archives = application.repository.package_archives(args.package)
                 for package in archives:
-                    PackagePrinter(package, BuildStatus(BuildStatusEnum.Success))(verbose=args.info)
+                    PackagePrinter(package, BuildStatus(BuildStatusEnum.SUCCESS))(verbose=args.info)
 
                 Archives.check_status(args.exit_code, bool(archives))
 
@@ -75,7 +75,7 @@ class Archives(Handler):
                             action="store_true")
         parser.add_argument("--info", help="show additional package information",
                             action=argparse.BooleanOptionalAction, default=False)
-        parser.set_defaults(action=Action.List, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.LIST, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     arguments = [_set_package_archives_parser]

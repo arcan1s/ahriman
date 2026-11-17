@@ -24,12 +24,12 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.username = "user"
-    args.action = Action.Update
+    args.action = Action.UPDATE
     args.exit_code = False
     args.key = "key"
     args.packager = "packager"
     args.password = "pa55w0rd"
-    args.role = UserAccess.Reporter
+    args.role = UserAccess.REPORTER
     return args
 
 
@@ -97,7 +97,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, databa
     must list available users
     """
     args = _default_args(args)
-    args.action = Action.List
+    args.action = Action.LIST
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     list_mock = mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[user])
@@ -114,7 +114,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     must raise ExitCode exception on empty user list
     """
     args = _default_args(args)
-    args.action = Action.List
+    args.action = Action.LIST
     args.exit_code = True
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[])
@@ -131,7 +131,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, data
     must remove user if remove flag supplied
     """
     args = _default_args(args)
-    args.action = Action.Remove
+    args.action = Action.REMOVE
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     remove_mock = mocker.patch("ahriman.core.database.SQLite.user_remove")
 

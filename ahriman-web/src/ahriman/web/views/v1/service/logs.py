@@ -34,7 +34,7 @@ class LogsView(BaseView):
         DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
     """
 
-    DELETE_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
+    DELETE_PERMISSION: ClassVar[UserAccess] = UserAccess.FULL
     ROUTES = ["/api/v1/service/logs"]
 
     @apidocs(

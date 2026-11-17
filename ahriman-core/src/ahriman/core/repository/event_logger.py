@@ -49,7 +49,7 @@ class EventLogger:
             This method must be used as simple wrapper for :class:`ahriman.core.status.Client` methods, e.g.::
 
                 >>> do_something()
-                >>> self.event(package_base, EventType.PackageUpdated)
+                >>> self.event(package_base, EventType.PACKAGE_UPDATED)
         """
         self.reporter.event_add(Event(event, package_base, message))
 
@@ -68,7 +68,7 @@ class EventLogger:
         Examples:
             This method must be used to perform action in context with time measurement::
 
-                >>> with self.in_event(package_base, EventType.PackageUpdated):
+                >>> with self.in_event(package_base, EventType.PACKAGE_UPDATED):
                 >>>     do_something()
 
             Additional parameter ``failure`` can be set in order to emit an event on exception occurred. If none set

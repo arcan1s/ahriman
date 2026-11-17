@@ -85,7 +85,7 @@ class Add(Handler):
                             action=argparse.BooleanOptionalAction, default=True)
         parser.add_argument("-n", "--now", help="run update function after", action="store_true")
         parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
-                            type=PackageSource, choices=tuple(PackageSource), default=PackageSource.Auto)
+                            type=PackageSource, choices=tuple(PackageSource), default=PackageSource.AUTO)
         parser.add_argument("-u", "--username", help="build as user", default=extract_user())
         parser.add_argument("-v", "--variable", help="apply specified makepkg variables to the next build",
                             action="append")

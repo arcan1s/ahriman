@@ -36,7 +36,7 @@ Almost all actions are wrapped by ``ahriman.core.repository.Repository`` class
    from ahriman.models.pacman_synchronization import PacmanSynchronization
 
    repository = Repository(repository_id, configuration, database,
-                           report=True, refresh_pacman_database=PacmanSynchronization.Disabled)
+                           report=True, refresh_pacman_database=PacmanSynchronization.DISABLED)
 
 And the ``repository`` instance can be used to perform repository maintenance
 

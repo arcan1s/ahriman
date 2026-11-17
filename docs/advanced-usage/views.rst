@@ -28,13 +28,13 @@ In order to view to be added to the route list correctly, few more properties ar
 
        ROUTES = ["/api/v1/ping"]
 
-In addition, it is also recommended to specify permission level for using this endpoint. Since this endpoint neither does anything nor returns sensitive information, it can be set to ``UserAccess.Unauthorized``:
+In addition, it is also recommended to specify permission level for using this endpoint. Since this endpoint neither does anything nor returns sensitive information, it can be set to ``UserAccess.UNAUTHORIZED``:
 
 .. code-block:: python
 
    ...
 
-       GET_PERMISSION = UserAccess.Unauthorized
+       GET_PERMISSION = UserAccess.UNAUTHORIZED
 
 That's all. Just save the file as ``/usr/lib/python3.12/site-packages/ahriman/web/views/ping.py`` (replace ``python3.12`` with actual python version) and restart web server.
 

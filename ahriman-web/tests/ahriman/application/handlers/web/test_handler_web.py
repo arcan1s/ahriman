@@ -70,7 +70,7 @@ def test_extract_arguments(args: argparse.Namespace, configuration: Configuratio
     expected.extend(["--force"])
     assert list(Web.extract_arguments(probe, configuration)) == expected
 
-    probe.log_handler = LogHandler.Console
+    probe.log_handler = LogHandler.CONSOLE
     expected.extend(["--log-handler", probe.log_handler.value])
     assert list(Web.extract_arguments(probe, configuration)) == expected
 

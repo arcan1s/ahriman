@@ -14,7 +14,7 @@ async def test_get_permission() -> None:
     """
     for method in ("DELETE",):
         request = pytest.helpers.request("", "", method)
-        assert await LogsView.get_permission(request) == UserAccess.Full
+        assert await LogsView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -29,7 +29,7 @@ async def test_delete(client: TestClient, package_ahriman: Package) -> None:
     must delete all logs
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message 1", "version": "42"})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
@@ -48,7 +48,7 @@ async def test_delete_partially(client: TestClient, package_ahriman: Package) ->
     must delete logs based on count input
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message 1", "version": "42"})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",

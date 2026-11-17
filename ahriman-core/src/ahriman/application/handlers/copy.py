@@ -103,7 +103,7 @@ class Copy(Handler):
             for source in package.packages.values()
             if source.filename is not None
         ]
-        application.add(source_paths, PackageSource.Archive)
+        application.add(source_paths, PackageSource.ARCHIVE)
 
         # copy metadata
         application.reporter.package_changes_update(
@@ -112,6 +112,6 @@ class Copy(Handler):
         application.reporter.package_dependencies_update(
             package.base, source_application.reporter.package_dependencies_get(package.base)
         )
-        application.reporter.package_update(package, BuildStatusEnum.Pending)
+        application.reporter.package_update(package, BuildStatusEnum.PENDING)
 
     arguments = [_set_package_copy_parser]

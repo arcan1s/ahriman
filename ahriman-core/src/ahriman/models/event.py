@@ -28,24 +28,24 @@ class EventType(StrEnum):
     predefined event types
 
     Attributes:
-        BuildLog(EventType): new build log line
-        PackageHeld(EventType): package hold status has been changed
-        PackageOutdated(EventType): package has been marked as out-of-date
-        PackageRemoved(EventType): package has been removed
-        PackageStatusChanged(EventType): package build status has been changed
-        PackageUpdateFailed(EventType): package update has been failed
-        PackageUpdated(EventType): package has been updated
-        ServiceStatusChanged(EventType): service status has been changed
+        BUILD_LOG(EventType): new build log line
+        PACKAGE_HELD(EventType): package hold status has been changed
+        PACKAGE_OUTDATED(EventType): package has been marked as out-of-date
+        PACKAGE_REMOVED(EventType): package has been removed
+        PACKAGE_STATUS_CHANGED(EventType): package build status has been changed
+        PACKAGE_UPDATE_FAILED(EventType): package update has been failed
+        PACKAGE_UPDATED(EventType): package has been updated
+        SERVICE_STATUS_CHANGED(EventType): service status has been changed
     """
 
-    BuildLog = "build-log"
-    PackageHeld = "package-held"
-    PackageOutdated = "package-outdated"
-    PackageRemoved = "package-removed"
-    PackageStatusChanged = "package-status-changed"
-    PackageUpdateFailed = "package-update-failed"
-    PackageUpdated = "package-updated"
-    ServiceStatusChanged = "service-status-changed"
+    BUILD_LOG = "build-log"
+    PACKAGE_HELD = "package-held"
+    PACKAGE_OUTDATED = "package-outdated"
+    PACKAGE_REMOVED = "package-removed"
+    PACKAGE_STATUS_CHANGED = "package-status-changed"
+    PACKAGE_UPDATE_FAILED = "package-update-failed"
+    PACKAGE_UPDATED = "package-updated"
+    SERVICE_STATUS_CHANGED = "service-status-changed"
 
 
 class Event:

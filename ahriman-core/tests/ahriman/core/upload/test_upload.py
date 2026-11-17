@@ -24,7 +24,7 @@ def test_report_dummy(configuration: Configuration, mocker: MockerFixture) -> No
     """
     must construct dummy upload class
     """
-    mocker.patch("ahriman.models.upload_settings.UploadSettings.from_option", return_value=UploadSettings.Disabled)
+    mocker.patch("ahriman.models.upload_settings.UploadSettings.from_option", return_value=UploadSettings.DISABLED)
     upload_mock = mocker.patch("ahriman.core.upload.upload.Upload.sync")
     _, repository_id = configuration.check_loaded()
 

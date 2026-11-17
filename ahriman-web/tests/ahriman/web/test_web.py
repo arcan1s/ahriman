@@ -9,7 +9,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeError
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
-from ahriman.web.keys import ConfigurationKey
+from ahriman.web.keys import CONFIGURATION_KEY
 from ahriman.web.web import _create_socket, _create_watcher, _on_shutdown, _on_startup, run_server, setup_server
 
 
@@ -18,14 +18,14 @@ async def test_create_socket(application: Application, mocker: MockerFixture) ->
     must create socket
     """
     path = "/run/ahriman.sock"
-    application[ConfigurationKey].set_option("web", "unix_socket", str(path))
+    application[CONFIGURATION_KEY].set_option("web", "unix_socket", str(path))
     current_on_shutdown = len(application.on_shutdown)
 
     bind_mock = mocker.patch("socket.socket.bind")
     chmod_mock = mocker.patch("pathlib.Path.chmod")
     unlink_mock = mocker.patch("pathlib.Path.unlink")
 
-    sock = _create_socket(application[ConfigurationKey], application)
+    sock = _create_socket(application[CONFIGURATION_KEY], application)
     assert sock.family == socket.AF_UNIX
     assert sock.type == socket.SOCK_STREAM
     bind_mock.assert_called_once_with(str(path))
@@ -41,7 +41,7 @@ def test_create_socket_empty(application: Application) -> None:
     """
     must skip socket creation if not set by configuration
     """
-    assert _create_socket(application[ConfigurationKey], application) is None
+    assert _create_socket(application[CONFIGURATION_KEY], application) is None
 
 
 def test_create_socket_safe(application: Application, mocker: MockerFixture) -> None:
@@ -49,14 +49,14 @@ def test_create_socket_safe(application: Application, mocker: MockerFixture) -> 
     must create socket with default permission set
     """
     path = "/run/ahriman.sock"
-    application[ConfigurationKey].set_option("web", "unix_socket", str(path))
-    application[ConfigurationKey].set_option("web", "unix_socket_unsafe", "no")
+    application[CONFIGURATION_KEY].set_option("web", "unix_socket", str(path))
+    application[CONFIGURATION_KEY].set_option("web", "unix_socket_unsafe", "no")
 
     mocker.patch("socket.socket.bind")
     mocker.patch("pathlib.Path.unlink")
     chmod_mock = mocker.patch("pathlib.Path.chmod")
 
-    sock = _create_socket(application[ConfigurationKey], application)
+    sock = _create_socket(application[CONFIGURATION_KEY], application)
     assert sock is not None
     chmod_mock.assert_not_called()
 
@@ -112,7 +112,7 @@ def test_run(application: Application, mocker: MockerFixture) -> None:
     must run application
     """
     port = 8080
-    application[ConfigurationKey].set_option("web", "port", str(port))
+    application[CONFIGURATION_KEY].set_option("web", "port", str(port))
     run_application_mock = mocker.patch("ahriman.web.web.run_app")
 
     run_server(application)
@@ -127,7 +127,7 @@ def test_run_with_auth(application_with_auth: Application, mocker: MockerFixture
     must run application with enabled authorization
     """
     port = 8080
-    application_with_auth[ConfigurationKey].set_option("web", "port", str(port))
+    application_with_auth[CONFIGURATION_KEY].set_option("web", "port", str(port))
     run_application_mock = mocker.patch("ahriman.web.web.run_app")
 
     run_server(application_with_auth)
@@ -142,12 +142,12 @@ def test_run_with_socket(application: Application, mocker: MockerFixture) -> Non
     must run application with socket
     """
     port = 8080
-    application[ConfigurationKey].set_option("web", "port", str(port))
+    application[CONFIGURATION_KEY].set_option("web", "port", str(port))
     socket_mock = mocker.patch("ahriman.web.web._create_socket", return_value=42)
     run_application_mock = mocker.patch("ahriman.web.web.run_app")
 
     run_server(application)
-    socket_mock.assert_called_once_with(application[ConfigurationKey], application)
+    socket_mock.assert_called_once_with(application[CONFIGURATION_KEY], application)
     run_application_mock.assert_called_once_with(
         application, host="127.0.0.1", port=port, sock=42, handle_signals=True,
         access_log=pytest.helpers.anyvar(int),

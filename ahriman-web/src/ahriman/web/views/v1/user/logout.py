@@ -34,7 +34,7 @@ class LogoutView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.UNAUTHORIZED
     ROUTES = ["/api/v1/logout"]
 
     @apidocs(

@@ -22,8 +22,8 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.package = None
-    args.action = Action.Update
-    args.status = BuildStatusEnum.Success
+    args.action = Action.UPDATE
+    args.status = BuildStatusEnum.SUCCESS
     return args
 
 
@@ -63,7 +63,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     """
     args = _default_args(args)
     args.package = [package_ahriman.base]
-    args.action = Action.Remove
+    args.action = Action.REMOVE
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     update_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
 

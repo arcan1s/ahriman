@@ -117,7 +117,7 @@ class Executor(PackageInfo, Cleaner):
             package_base(str): package base name
         """
         try:
-            with self.in_event(package_base, EventType.PackageRemoved):
+            with self.in_event(package_base, EventType.PACKAGE_REMOVED):
                 self.reporter.package_remove(package_base)
         except Exception:
             self.logger.exception("could not remove base %s", package_base)
@@ -169,7 +169,7 @@ class Executor(PackageInfo, Cleaner):
             with self.in_package_context(single.base, local_versions.get(single.base)), \
                     TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
                 try:
-                    with self.in_event(single.base, EventType.PackageUpdated, failure=EventType.PackageUpdateFailed):
+                    with self.in_event(single.base, EventType.PACKAGE_UPDATED, failure=EventType.PACKAGE_UPDATE_FAILED):
                         packager = self.packager(packagers, single.base)
                         local_version = local_versions.get(single.base) if bump_pkgrel else None
                         commit_sha = self._package_build(single, Path(dir_name), packager.packager_id, local_version)

@@ -36,7 +36,7 @@ class ConfigView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = POST_PERMISSION = UserAccess.Full  # type: ClassVar[UserAccess]
+    GET_PERMISSION = POST_PERMISSION = UserAccess.FULL  # type: ClassVar[UserAccess]
     ROUTES = ["/api/v1/service/config"]
 
     @apidocs(

@@ -16,14 +16,14 @@ def test_handler() -> None:
     """
     must extract journald handler if available
     """
-    assert LogLoader.handler(None) == LogHandler.Journald
+    assert LogLoader.handler(None) == LogHandler.JOURNALD
 
 
 def test_handler_selected() -> None:
     """
     must return selected log handler
     """
-    assert LogLoader.handler(LogHandler.Console) == LogHandler.Console
+    assert LogLoader.handler(LogHandler.CONSOLE) == LogHandler.CONSOLE
 
 
 def test_handler_syslog(mocker: MockerFixture) -> None:
@@ -32,7 +32,7 @@ def test_handler_syslog(mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.exists", return_value=True)
     mocker.patch.dict(sys.modules, {"systemd.journal": None})
-    assert LogLoader.handler(None) == LogHandler.Syslog
+    assert LogLoader.handler(None) == LogHandler.SYSLOG
 
 
 def test_handler_console(mocker: MockerFixture) -> None:
@@ -41,7 +41,7 @@ def test_handler_console(mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.exists", return_value=False)
     mocker.patch.dict(sys.modules, {"systemd.journal": None})
-    assert LogLoader.handler(None) == LogHandler.Console
+    assert LogLoader.handler(None) == LogHandler.CONSOLE
 
 
 def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -52,7 +52,7 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
     http_log_mock = mocker.patch("ahriman.core.log.http_log_handler.HttpLogHandler.load")
 
     _, repository_id = configuration.check_loaded()
-    LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=False, report=False)
+    LogLoader.load(repository_id, configuration, LogHandler.JOURNALD, quiet=False, report=False)
     logging_mock.assert_called_once_with(pytest.helpers.anyvar(int), disable_existing_loggers=True)
     http_log_mock.assert_called_once_with(repository_id, configuration, report=False)
     assert all(isinstance(handler, JournalHandler) for handler in logging.getLogger().handlers)
@@ -64,7 +64,7 @@ def test_load_fallback(configuration: Configuration, mocker: MockerFixture) -> N
     """
     mocker.patch("ahriman.core.log.log_loader.fileConfig", side_effect=PermissionError)
     _, repository_id = configuration.check_loaded()
-    LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=False, report=False)
+    LogLoader.load(repository_id, configuration, LogHandler.JOURNALD, quiet=False, report=False)
 
 
 def test_load_quiet(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -74,7 +74,7 @@ def test_load_quiet(configuration: Configuration, mocker: MockerFixture) -> None
     disable_mock = mocker.patch("logging.disable")
 
     _, repository_id = configuration.check_loaded()
-    LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=True, report=False)
+    LogLoader.load(repository_id, configuration, LogHandler.JOURNALD, quiet=True, report=False)
     disable_mock.assert_called_once_with(logging.WARNING)
 
 

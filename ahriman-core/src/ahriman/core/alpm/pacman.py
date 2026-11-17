@@ -96,7 +96,7 @@ class Pacman(LazyLogging):
         self.database_init(handle, self.repository_id.name, self.repository_id.architecture)
 
         if use_ahriman_cache and refresh_database:
-            self.database_sync(handle, force=refresh_database == PacmanSynchronization.Force)
+            self.database_sync(handle, force=refresh_database == PacmanSynchronization.FORCE)
 
         return handle
 

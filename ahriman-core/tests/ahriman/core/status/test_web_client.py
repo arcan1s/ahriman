@@ -160,7 +160,7 @@ def test_event_add(web_client: WebClient, package_ahriman: Package, mocker: Mock
     """
     must create event
     """
-    event = Event(EventType.PackageUpdated, package_ahriman.base)
+    event = Event(EventType.PACKAGE_UPDATED, package_ahriman.base)
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
     web_client.event_add(event)
@@ -212,7 +212,7 @@ def test_event_get(web_client: WebClient, package_ahriman: Package, mocker: Mock
     """
     must get events
     """
-    event = Event(EventType.PackageUpdated, package_ahriman.base)
+    event = Event(EventType.PACKAGE_UPDATED, package_ahriman.base)
     response_obj = requests.Response()
     response_obj._content = json.dumps([event.view()]).encode("utf8")
     response_obj.status_code = 200
@@ -605,7 +605,7 @@ def test_package_get_all(web_client: WebClient, package_ahriman: Package, mocker
     result = web_client.package_get(None)
     requests_mock.assert_called_once_with("GET", web_client._package_url(), params=web_client.repository_id.query())
     assert len(result) == len(response)
-    assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
+    assert (package_ahriman, BuildStatusEnum.UNKNOWN) in [(package, status.status) for package, status in result]
 
 
 def test_package_get_failed(web_client: WebClient, mocker: MockerFixture) -> None:
@@ -640,7 +640,7 @@ def test_package_get_single(web_client: WebClient, package_ahriman: Package, moc
     requests_mock.assert_called_once_with("GET", web_client._package_url(package_ahriman.base),
                                           params=web_client.repository_id.query())
     assert len(result) == len(response)
-    assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
+    assert (package_ahriman, BuildStatusEnum.UNKNOWN) in [(package, status.status) for package, status in result]
 
 
 def test_package_hold_update(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -1055,11 +1055,11 @@ def test_package_status_update(web_client: WebClient, package_ahriman: Package, 
     """
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
-    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.UNKNOWN)
     requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query(),
                                           json={
-                                              "status": BuildStatusEnum.Unknown.value,
+                                              "status": BuildStatusEnum.UNKNOWN.value,
     })
 
 
@@ -1068,7 +1068,7 @@ def test_package_status_update_failed(web_client: WebClient, package_ahriman: Pa
     must suppress any exception happened during update
     """
     mocker.patch("requests.Session.request", side_effect=Exception)
-    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.UNKNOWN)
 
 
 def test_package_status_update_failed_http_error(web_client: WebClient, package_ahriman: Package,
@@ -1077,7 +1077,7 @@ def test_package_status_update_failed_http_error(web_client: WebClient, package_
     must suppress HTTP exception happened during update
     """
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
-    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.UNKNOWN)
 
 
 def test_package_update(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -1087,7 +1087,7 @@ def test_package_update(web_client: WebClient, package_ahriman: Package, mocker:
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
     payload = pytest.helpers.get_package_status(package_ahriman)
 
-    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    web_client.package_update(package_ahriman, BuildStatusEnum.UNKNOWN)
     requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query(), json=payload)
 
@@ -1097,7 +1097,7 @@ def test_package_update_failed(web_client: WebClient, package_ahriman: Package, 
     must suppress any exception happened during addition
     """
     mocker.patch("requests.Session.request", side_effect=Exception)
-    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    web_client.package_update(package_ahriman, BuildStatusEnum.UNKNOWN)
 
 
 def test_package_update_failed_http_error(web_client: WebClient, package_ahriman: Package,
@@ -1106,7 +1106,7 @@ def test_package_update_failed_http_error(web_client: WebClient, package_ahriman
     must suppress HTTP exception happened during addition
     """
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
-    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    web_client.package_update(package_ahriman, BuildStatusEnum.UNKNOWN)
 
 
 def test_package_update_failed_suppress(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -1117,7 +1117,7 @@ def test_package_update_failed_suppress(web_client: WebClient, package_ahriman: 
     mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
-    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    web_client.package_update(package_ahriman, BuildStatusEnum.UNKNOWN)
     logging_mock.assert_not_called()
 
 
@@ -1130,7 +1130,7 @@ def test_package_update_failed_http_error_suppress(web_client: WebClient, packag
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
-    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    web_client.package_update(package_ahriman, BuildStatusEnum.UNKNOWN)
     logging_mock.assert_not_called()
 
 
@@ -1173,12 +1173,12 @@ def test_status_update(web_client: WebClient, mocker: MockerFixture) -> None:
     """
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
-    web_client.status_update(BuildStatusEnum.Unknown)
+    web_client.status_update(BuildStatusEnum.UNKNOWN)
     requests_mock.assert_called_once_with(
         "POST", pytest.helpers.anyvar(str, True),
         params=web_client.repository_id.query(),
         json={
-            "status": BuildStatusEnum.Unknown.value,
+            "status": BuildStatusEnum.UNKNOWN.value,
         }
     )
 
@@ -1188,7 +1188,7 @@ def test_status_update_self_failed(web_client: WebClient, mocker: MockerFixture)
     must suppress any exception happened during service update
     """
     mocker.patch("requests.Session.request", side_effect=Exception)
-    web_client.status_update(BuildStatusEnum.Unknown)
+    web_client.status_update(BuildStatusEnum.UNKNOWN)
 
 
 def test_status_update_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
@@ -1196,4 +1196,4 @@ def test_status_update_failed_http_error(web_client: WebClient, mocker: MockerFi
     must suppress HTTP exception happened during service update
     """
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
-    web_client.status_update(BuildStatusEnum.Unknown)
+    web_client.status_update(BuildStatusEnum.UNKNOWN)

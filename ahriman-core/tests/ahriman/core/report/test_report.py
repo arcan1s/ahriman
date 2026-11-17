@@ -24,7 +24,7 @@ def test_report_dummy(configuration: Configuration, result: Result, mocker: Mock
     """
     must construct dummy report class
     """
-    mocker.patch("ahriman.models.report_settings.ReportSettings.from_option", return_value=ReportSettings.Disabled)
+    mocker.patch("ahriman.models.report_settings.ReportSettings.from_option", return_value=ReportSettings.DISABLED)
     report_mock = mocker.patch("ahriman.core.report.report.Report.generate")
     _, repository_id = configuration.check_loaded()
 

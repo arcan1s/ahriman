@@ -59,7 +59,7 @@ def test_print_updates(application: Application, package_ahriman: Package, mocke
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    application.print_updates(BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate), log_fn=print)
+    application.print_updates(BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE), log_fn=print)
     print_mock.assert_called_once_with(verbose=True, log_fn=print, separator=": ")
 
 
@@ -99,7 +99,7 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
                                  return_value={"devtools", "python-build", "python-pytest"})
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_unknown")
 
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
     result = application.with_dependencies(plan, process_dependencies=True)
     assert {package.base: package for package in result} == packages
     assert result.item(package_ahriman.base).requester is None
@@ -144,7 +144,7 @@ def test_with_dependencies_split(application: Application, package_ahriman: Pack
 
     plan = BuildPlan().update([
         package("ahriman", "ahriman", ["ahriman-core", "ahriman-web"])
-    ], BuildPlanReason.ManualRequest)
+    ], BuildPlanReason.MANUAL_REQUEST)
     result = application.with_dependencies(plan, process_dependencies=True)
     assert [[item.base for item in level] for level in Tree.resolve(result)] == [
         ["python-tree-sitter-bash"], ["ahriman"],
@@ -152,7 +152,7 @@ def test_with_dependencies_split(application: Application, package_ahriman: Pack
 
     plan_item = result.item("ahriman")
     assert plan_item.package.packages.keys() == {"ahriman", "ahriman-core", "ahriman-web"}
-    assert plan_item.reason == BuildPlanReason.ManualRequest
+    assert plan_item.reason == BuildPlanReason.MANUAL_REQUEST
     assert plan_item.requester is None
 
 
@@ -188,7 +188,7 @@ def test_with_dependencies_exception(application: Application, package_ahriman: 
                  return_value={"devtools", "python-build", "python-pytest"})
 
     plan = BuildPlan()
-    plan.add(package_ahriman, BuildPlanReason.RegularUpdate)
+    plan.add(package_ahriman, BuildPlanReason.REGULAR_UPDATE)
     assert application.with_dependencies(plan, process_dependencies=True) is plan
     assert plan.packages == [package_ahriman]
 
@@ -199,7 +199,7 @@ def test_with_dependencies_skip(application: Application, package_ahriman: Packa
     """
     packages_mock = mocker.patch("ahriman.application.application.Application._known_packages")
 
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
     assert application.with_dependencies(plan, process_dependencies=False).packages == [package_ahriman]
     packages_mock.assert_not_called()
 

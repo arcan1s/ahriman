@@ -102,9 +102,9 @@ def test_copy_package(package_ahriman: Package, application: Application, mocker
     path = application.repository.paths.repository / package_ahriman.packages[package_ahriman.base].filename
 
     Copy.copy_package(package_ahriman, application, application)
-    add_mock.assert_called_once_with([str(path)], PackageSource.Archive)
+    add_mock.assert_called_once_with([str(path)], PackageSource.ARCHIVE)
     changes_get_mock.assert_called_once_with(package_ahriman.base)
     changes_update_mock.assert_called_once_with(package_ahriman.base, changes_get_mock.return_value)
     deps_get_mock.assert_called_once_with(package_ahriman.base)
     deps_update_mock.assert_called_once_with(package_ahriman.base, deps_get_mock.return_value)
-    package_update_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Pending)
+    package_update_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.PENDING)

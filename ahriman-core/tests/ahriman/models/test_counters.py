@@ -17,8 +17,8 @@ def test_counters_from_packages(package_ahriman: Package, package_python_schedul
     must construct object from list of packages with their statuses
     """
     payload = [
-        (package_ahriman, BuildStatus(status=BuildStatusEnum.Success)),
-        (package_python_schedule, BuildStatus(status=BuildStatusEnum.Failed)),
+        (package_ahriman, BuildStatus(status=BuildStatusEnum.SUCCESS)),
+        (package_python_schedule, BuildStatus(status=BuildStatusEnum.FAILED)),
     ]
 
     counters = Counters.from_packages(payload)

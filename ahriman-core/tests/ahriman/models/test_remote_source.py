@@ -26,7 +26,7 @@ def test_is_remote() -> None:
     must correctly define if source is remote or not
     """
     for source in PackageSource:
-        assert RemoteSource(source=source).is_remote or source not in (PackageSource.AUR, PackageSource.Repository)
+        assert RemoteSource(source=source).is_remote or source not in (PackageSource.AUR, PackageSource.REPOSITORY)
 
 
 def test_pkgbuild_dir(remote_source: RemoteSource) -> None:
@@ -56,4 +56,4 @@ def test_git_source_empty() -> None:
     must raise exception if path is none
     """
     with pytest.raises(InitializeError):
-        RemoteSource(source=PackageSource.Remote).git_source()
+        RemoteSource(source=PackageSource.REMOTE).git_source()

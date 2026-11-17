@@ -38,7 +38,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     must run command
     """
     args = _default_args(args)
-    args.action = Action.Update
+    args.action = Action.UPDATE
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     patch_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_create_from_diff",
                               return_value=(args.package, PkgbuildPatch(None, "patch")))
@@ -56,7 +56,7 @@ def test_run_function(args: argparse.Namespace, configuration: Configuration, re
     must run command with patch function flag
     """
     args = _default_args(args)
-    args.action = Action.Update
+    args.action = Action.UPDATE
     args.patch = "patch"
     args.variable = "version"
     patch = PkgbuildPatch(args.variable, args.patch)
@@ -77,7 +77,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, reposi
     must run command with list flag
     """
     args = _default_args(args)
-    args.action = Action.List
+    args.action = Action.LIST
     args.variable = ["version"]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_list")
@@ -93,7 +93,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     must run command with remove flag
     """
     args = _default_args(args)
-    args.action = Action.Remove
+    args.action = Action.REMOVE
     args.variable = ["version"]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")

@@ -46,10 +46,10 @@ class Hold(Handler):
         client = Application(repository_id, configuration, report=True).reporter
 
         match args.action:
-            case Action.Remove:
+            case Action.REMOVE:
                 for package in args.package:
                     client.package_hold_update(package, enabled=False)
-            case Action.Update:
+            case Action.UPDATE:
                 for package in args.package:
                     client.package_hold_update(package, enabled=True)
 
@@ -67,7 +67,7 @@ class Hold(Handler):
         parser = root.add_parser("package-hold", help="hold package",
                                  description="hold package from automatic updates")
         parser.add_argument("package", help="package base", nargs="+")
-        parser.set_defaults(action=Action.Update, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.UPDATE, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     @staticmethod
@@ -84,7 +84,7 @@ class Hold(Handler):
         parser = root.add_parser("package-unhold", help="unhold package",
                                  description="remove package hold, allowing automatic updates")
         parser.add_argument("package", help="package base", nargs="+")
-        parser.set_defaults(action=Action.Remove, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.REMOVE, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     arguments = [

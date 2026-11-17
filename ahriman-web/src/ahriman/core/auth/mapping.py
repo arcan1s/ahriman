@@ -35,12 +35,12 @@ class Mapping(Auth):
     """
 
     def __init__(self, configuration: Configuration, database: SQLite,
-                 provider: AuthSettings = AuthSettings.Configuration) -> None:
+                 provider: AuthSettings = AuthSettings.CONFIGURATION) -> None:
         """
         Args:
             configuration(Configuration): configuration instance
             database(SQLite): database instance
-            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Configuration)
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.CONFIGURATION)
         """
         Auth.__init__(self, configuration, provider)
         self.database = database

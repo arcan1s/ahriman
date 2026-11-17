@@ -13,7 +13,7 @@ from ahriman.core.status.watcher import Watcher
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.keys import WatcherKey
+from ahriman.web.keys import WATCHER_KEY
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.v1.auditlog.event_bus import EventBusView
 
@@ -27,8 +27,8 @@ async def _producer(watcher: Watcher, package_ahriman: Package) -> None:
         package_ahriman(Package): package test instance
     """
     await asyncio.sleep(0.1)
-    await watcher.event_bus.broadcast(EventType.PackageRemoved, package_ahriman.base)
-    await watcher.event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base, status="success")
+    await watcher.event_bus.broadcast(EventType.PACKAGE_REMOVED, package_ahriman.base)
+    await watcher.event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base, status="success")
     await asyncio.sleep(0.1)
     await watcher.event_bus.shutdown()
 
@@ -39,15 +39,15 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await EventBusView.get_permission(request) == UserAccess.Full
+        assert await EventBusView.get_permission(request) == UserAccess.FULL
 
 
 async def test_get_permission_build_log() -> None:
     """
     must return full permission for build log stream
     """
-    request = pytest.helpers.request("", "", "GET", params=MultiDict(event=EventType.BuildLog))
-    assert await EventBusView.get_permission(request) == UserAccess.Full
+    request = pytest.helpers.request("", "", "GET", params=MultiDict(event=EventType.BUILD_LOG))
+    assert await EventBusView.get_permission(request) == UserAccess.FULL
 
 
 async def test_get_permission_build_log_with_read_events() -> None:
@@ -55,10 +55,10 @@ async def test_get_permission_build_log_with_read_events() -> None:
     must return full permission for mixed build log and read event stream
     """
     request = pytest.helpers.request("", "", "GET", params=MultiDict([
-        ("event", EventType.BuildLog),
-        ("event", EventType.PackageUpdated),
+        ("event", EventType.BUILD_LOG),
+        ("event", EventType.PACKAGE_UPDATED),
     ]))
-    assert await EventBusView.get_permission(request) == UserAccess.Full
+    assert await EventBusView.get_permission(request) == UserAccess.FULL
 
 
 async def test_get_permission_invalid_event() -> None:
@@ -66,14 +66,14 @@ async def test_get_permission_invalid_event() -> None:
     must return full permission for invalid event type
     """
     request = pytest.helpers.request("", "", "GET", params=MultiDict(event="invalid"))
-    assert await EventBusView.get_permission(request) == UserAccess.Full
+    assert await EventBusView.get_permission(request) == UserAccess.FULL
 
 
 async def test_get_permission_post() -> None:
     """
     must use default permission for non-get requests
     """
-    request = pytest.helpers.request("", "", "POST", params=MultiDict(event=EventType.PackageUpdated))
+    request = pytest.helpers.request("", "", "POST", params=MultiDict(event=EventType.PACKAGE_UPDATED))
     assert await EventBusView.get_permission(request) == await BaseView.get_permission(request)
 
 
@@ -84,7 +84,7 @@ async def test_get_permission_read_events() -> None:
     request = pytest.helpers.request("", "", "GET", params=MultiDict(
         ("event", event_type) for event_type in EventBusView.READ_EVENTS
     ))
-    assert await EventBusView.get_permission(request) == UserAccess.Read
+    assert await EventBusView.get_permission(request) == UserAccess.READ
 
 
 def test_routes() -> None:
@@ -116,11 +116,11 @@ def test_topics() -> None:
     must parse event filters
     """
     request = pytest.helpers.request("", "", "GET", params=MultiDict([
-        ("event", EventType.PackageUpdated),
-        ("event", EventType.PackageRemoved),
+        ("event", EventType.PACKAGE_UPDATED),
+        ("event", EventType.PACKAGE_REMOVED),
     ]))
 
-    assert EventBusView(request)._topics() == [EventType.PackageUpdated, EventType.PackageRemoved]
+    assert EventBusView(request)._topics() == [EventType.PACKAGE_UPDATED, EventType.PACKAGE_REMOVED]
 
 
 def test_topics_empty() -> None:
@@ -146,7 +146,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     """
     must stream events via SSE
     """
-    watcher = next(iter(client.app[WatcherKey].values()))
+    watcher = next(iter(client.app[WATCHER_KEY].values()))
     asyncio.create_task(_producer(watcher, package_ahriman))
     request_schema = pytest.helpers.schema_request(EventBusView.get, location="querystring")
     # no content validation here because it is a streaming response
@@ -156,7 +156,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     assert response.status == 200
 
     body = await response.text()
-    assert EventType.PackageUpdated in body
+    assert EventType.PACKAGE_UPDATED in body
     assert "ahriman" in body
 
 
@@ -164,25 +164,25 @@ async def test_get_with_topic_filter(client: TestClient, package_ahriman: Packag
     """
     must filter events by topic
     """
-    watcher = next(iter(client.app[WatcherKey].values()))
+    watcher = next(iter(client.app[WATCHER_KEY].values()))
     asyncio.create_task(_producer(watcher, package_ahriman))
     request_schema = pytest.helpers.schema_request(EventBusView.get, location="querystring")
 
-    payload = {"event": [EventType.PackageUpdated]}
+    payload = {"event": [EventType.PACKAGE_UPDATED]}
     assert not request_schema.validate(payload)
     response = await client.get("/api/v1/events/stream", params=payload)
     assert response.status == 200
 
     body = await response.text()
-    assert EventType.PackageUpdated in body
-    assert EventType.PackageRemoved not in body
+    assert EventType.PACKAGE_UPDATED in body
+    assert EventType.PACKAGE_REMOVED not in body
 
 
 async def test_get_with_object_id_filter(client: TestClient, package_ahriman: Package) -> None:
     """
     must filter events by object_id
     """
-    watcher = next(iter(client.app[WatcherKey].values()))
+    watcher = next(iter(client.app[WATCHER_KEY].values()))
     asyncio.create_task(_producer(watcher, package_ahriman))
     request_schema = pytest.helpers.schema_request(EventBusView.get, location="querystring")
 
@@ -230,7 +230,7 @@ async def test_head(client: TestClient) -> None:
     """
     must check stream availability without opening SSE stream
     """
-    response = await client.head("/api/v1/events/stream", params={"event": EventType.PackageUpdated})
+    response = await client.head("/api/v1/events/stream", params={"event": EventType.PACKAGE_UPDATED})
     assert response.status == 200
     assert response.headers["Content-Type"] == "text/event-stream"
     assert not await response.text()

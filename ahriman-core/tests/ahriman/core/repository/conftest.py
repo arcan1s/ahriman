@@ -24,7 +24,7 @@ def cleaner(configuration: Configuration, database: SQLite) -> Cleaner:
     """
     _, repository_id = configuration.check_loaded()
     return Cleaner(repository_id, configuration, database, report=False,
-                   refresh_pacman_database=PacmanSynchronization.Disabled)
+                   refresh_pacman_database=PacmanSynchronization.DISABLED)
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def executor(configuration: Configuration, database: SQLite, mocker: MockerFixtu
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
     _, repository_id = configuration.check_loaded()
     return Executor(repository_id, configuration, database, report=False,
-                    refresh_pacman_database=PacmanSynchronization.Disabled)
+                    refresh_pacman_database=PacmanSynchronization.DISABLED)
 
 
 @pytest.fixture
@@ -68,4 +68,4 @@ def update_handler(configuration: Configuration, database: SQLite, mocker: Mocke
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
     _, repository_id = configuration.check_loaded()
     return UpdateHandler(repository_id, configuration, database, report=False,
-                         refresh_pacman_database=PacmanSynchronization.Disabled)
+                         refresh_pacman_database=PacmanSynchronization.DISABLED)

@@ -27,22 +27,22 @@ class ReportSettings(StrEnum):
     report targets enumeration
 
     Attributes:
-        Disabled(ReportSettings): option which generates no report for testing purpose
+        DISABLED(ReportSettings): option which generates no report for testing purpose
         HTML(ReportSettings): HTML report generation
-        Email(ReportSettings): email report generation
-        Console(ReportSettings): print result to console
-        Telegram(ReportSettings): Markdown report to telegram channel
+        EMAIL(ReportSettings): email report generation
+        CONSOLE(ReportSettings): print result to console
+        TELEGRAM(ReportSettings): Markdown report to telegram channel
         RSS(ReportSettings): RSS report generation
-        RemoteCall(ReportSettings): remote ahriman server call
+        REMOTE_CALL(ReportSettings): remote ahriman server call
     """
 
-    Disabled = "disabled"  # for testing purpose
+    DISABLED = "disabled"  # for testing purpose
     HTML = "html"
-    Email = "email"
-    Console = "console"
-    Telegram = "telegram"
+    EMAIL = "email"
+    CONSOLE = "console"
+    TELEGRAM = "telegram"
     RSS = "rss"
-    RemoteCall = "remote-call"
+    REMOTE_CALL = "remote-call"
 
     @staticmethod
     def from_option(value: str) -> ReportSettings:  # pylint: disable=too-many-return-statements
@@ -59,14 +59,14 @@ class ReportSettings(StrEnum):
             case "html":
                 return ReportSettings.HTML
             case "email":
-                return ReportSettings.Email
+                return ReportSettings.EMAIL
             case "console":
-                return ReportSettings.Console
+                return ReportSettings.CONSOLE
             case "telegram":
-                return ReportSettings.Telegram
+                return ReportSettings.TELEGRAM
             case "rss":
                 return ReportSettings.RSS
             case "ahriman" | "remote-call":
-                return ReportSettings.RemoteCall
+                return ReportSettings.REMOTE_CALL
             case _:
-                return ReportSettings.Disabled
+                return ReportSettings.DISABLED

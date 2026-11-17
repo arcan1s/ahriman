@@ -79,16 +79,16 @@ class Upload(LazyLogging):
         """
         section, provider_name = configuration.gettype(target, repository_id)
         match UploadSettings.from_option(provider_name):
-            case UploadSettings.Rsync:
+            case UploadSettings.RSYNC:
                 from ahriman.core.upload.rsync import Rsync
                 return Rsync(repository_id, configuration, section)
             case UploadSettings.S3:
                 from ahriman.core.upload.s3 import S3
                 return S3(repository_id, configuration, section)
-            case UploadSettings.GitHub:
+            case UploadSettings.GITHUB:
                 from ahriman.core.upload.github import GitHub
                 return GitHub(repository_id, configuration, section)
-            case UploadSettings.RemoteService:
+            case UploadSettings.REMOTE_SERVICE:
                 from ahriman.core.upload.remote_service import RemoteService
                 return RemoteService(repository_id, configuration, section)
             case _:

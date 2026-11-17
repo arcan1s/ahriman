@@ -12,11 +12,11 @@ async def test_broadcast(event_bus: EventBus, package_ahriman: Package) -> None:
     must broadcast event to all subscribers
     """
     _, queue = await event_bus.subscribe()
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base, version=package_ahriman.version)
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base, version=package_ahriman.version)
 
     message = queue.get_nowait()
     assert message == (
-        EventType.PackageUpdated,
+        EventType.PACKAGE_UPDATED,
         {"object_id": package_ahriman.base, "version": package_ahriman.version},
     )
 
@@ -25,8 +25,8 @@ async def test_broadcast_with_topics(event_bus: EventBus, package_ahriman: Packa
     """
     must broadcast event to subscribers with matching topics
     """
-    _, queue = await event_bus.subscribe([EventType.PackageUpdated])
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    _, queue = await event_bus.subscribe([EventType.PACKAGE_UPDATED])
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
     assert not queue.empty()
 
 
@@ -34,8 +34,8 @@ async def test_broadcast_topic_isolation(event_bus: EventBus, package_ahriman: P
     """
     must not broadcast event to subscribers with non-matching topics
     """
-    _, queue = await event_bus.subscribe([EventType.BuildLog])
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    _, queue = await event_bus.subscribe([EventType.BUILD_LOG])
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
     assert queue.empty()
 
 
@@ -46,8 +46,8 @@ async def test_broadcast_queue_full(event_bus: EventBus, package_ahriman: Packag
     event_bus.max_size = 1
     _, queue = await event_bus.subscribe()
 
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
-    await event_bus.broadcast(EventType.PackageRemoved, package_ahriman.base)
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
+    await event_bus.broadcast(EventType.PACKAGE_REMOVED, package_ahriman.base)
     assert queue.qsize() == 1
 
 
@@ -58,7 +58,7 @@ async def test_broadcast_queue_shutdown(event_bus: EventBus, package_ahriman: Pa
     _, queue = await event_bus.subscribe()
     queue.shutdown()
 
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
 
 
 async def test_shutdown(event_bus: EventBus) -> None:
@@ -80,7 +80,7 @@ async def test_shutdown_queue_full(event_bus: EventBus, package_ahriman: Package
     event_bus.max_size = 1
     _, queue = await event_bus.subscribe()
 
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
     await event_bus.shutdown()
 
 
@@ -100,7 +100,7 @@ async def test_broadcast_with_object_id(event_bus: EventBus, package_ahriman: Pa
     must broadcast event to subscribers with matching object_id
     """
     _, queue = await event_bus.subscribe(object_id=package_ahriman.base)
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
     assert not queue.empty()
 
 
@@ -109,7 +109,7 @@ async def test_broadcast_object_id_isolation(event_bus: EventBus, package_ahrima
     must not broadcast event to subscribers with non-matching object_id
     """
     _, queue = await event_bus.subscribe(object_id="other-package")
-    await event_bus.broadcast(EventType.PackageUpdated, package_ahriman.base)
+    await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
     assert queue.empty()
 
 
@@ -117,8 +117,8 @@ async def test_subscribe_with_topics(event_bus: EventBus) -> None:
     """
     must register subscriber with topic filter
     """
-    subscriber_id, _ = await event_bus.subscribe([EventType.BuildLog])
-    assert event_bus._subscribers[subscriber_id].topics == [EventType.BuildLog]
+    subscriber_id, _ = await event_bus.subscribe([EventType.BUILD_LOG])
+    assert event_bus._subscribers[subscriber_id].topics == [EventType.BUILD_LOG]
 
 
 async def test_subscribe_with_object_id(event_bus: EventBus, package_ahriman: Package) -> None:

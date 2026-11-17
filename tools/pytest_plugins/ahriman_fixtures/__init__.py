@@ -101,7 +101,7 @@ def get_package_status(package: Package) -> dict[str, Any]:
     Returns:
         dict[str, Any]: simplified package status map (with only status and view)
     """
-    return {"status": BuildStatusEnum.Unknown.value, "package": package.view()}
+    return {"status": BuildStatusEnum.UNKNOWN.value, "package": package.view()}
 
 
 def get_package_status_extended(package: Package) -> dict[str, Any]:
@@ -552,7 +552,7 @@ def user() -> User:
     Returns:
         User: user descriptor instance
     """
-    return User(username="user", password="pa55w0rd", access=UserAccess.Reporter, packager_id="packager", key="key")
+    return User(username="user", password="pa55w0rd", access=UserAccess.REPORTER, packager_id="packager", key="key")
 
 
 @pytest.fixture

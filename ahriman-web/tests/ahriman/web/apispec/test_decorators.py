@@ -70,7 +70,7 @@ def test_apidocs() -> None:
         tags=["tags"],
         summary="summary",
         description="description",
-        permission=UserAccess.Unauthorized,
+        permission=UserAccess.UNAUTHORIZED,
     )(MagicMock())
     assert annotated.__apispec__
 
@@ -83,7 +83,7 @@ def test_apidocs_authorization() -> None:
         tags=["tags"],
         summary="summary",
         description="description",
-        permission=UserAccess.Full,
+        permission=UserAccess.FULL,
     )(MagicMock())
     assert any(schema["put_into"] == "cookies" for schema in annotated.__schemas__)
 
@@ -96,7 +96,7 @@ def test_apidocs_match() -> None:
         tags=["tags"],
         summary="summary",
         description="description",
-        permission=UserAccess.Unauthorized,
+        permission=UserAccess.UNAUTHORIZED,
         match_schema=LoginSchema,
     )(MagicMock())
     assert any(schema["put_into"] == "match_info" for schema in annotated.__schemas__)
@@ -110,7 +110,7 @@ def test_apidocs_querystring() -> None:
         tags=["tags"],
         summary="summary",
         description="description",
-        permission=UserAccess.Unauthorized,
+        permission=UserAccess.UNAUTHORIZED,
         query_schema=LoginSchema,
     )(MagicMock())
     assert any(schema["put_into"] == "querystring" for schema in annotated.__schemas__)
@@ -124,7 +124,7 @@ def test_apidocs_json() -> None:
         tags=["tags"],
         summary="summary",
         description="description",
-        permission=UserAccess.Unauthorized,
+        permission=UserAccess.UNAUTHORIZED,
         body_schema=LoginSchema,
     )(MagicMock())
     assert any(schema["put_into"] == "json" for schema in annotated.__schemas__)
@@ -138,7 +138,7 @@ def test_apidocs_form() -> None:
         tags=["tags"],
         summary="summary",
         description="description",
-        permission=UserAccess.Unauthorized,
+        permission=UserAccess.UNAUTHORIZED,
         body_schema=LoginSchema,
         body_location="form",
     )(MagicMock())
@@ -156,6 +156,6 @@ def test_apidocs_import_error(mocker: MockerFixture) -> None:
         tags=["tags"],
         summary="summary",
         description="description",
-        permission=UserAccess.Unauthorized,
+        permission=UserAccess.UNAUTHORIZED,
     )(mock)
     assert annotated == mock

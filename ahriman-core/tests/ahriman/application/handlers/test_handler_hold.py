@@ -29,7 +29,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     must run command
     """
     args = _default_args(args)
-    args.action = Action.Update
+    args.action = Action.UPDATE
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     hold_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_hold_update")
 
@@ -44,7 +44,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     must remove held status
     """
     args = _default_args(args)
-    args.action = Action.Remove
+    args.action = Action.REMOVE
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     hold_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_hold_update")
 

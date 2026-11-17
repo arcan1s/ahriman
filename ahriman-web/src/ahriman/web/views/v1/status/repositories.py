@@ -34,7 +34,7 @@ class RepositoriesView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Read
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.READ
     ROUTES = ["/api/v1/repositories"]
 
     @apidocs(

@@ -34,7 +34,7 @@ class ProcessView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.REPORTER
     ROUTES = ["/api/v1/service/process/{process_id}"]
 
     @apidocs(

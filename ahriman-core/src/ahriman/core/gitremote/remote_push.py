@@ -62,7 +62,7 @@ class RemotePush(LazyLogging):
             web_url="",
             path=".",
             branch=configuration.get(section, "push_branch", fallback="master"),
-            source=PackageSource.Local,
+            source=PackageSource.LOCAL,
         )
 
     def package_update(self, package: Package, target_dir: Path) -> str:

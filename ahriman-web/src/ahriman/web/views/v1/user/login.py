@@ -38,7 +38,7 @@ class LoginView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = POST_PERMISSION = UserAccess.Unauthorized  # type: ClassVar[UserAccess]
+    GET_PERMISSION = POST_PERMISSION = UserAccess.UNAUTHORIZED  # type: ClassVar[UserAccess]
     ROUTES = ["/api/v1/login"]
 
     @apidocs(

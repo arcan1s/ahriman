@@ -112,7 +112,7 @@ def apidocs(*,
     Returns:
         Callable[..., Any]: decorated function
     """
-    authorization_required = permission != UserAccess.Unauthorized
+    authorization_required = permission != UserAccess.UNAUTHORIZED
 
     def wrapper(handler: Callable[..., Any]) -> Callable[..., Any]:
         if not aiohttp_apispec:

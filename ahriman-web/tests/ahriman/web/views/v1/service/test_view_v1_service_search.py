@@ -14,7 +14,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await SearchView.get_permission(request) == UserAccess.Reporter
+        assert await SearchView.get_permission(request) == UserAccess.REPORTER
 
 
 def test_routes() -> None:

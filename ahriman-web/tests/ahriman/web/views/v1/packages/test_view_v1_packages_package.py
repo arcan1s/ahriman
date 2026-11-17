@@ -15,10 +15,10 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await PackageView.get_permission(request) == UserAccess.Read
+        assert await PackageView.get_permission(request) == UserAccess.READ
     for method in ("DELETE", "POST"):
         request = pytest.helpers.request("", "", method)
-        assert await PackageView.get_permission(request) == UserAccess.Full
+        assert await PackageView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -33,9 +33,9 @@ async def test_delete(client: TestClient, package_ahriman: Package, package_pyth
     must delete single base
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_python_schedule.view()})
 
     response = await client.delete(f"/api/v1/packages/{package_ahriman.base}")
     assert response.status == 204
@@ -52,7 +52,7 @@ async def test_delete_unknown(client: TestClient, package_ahriman: Package, pack
     must suppress errors on unknown package deletion
     """
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_python_schedule.view()})
 
     response = await client.delete(f"/api/v1/packages/{package_ahriman.base}")
     assert response.status == 204
@@ -69,9 +69,9 @@ async def test_get(client: TestClient, package_ahriman: Package, package_python_
     must return status for specific package
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_python_schedule.view()})
     response_schema = pytest.helpers.schema_response(PackageView.get)
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}")
@@ -102,7 +102,7 @@ async def test_post(client: TestClient, package_ahriman: Package, repository_id:
     request_schema = pytest.helpers.schema_request(PackageView.post)
 
     payload = {
-        "status": BuildStatusEnum.Success.value,
+        "status": BuildStatusEnum.SUCCESS.value,
         "package": package_ahriman.view(),
         "repository": repository_id.view(),
     }
@@ -132,7 +132,7 @@ async def test_post_light(client: TestClient, package_ahriman: Package, reposito
     request_schema = pytest.helpers.schema_request(PackageView.post)
 
     payload = {
-        "status": BuildStatusEnum.Success.value,
+        "status": BuildStatusEnum.SUCCESS.value,
         "package": package_ahriman.view(),
         "repository": repository_id.view(),
     }
@@ -141,7 +141,7 @@ async def test_post_light(client: TestClient, package_ahriman: Package, reposito
     assert response.status == 204
 
     payload = {
-        "status": BuildStatusEnum.Success.value,
+        "status": BuildStatusEnum.SUCCESS.value,
         "repository": repository_id.view(),
     }
     assert not request_schema.validate(payload)
@@ -154,7 +154,7 @@ async def test_post_light(client: TestClient, package_ahriman: Package, reposito
         Package.from_json(item["package"]).base: BuildStatus.from_json(item["status"])
         for item in await response.json()
     }
-    assert statuses[package_ahriman.base].status == BuildStatusEnum.Success
+    assert statuses[package_ahriman.base].status == BuildStatusEnum.SUCCESS
 
 
 async def test_post_not_found(client: TestClient, package_ahriman: Package, repository_id: RepositoryId) -> None:
@@ -165,7 +165,7 @@ async def test_post_not_found(client: TestClient, package_ahriman: Package, repo
     response_schema = pytest.helpers.schema_response(PackageView.post, code=400)
 
     payload = {
-        "status": BuildStatusEnum.Success.value,
+        "status": BuildStatusEnum.SUCCESS.value,
         "repository": repository_id.view(),
     }
     assert not request_schema.validate(payload)

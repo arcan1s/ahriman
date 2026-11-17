@@ -27,17 +27,17 @@ class UserAccess(StrEnum):
     web user access enumeration
 
     Attributes:
-        Unauthorized(UserAccess): user can access specific resources which are marked as available
+        UNAUTHORIZED(UserAccess): user can access specific resources which are marked as available
             without authorization (e.g. login, logout, static)
-        Read(UserAccess): user can read the page
-        Reporter(UserAccess): user can read everything and is able to perform some modifications
-        Full(UserAccess): user has full access
+        READ(UserAccess): user can read the page
+        REPORTER(UserAccess): user can read everything and is able to perform some modifications
+        FULL(UserAccess): user has full access
     """
 
-    Unauthorized = "unauthorized"
-    Read = "read"
-    Reporter = "reporter"
-    Full = "full"
+    UNAUTHORIZED = "unauthorized"
+    READ = "read"
+    REPORTER = "reporter"
+    FULL = "full"
 
     def permits(self, other: UserAccess) -> bool:
         """

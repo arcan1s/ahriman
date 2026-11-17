@@ -81,19 +81,19 @@ class Report(LazyLogging):
             case ReportSettings.HTML:
                 from ahriman.core.report.html import HTML
                 return HTML(repository_id, configuration, section)
-            case ReportSettings.Email:
+            case ReportSettings.EMAIL:
                 from ahriman.core.report.email import Email
                 return Email(repository_id, configuration, section)
-            case ReportSettings.Console:
+            case ReportSettings.CONSOLE:
                 from ahriman.core.report.console import Console
                 return Console(repository_id, configuration, section)
-            case ReportSettings.Telegram:
+            case ReportSettings.TELEGRAM:
                 from ahriman.core.report.telegram import Telegram
                 return Telegram(repository_id, configuration, section)
             case ReportSettings.RSS:
                 from ahriman.core.report.rss import RSS
                 return RSS(repository_id, configuration, section)
-            case ReportSettings.RemoteCall:
+            case ReportSettings.REMOTE_CALL:
                 from ahriman.core.report.remote_call import RemoteCall
                 return RemoteCall(repository_id, configuration, section)
             case _:

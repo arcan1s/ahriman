@@ -8,7 +8,7 @@ def test_build_status_init_1() -> None:
     must construct status object from None
     """
     status = BuildStatus()
-    assert status.status == BuildStatusEnum.Unknown
+    assert status.status == BuildStatusEnum.UNKNOWN
     assert status.timestamp > 0
 
 
@@ -16,7 +16,7 @@ def test_build_status_init_2(build_status_failed: BuildStatus) -> None:
     """
     must construct status object from objects
     """
-    status = BuildStatus(BuildStatusEnum.Failed, 42)
+    status = BuildStatus(BuildStatusEnum.FAILED, 42)
     assert status == build_status_failed
 
 
@@ -50,5 +50,5 @@ def test_build_status_pretty_print_held() -> None:
     """
     must include held marker in pretty print
     """
-    status = BuildStatus(BuildStatusEnum.Success, 42, is_held=True)
+    status = BuildStatus(BuildStatusEnum.SUCCESS, 42, is_held=True)
     assert "(held)" in status.pretty_print()

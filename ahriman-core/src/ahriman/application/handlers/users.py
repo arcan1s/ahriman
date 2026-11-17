@@ -53,17 +53,17 @@ class Users(Handler):
         database = SQLite.load(configuration)
 
         match args.action:
-            case Action.Update:
+            case Action.UPDATE:
                 user = Users.user_create(args)
                 # if password is left blank we are not going to require salt to be set
                 salt = configuration.get("auth", "salt", fallback="") if user.password else ""
                 database.user_update(user.hash_password(salt))
-            case Action.List:
+            case Action.LIST:
                 users = database.user_list(args.username, args.role)
                 for user in users:
                     UserPrinter(user)(verbose=True)
                 Users.check_status(args.exit_code, users)
-            case Action.Remove:
+            case Action.REMOVE:
                 database.user_remove(args.username)
 
     @staticmethod
@@ -88,8 +88,8 @@ class Users(Handler):
             "-p", "--password", help="user password. Blank password will be treated as empty password, "
             "which is in particular must be used for OAuth2 authorization type.")
         parser.add_argument("-R", "--role", help="user access level",
-                            type=UserAccess, choices=tuple(UserAccess), default=UserAccess.Read)
-        parser.set_defaults(action=Action.Update, architecture="", exit_code=False, lock=None, quiet=True,
+                            type=UserAccess, choices=tuple(UserAccess), default=UserAccess.READ)
+        parser.set_defaults(action=Action.UPDATE, architecture="", exit_code=False, lock=None, quiet=True,
                             report=False, repository="")
         return parser
 
@@ -110,7 +110,7 @@ class Users(Handler):
         parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
                             action="store_true")
         parser.add_argument("-R", "--role", help="filter users by role", type=UserAccess, choices=tuple(UserAccess))
-        parser.set_defaults(action=Action.List, architecture="", lock=None, quiet=True, report=False, repository="",
+        parser.set_defaults(action=Action.LIST, architecture="", lock=None, quiet=True, report=False, repository="",
                             unsafe=True)
         return parser
 
@@ -128,7 +128,7 @@ class Users(Handler):
         parser = root.add_parser("user-remove", help="remove user",
                                  description="remove user from the user mapping and update the configuration")
         parser.add_argument("username", help="username for web service")
-        parser.set_defaults(action=Action.Remove, architecture="", exit_code=False, lock=None, quiet=True,
+        parser.set_defaults(action=Action.REMOVE, architecture="", exit_code=False, lock=None, quiet=True,
                             report=False, repository="")
         return parser
 

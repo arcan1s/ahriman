@@ -15,10 +15,10 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await PatchView.get_permission(request) == UserAccess.Reporter
+        assert await PatchView.get_permission(request) == UserAccess.REPORTER
     for method in ("DELETE",):
         request = pytest.helpers.request("", "", method)
-        assert await PatchView.get_permission(request) == UserAccess.Full
+        assert await PatchView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -33,9 +33,9 @@ async def test_delete(client: TestClient, package_ahriman: Package, package_pyth
     must delete patch for package
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_python_schedule.view()})
 
     patch_key = "k"
     await client.post(f"/api/v1/packages/{package_ahriman.base}/patches", json={"key": patch_key, "value": "v"})
@@ -58,7 +58,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     """
     patch = PkgbuildPatch("k", "v")
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/patches", json=patch.view())
     response_schema = pytest.helpers.schema_response(PatchView.get)
 
@@ -75,7 +75,7 @@ async def test_get_patch_not_found(client: TestClient, package_ahriman: Package)
     must return not found for missing patch
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     response_schema = pytest.helpers.schema_response(PatchView.get, code=404)
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/patches/random")

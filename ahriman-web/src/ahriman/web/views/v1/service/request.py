@@ -35,7 +35,7 @@ class RequestView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.REPORTER
     ROUTES = ["/api/v1/service/request"]
 
     @apidocs(

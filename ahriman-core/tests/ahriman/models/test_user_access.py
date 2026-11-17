@@ -7,45 +7,45 @@ def test_permits_full() -> None:
     """
     full access must allow everything
     """
-    assert UserAccess.Full.permits(UserAccess.Full)
-    assert UserAccess.Full.permits(UserAccess.Reporter)
-    assert UserAccess.Full.permits(UserAccess.Read)
-    assert UserAccess.Full.permits(UserAccess.Unauthorized)
+    assert UserAccess.FULL.permits(UserAccess.FULL)
+    assert UserAccess.FULL.permits(UserAccess.REPORTER)
+    assert UserAccess.FULL.permits(UserAccess.READ)
+    assert UserAccess.FULL.permits(UserAccess.UNAUTHORIZED)
 
 
 def test_permits_reporter() -> None:
     """
     reporter access must allow everything except full
     """
-    assert not UserAccess.Reporter.permits(UserAccess.Full)
-    assert UserAccess.Reporter.permits(UserAccess.Reporter)
-    assert UserAccess.Reporter.permits(UserAccess.Read)
-    assert UserAccess.Reporter.permits(UserAccess.Unauthorized)
+    assert not UserAccess.REPORTER.permits(UserAccess.FULL)
+    assert UserAccess.REPORTER.permits(UserAccess.REPORTER)
+    assert UserAccess.REPORTER.permits(UserAccess.READ)
+    assert UserAccess.REPORTER.permits(UserAccess.UNAUTHORIZED)
 
 
 def test_permits_read() -> None:
     """
     read access must allow read only and unauthorized
     """
-    assert not UserAccess.Read.permits(UserAccess.Full)
-    assert not UserAccess.Read.permits(UserAccess.Reporter)
-    assert UserAccess.Read.permits(UserAccess.Read)
-    assert UserAccess.Read.permits(UserAccess.Unauthorized)
+    assert not UserAccess.READ.permits(UserAccess.FULL)
+    assert not UserAccess.READ.permits(UserAccess.REPORTER)
+    assert UserAccess.READ.permits(UserAccess.READ)
+    assert UserAccess.READ.permits(UserAccess.UNAUTHORIZED)
 
 
 def test_permits_unauthorized() -> None:
     """
     unauthorized access must only allow unauthorized
     """
-    assert not UserAccess.Unauthorized.permits(UserAccess.Full)
-    assert not UserAccess.Unauthorized.permits(UserAccess.Reporter)
-    assert not UserAccess.Unauthorized.permits(UserAccess.Read)
-    assert UserAccess.Unauthorized.permits(UserAccess.Unauthorized)
+    assert not UserAccess.UNAUTHORIZED.permits(UserAccess.FULL)
+    assert not UserAccess.UNAUTHORIZED.permits(UserAccess.REPORTER)
+    assert not UserAccess.UNAUTHORIZED.permits(UserAccess.READ)
+    assert UserAccess.UNAUTHORIZED.permits(UserAccess.UNAUTHORIZED)
 
 
 def test_permits_unknown(mocker: MockerFixture) -> None:
     """
     must return False in case if input does not match
     """
-    mocker.patch.object(UserAccess, "_member_names_", ["Read"])
-    assert not UserAccess.Full.permits(UserAccess.Unauthorized)
+    mocker.patch.object(UserAccess, "_member_names_", ["READ"])
+    assert not UserAccess.FULL.permits(UserAccess.UNAUTHORIZED)

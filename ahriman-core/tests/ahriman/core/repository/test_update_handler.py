@@ -44,7 +44,7 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     packages_mock.assert_called_once_with([])
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PACKAGE_OUTDATED,
                                        pytest.helpers.anyvar(str, True))
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.configuration,
@@ -56,7 +56,7 @@ def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Pa
     """
     must provide updates based on repository data
     """
-    package_ahriman.remote = RemoteSource(source=PackageSource.Repository)
+    package_ahriman.remote = RemoteSource(source=PackageSource.REPOSITORY)
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated", return_value=True)
     mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)
@@ -65,7 +65,7 @@ def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Pa
 
     assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PACKAGE_OUTDATED,
                                        pytest.helpers.anyvar(str, True))
 
 
@@ -93,7 +93,7 @@ def test_updates_aur_up_to_date(update_handler: UpdateHandler, package_ahriman: 
     status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_status_update")
 
     assert update_handler.updates_aur([], vcs=True) == []
-    status_client_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Success)
+    status_client_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.SUCCESS)
 
 
 def test_updates_aur_local(update_handler: UpdateHandler, package_ahriman: Package,
@@ -101,7 +101,7 @@ def test_updates_aur_local(update_handler: UpdateHandler, package_ahriman: Packa
     """
     must skip packages with local sources
     """
-    package_ahriman.remote = RemoteSource(source=PackageSource.Local)
+    package_ahriman.remote = RemoteSource(source=PackageSource.LOCAL)
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
 
@@ -204,7 +204,7 @@ def test_updates_dependencies(update_handler: UpdateHandler, package_ahriman: Pa
     assert update_handler.updates_dependencies(["filter"]) == [package_ahriman]
     packages_mock.assert_called_once_with(["filter"])
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PACKAGE_OUTDATED,
                                        pytest.helpers.anyvar(str, True))
 
 
@@ -254,7 +254,7 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     """
     must check for updates for locally stored packages
     """
-    package_ahriman.remote = RemoteSource(source=PackageSource.Local, git_url="", web_url="", path="", branch="")
+    package_ahriman.remote = RemoteSource(source=PackageSource.LOCAL, git_url="", web_url="", path="", branch="")
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
@@ -268,7 +268,7 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     fetch_mock.assert_called_once_with(Path(package_ahriman.base), pytest.helpers.anyvar(int))
     package_load_mock.assert_called_once_with(Path(package_ahriman.base), "x86_64", None)
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PACKAGE_OUTDATED,
                                        pytest.helpers.anyvar(str, True))
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.configuration,
@@ -293,7 +293,7 @@ def test_updates_local_ignore_vcs(update_handler: UpdateHandler, package_ahriman
     """
     must skip VCS packages check if requested for locally stored packages
     """
-    package_ahriman.remote = RemoteSource(source=PackageSource.Local, git_url="", web_url="", path="", branch="")
+    package_ahriman.remote = RemoteSource(source=PackageSource.LOCAL, git_url="", web_url="", path="", branch="")
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
@@ -350,7 +350,7 @@ def test_updates_local_held_metadata(update_handler: UpdateHandler, package_ahri
     """
     must respect the held base even when the source directory has a different name
     """
-    package_ahriman.remote = RemoteSource(source=PackageSource.Local)
+    package_ahriman.remote = RemoteSource(source=PackageSource.LOCAL)
     mocker.patch.object(update_handler.reporter, "package_get",
                         return_value=[(package_ahriman, BuildStatus(is_held=True))])
     mocker.patch.object(update_handler, "packages", return_value=[package_ahriman])
@@ -385,7 +385,7 @@ def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahri
 
     update_handler.updates_manual()
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PACKAGE_OUTDATED,
                                        pytest.helpers.anyvar(str, True))
 
 
@@ -401,7 +401,7 @@ def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ah
 
     update_handler.updates_manual()
     status_client_mock.assert_called_once_with(package_ahriman)
-    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PACKAGE_OUTDATED,
                                        pytest.helpers.anyvar(str, True))
 
 

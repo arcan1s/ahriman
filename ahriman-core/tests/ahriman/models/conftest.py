@@ -21,7 +21,7 @@ def build_status_failed() -> BuildStatus:
     Returns:
         BuildStatus: failed build status test instance
     """
-    return BuildStatus(BuildStatusEnum.Failed, 42)
+    return BuildStatus(BuildStatusEnum.FAILED, 42)
 
 
 @pytest.fixture

@@ -175,6 +175,6 @@ class Application(ApplicationPackages, ApplicationRepository):
             # update existing package
             plan.add(packages.pop(package.base))
             # append dependencies
-            plan.update(packages.values(), BuildPlanReason.RequiredBy, package.base)
+            plan.update(packages.values(), BuildPlanReason.REQUIRED_BY, package.base)
 
         return plan

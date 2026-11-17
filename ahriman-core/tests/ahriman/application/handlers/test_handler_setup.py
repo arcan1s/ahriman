@@ -39,7 +39,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.repository = "aur"
     args.server = None
     args.sign_key = "key"
-    args.sign_target = [SignSettings.Packages]
+    args.sign_target = [SignSettings.PACKAGES]
     args.web_port = 8080
     args.web_unix_socket = Path("/var/lib/ahriman/ahriman-web.sock")
     return args

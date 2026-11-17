@@ -54,7 +54,7 @@ class Rebuild(Handler):
         packages = Rebuild.extract_packages(application, args.status, from_database=args.from_database)
         packages = application.repository.packages_depend_on(packages, args.depends_on)
 
-        plan = BuildPlan().update(packages, BuildPlanReason.Rebuild)
+        plan = BuildPlan().update(packages, BuildPlanReason.REBUILD)
         application.print_updates(plan, Update.log_fn(application, dry_run=args.dry_run), bump_pkgrel=args.increment)
 
         if args.dry_run:

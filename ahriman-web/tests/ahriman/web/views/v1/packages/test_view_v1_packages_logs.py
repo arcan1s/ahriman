@@ -14,10 +14,10 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await LogsView.get_permission(request) == UserAccess.Reporter
+        assert await LogsView.get_permission(request) == UserAccess.REPORTER
     for method in ("DELETE", "POST"):
         request = pytest.helpers.request("", "", method)
-        assert await LogsView.get_permission(request) == UserAccess.Full
+        assert await LogsView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -32,9 +32,9 @@ async def test_delete(client: TestClient, package_ahriman: Package, package_pyth
     must delete logs for package
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_python_schedule.view()})
 
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message 1", "version": "42"})
@@ -70,7 +70,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     must get logs for package
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message", "version": "42"})
     response_schema = pytest.helpers.schema_response(LogsView.get)
@@ -99,7 +99,7 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     must create logs record
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     request_schema = pytest.helpers.schema_request(LogsView.post)
 
     payload = {"created": 42.0, "message": "message", "version": "42"}

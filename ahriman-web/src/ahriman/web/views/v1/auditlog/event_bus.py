@@ -41,13 +41,13 @@ class EventBusView(BaseView):
     """
 
     READ_EVENTS: ClassVar[set[EventType]] = {
-        EventType.PackageHeld,
-        EventType.PackageOutdated,
-        EventType.PackageRemoved,
-        EventType.PackageStatusChanged,
-        EventType.PackageUpdateFailed,
-        EventType.PackageUpdated,
-        EventType.ServiceStatusChanged,
+        EventType.PACKAGE_HELD,
+        EventType.PACKAGE_OUTDATED,
+        EventType.PACKAGE_REMOVED,
+        EventType.PACKAGE_STATUS_CHANGED,
+        EventType.PACKAGE_UPDATE_FAILED,
+        EventType.PACKAGE_UPDATED,
+        EventType.SERVICE_STATUS_CHANGED,
     }
     ROUTES = ["/api/v1/events/stream"]
 
@@ -65,14 +65,14 @@ class EventBusView(BaseView):
         if request.method.upper() not in ("GET", "HEAD"):
             return await BaseView.get_permission(request)
 
-        permission = UserAccess.Full
+        permission = UserAccess.FULL
         try:
             topics = cls(request)._topics()
         except HTTPBadRequest:
             topics = None
 
         if topics is not None and set(topics).issubset(cls.READ_EVENTS):
-            permission = UserAccess.Read
+            permission = UserAccess.READ
 
         return permission
 
@@ -120,7 +120,7 @@ class EventBusView(BaseView):
         description="Stream live updates via SSE. Read-only users may subscribe only when all requested event filters "
                     "belong to read-safe package and service status events; build log or unfiltered streams require "
                     "full access. Streams are live-only and do not replay missed events after reconnect.",
-        permission=UserAccess.Full,
+        permission=UserAccess.FULL,
         error_400_enabled=True,
         error_404_description="Repository is unknown",
         schema=SSESchema(many=True),

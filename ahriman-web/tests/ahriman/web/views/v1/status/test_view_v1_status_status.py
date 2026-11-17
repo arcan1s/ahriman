@@ -17,10 +17,10 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await StatusView.get_permission(request) == UserAccess.Read
+        assert await StatusView.get_permission(request) == UserAccess.READ
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await StatusView.get_permission(request) == UserAccess.Full
+        assert await StatusView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -35,7 +35,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     must generate web service status correctly
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     response_schema = pytest.helpers.schema_response(StatusView.get)
 
     response = await client.get("/api/v1/status")
@@ -54,7 +54,7 @@ async def test_post(client: TestClient) -> None:
     """
     request_schema = pytest.helpers.schema_request(StatusView.post)
 
-    payload = {"status": BuildStatusEnum.Success.value}
+    payload = {"status": BuildStatusEnum.SUCCESS.value}
     assert not request_schema.validate(payload)
     post_response = await client.post("/api/v1/status", json=payload)
     assert post_response.status == 204
@@ -63,7 +63,7 @@ async def test_post(client: TestClient) -> None:
     status = InternalStatus.from_json(await response.json())
 
     assert response.ok
-    assert status.status.status == BuildStatusEnum.Success
+    assert status.status.status == BuildStatusEnum.SUCCESS
 
 
 async def test_post_exception(client: TestClient) -> None:
@@ -81,7 +81,7 @@ async def test_post_exception_inside(client: TestClient, mocker: MockerFixture) 
     """
     exception handler must handle 500 errors
     """
-    payload = {"status": BuildStatusEnum.Success.value}
+    payload = {"status": BuildStatusEnum.SUCCESS.value}
     mocker.patch("ahriman.core.status.watcher.Watcher.status_update", side_effect=Exception)
     response_schema = pytest.helpers.schema_response(StatusView.post, code=500)
 

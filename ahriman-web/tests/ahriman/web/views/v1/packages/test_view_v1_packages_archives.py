@@ -15,7 +15,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await Archives.get_permission(request) == UserAccess.Reporter
+        assert await Archives.get_permission(request) == UserAccess.REPORTER
 
 
 def test_routes() -> None:
@@ -30,7 +30,7 @@ async def test_get(client: TestClient, package_ahriman: Package, mocker: MockerF
     must get archives for package
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     mocker.patch("ahriman.core.status.watcher.Watcher.package_archives", return_value=[package_ahriman])
     response_schema = pytest.helpers.schema_response(Archives.get)
 

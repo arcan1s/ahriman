@@ -15,7 +15,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await LogsView.get_permission(request) == UserAccess.Reporter
+        assert await LogsView.get_permission(request) == UserAccess.REPORTER
 
 
 def test_routes() -> None:
@@ -30,7 +30,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     must get logs for package
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message 1", "version": "42"})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
@@ -66,7 +66,7 @@ async def test_get_with_pagination(client: TestClient, package_ahriman: Package)
     must get logs with pagination
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message 1", "version": "42"})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
@@ -91,7 +91,7 @@ async def test_get_with_filter(client: TestClient, package_ahriman: Package) -> 
     must get logs with filter by version and process identifier
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message 1", "version": "42"})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
@@ -116,7 +116,7 @@ async def test_get_bad_request(client: TestClient, package_ahriman: Package) -> 
     must return bad request for invalid query parameters
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message", "version": "42"})
     response_schema = pytest.helpers.schema_response(LogsView.get, code=400)
@@ -146,7 +146,7 @@ async def test_get_head(client: TestClient, package_ahriman: Package) -> None:
     must return only versions if head parameter is set
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message 1", "version": "42"})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",

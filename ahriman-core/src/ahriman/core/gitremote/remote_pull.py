@@ -55,7 +55,7 @@ class RemotePull(LazyLogging):
             web_url="",
             path=".",
             branch=configuration.get(section, "pull_branch", fallback="master"),
-            source=PackageSource.Local,
+            source=PackageSource.LOCAL,
         )
         self.architecture = repository_id.architecture
         self.repository_paths = configuration.repository_paths

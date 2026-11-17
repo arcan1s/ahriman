@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
-from ahriman.web.keys import WatcherKey
+from ahriman.web.keys import WATCHER_KEY
 from ahriman.web.views.base import BaseView
 
 
@@ -75,7 +75,7 @@ async def test_get_permission(base: BaseView) -> None:
 
     for method in ("OPTIONS",):
         request = pytest.helpers.request(base.request.app, "", method)
-        assert await base.get_permission(request) == UserAccess.Unauthorized
+        assert await base.get_permission(request) == UserAccess.UNAUTHORIZED
 
 
 def test_get_routes(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -180,9 +180,9 @@ def test_service(base: BaseView) -> None:
     must return service for repository
     """
     repository_id = RepositoryId("i686", "repo")
-    base.request.app[WatcherKey] = {
+    base.request.app[WATCHER_KEY] = {
         repository_id: watcher
-        for watcher in base.request.app[WatcherKey].values()
+        for watcher in base.request.app[WATCHER_KEY].values()
     }
 
     assert base.service(repository_id) == base.services[repository_id]

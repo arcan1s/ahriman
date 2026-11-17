@@ -25,11 +25,11 @@ class LogHandler(StrEnum):
     log handler as described by default configuration
 
     Attributes:
-        Console(LogHandler): write logs to console
-        Syslog(LogHandler): write logs to syslog device /dev/null
-        Journald(LogHandler): write logs to journald directly
+        CONSOLE(LogHandler): write logs to console
+        SYSLOG(LogHandler): write logs to syslog device /dev/null
+        JOURNALD(LogHandler): write logs to journald directly
     """
 
-    Console = "console"
-    Syslog = "syslog"
-    Journald = "journald"
+    CONSOLE = "console"
+    SYSLOG = "syslog"
+    JOURNALD = "journald"

@@ -50,13 +50,8 @@ class LogRecord:
         Returns:
             Self: log record object
         """
-        if "process_id" in dump:
-            log_record_id = LogRecordId(package_base, dump["version"], dump["process_id"])
-        else:
-            log_record_id = LogRecordId(package_base, dump["version"])
-
         return cls(
-            log_record_id=log_record_id,
+            log_record_id=LogRecordId(package_base, dump["version"], dump.get("process_id", "")),
             created=dump["created"],
             message=dump["message"],
         )

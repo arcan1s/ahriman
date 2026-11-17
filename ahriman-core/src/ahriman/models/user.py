@@ -43,7 +43,7 @@ class User:
         Simply create user from database data and perform required validation::
 
             >>> password = User.generate_password(24)
-            >>> user = User(username="ahriman", password=password, access=UserAccess.Full)
+            >>> user = User(username="ahriman", password=password, access=UserAccess.FULL)
 
         Since the password supplied may be plain text, the :func:`hash_password()` method can be used to hash
         the password::
@@ -59,7 +59,7 @@ class User:
 
         ...and finally access can be verified::
 
-            >>> if user.verify_access(UserAccess.Read):
+            >>> if user.verify_access(UserAccess.READ):
             >>>     print(f"user {user.username} has read access")
     """
 

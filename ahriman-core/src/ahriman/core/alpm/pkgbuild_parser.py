@@ -35,32 +35,32 @@ class PkgbuildNodeType(StrEnum):
     tree-sitter node types used by parser
 
     Attributes:
-        Append(PkgbuildNodeType): append node
-        Array(PkgbuildNodeType): array node
-        Comment(PkgbuildNodeType): comment node
-        Concatenation(PkgbuildNodeType): concatenation node
-        Error(PkgbuildNodeType): syntax error node
-        FunctionDefinition(PkgbuildNodeType): function definition node
-        Number(PkgbuildNodeType): numeric word node
-        RawString(PkgbuildNodeType): single-quoted string node
-        String(PkgbuildNodeType): double-quoted string node
-        StringContent(PkgbuildNodeType): string content node
-        VariableAssignment(PkgbuildNodeType): assignment node
-        Word(PkgbuildNodeType): word node
+        APPEND(PkgbuildNodeType): append node
+        ARRAY(PkgbuildNodeType): array node
+        COMMENT(PkgbuildNodeType): comment node
+        CONCATENATION(PkgbuildNodeType): concatenation node
+        ERROR(PkgbuildNodeType): syntax error node
+        FUNCTION_DEFINITION(PkgbuildNodeType): function definition node
+        NUMBER(PkgbuildNodeType): numeric word node
+        RAW_STRING(PkgbuildNodeType): single-quoted string node
+        STRING(PkgbuildNodeType): double-quoted string node
+        STRING_CONTENT(PkgbuildNodeType): string content node
+        VARIABLE_ASSIGNMENT(PkgbuildNodeType): assignment node
+        WORD(PkgbuildNodeType): word node
     """
 
-    Append = "+="
-    Array = "array"
-    Comment = "comment"
-    Concatenation = "concatenation"
-    Error = "ERROR"
-    FunctionDefinition = "function_definition"
-    Number = "number"
-    RawString = "raw_string"
-    String = "string"
-    StringContent = "string_content"
-    VariableAssignment = "variable_assignment"
-    Word = "word"
+    APPEND = "+="
+    ARRAY = "array"
+    COMMENT = "comment"
+    CONCATENATION = "concatenation"
+    ERROR = "ERROR"
+    FUNCTION_DEFINITION = "function_definition"
+    NUMBER = "number"
+    RAW_STRING = "raw_string"
+    STRING = "string"
+    STRING_CONTENT = "string_content"
+    VARIABLE_ASSIGNMENT = "variable_assignment"
+    WORD = "word"
 
 
 class PkgbuildNodeField(StrEnum):
@@ -68,14 +68,14 @@ class PkgbuildNodeField(StrEnum):
     tree-sitter node fields used by parser
 
     Attributes:
-        Body(PkgbuildNodeField): function body field
-        Name(PkgbuildNodeField): variable or function name field
-        Value(PkgbuildNodeField): assignment value field
+        BODY(PkgbuildNodeField): function body field
+        NAME(PkgbuildNodeField): variable or function name field
+        VALUE(PkgbuildNodeField): assignment value field
     """
 
-    Body = "body"
-    Name = "name"
-    Value = "value"
+    BODY = "body"
+    NAME = "name"
+    VALUE = "value"
 
 
 class PkgbuildParser(Iterable[PkgbuildPatch]):
@@ -169,17 +169,17 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
                 source = source.replace(original, replacement)
             return source
 
-        if node.type == PkgbuildNodeType.Concatenation:
+        if node.type == PkgbuildNodeType.CONCATENATION:
             return "".join(PkgbuildParser.value(child) for child in node.named_children)
 
         value = PkgbuildParser.text(node)
         match node.type:
-            case PkgbuildNodeType.String | PkgbuildNodeType.StringContent:
-                if node.type == PkgbuildNodeType.String:
+            case PkgbuildNodeType.STRING | PkgbuildNodeType.STRING_CONTENT:
+                if node.type == PkgbuildNodeType.STRING:
                     value = PkgbuildParser.unquote(value)
                 # protect escaped backslashes from being interpreted a second time.
                 return "\\".join(unescape(part) for part in value.split("\\\\"))
-            case PkgbuildNodeType.Number | PkgbuildNodeType.RawString | PkgbuildNodeType.Word:
+            case PkgbuildNodeType.NUMBER | PkgbuildNodeType.RAW_STRING | PkgbuildNodeType.WORD:
                 return PkgbuildParser.unquote(value)
             case _:
                 return value
@@ -194,17 +194,17 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         Returns:
             PkgbuildPatch: parsed assignment
         """
-        key = self.text(cast(Node, node.child_by_field_name(PkgbuildNodeField.Name)))
-        value = node.child_by_field_name(PkgbuildNodeField.Value)
+        key = self.text(cast(Node, node.child_by_field_name(PkgbuildNodeField.NAME)))
+        value = node.child_by_field_name(PkgbuildNodeField.VALUE)
         # bash permits assignments without a value (for example ``IFS=``).
         # tree-sitter represents those assignments without a value node.
         if value is None:
             return PkgbuildPatch(key, "")
 
         match value.type:
-            case PkgbuildNodeType.Array:
+            case PkgbuildNodeType.ARRAY:
                 values = []
-                for element in filter(lambda child: child.type != PkgbuildNodeType.Comment, value.named_children):
+                for element in filter(lambda child: child.type != PkgbuildNodeType.COMMENT, value.named_children):
                     values.extend(self._expand_array(element))
                 return PkgbuildPatch(key, values)
 
@@ -221,7 +221,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         Returns:
             list[str]: expanded element values
         """
-        if node.type != PkgbuildNodeType.Concatenation:
+        if node.type != PkgbuildNodeType.CONCATENATION:
             return [self.value(node)]
 
         values = [""]
@@ -229,9 +229,9 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
         while children:
             match children[:3]:
                 case [
-                    Node(type=PkgbuildNodeType.Word, text=b"{"),
-                    Node(type=PkgbuildNodeType.Word) as content,
-                    Node(type=PkgbuildNodeType.Word, text=b"}"),
+                    Node(type=PkgbuildNodeType.WORD, text=b"{"),
+                    Node(type=PkgbuildNodeType.WORD) as content,
+                    Node(type=PkgbuildNodeType.WORD, text=b"}"),
                 ] if "," in (escaped := self.text(content).replace("\\,", ShellInterpolator.DATA_LINK_ESCAPE)):
                     parts = [
                         self.unquote(part).replace(ShellInterpolator.DATA_LINK_ESCAPE, ",")
@@ -258,7 +258,7 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
             PkgbuildPatch: parsed entries
         """
         match node.type:
-            case PkgbuildNodeType.VariableAssignment if any(child.type == PkgbuildNodeType.Append for child in node.children):
+            case PkgbuildNodeType.VARIABLE_ASSIGNMENT if any(child.type == PkgbuildNodeType.APPEND for child in node.children):
                 patch = self._assignment(node)
                 match values.get(patch.key), patch.value:
                     case PkgbuildPatch(value=str() as previous), str() as appended:
@@ -270,25 +270,25 @@ class PkgbuildParser(Iterable[PkgbuildPatch]):
                 values[patch.key] = patch
                 yield patch
 
-            case PkgbuildNodeType.VariableAssignment:
+            case PkgbuildNodeType.VARIABLE_ASSIGNMENT:
                 patch = self._assignment(node)
                 values[patch.key] = patch
                 yield patch
 
-            case PkgbuildNodeType.FunctionDefinition:
-                name = cast(Node, node.child_by_field_name(PkgbuildNodeField.Name))
-                body = cast(Node, node.child_by_field_name(PkgbuildNodeField.Body))
+            case PkgbuildNodeType.FUNCTION_DEFINITION:
+                name = cast(Node, node.child_by_field_name(PkgbuildNodeField.NAME))
+                body = cast(Node, node.child_by_field_name(PkgbuildNodeField.BODY))
                 yield PkgbuildPatch(f"{self.text(name)}()", self.text(body))
 
             case _:
                 # descend into statements, but skip command arguments and values
                 for child in node.named_children:
                     if child.type not in (
-                            PkgbuildNodeType.Array,
-                            PkgbuildNodeType.Comment,
-                            PkgbuildNodeType.RawString,
-                            PkgbuildNodeType.String,
-                            PkgbuildNodeType.Word,
+                            PkgbuildNodeType.ARRAY,
+                            PkgbuildNodeType.COMMENT,
+                            PkgbuildNodeType.RAW_STRING,
+                            PkgbuildNodeType.STRING,
+                            PkgbuildNodeType.WORD,
                     ):
                         yield from self._read(child, values)
 

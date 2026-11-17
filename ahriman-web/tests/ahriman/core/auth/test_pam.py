@@ -92,7 +92,7 @@ async def test_verify_access(pam: PAM, user: User, mocker: MockerFixture) -> Non
     """
     mocker.patch("ahriman.core.auth.pam.PAM.get_user", return_value=None)
     mocker.patch("ahriman.core.auth.pam.PAM.group_members", return_value=[user.username])
-    assert await pam.verify_access(user.username, UserAccess.Full, None)
+    assert await pam.verify_access(user.username, UserAccess.FULL, None)
 
 
 async def test_verify_access_readonly(pam: PAM, user: User, mocker: MockerFixture) -> None:
@@ -102,9 +102,9 @@ async def test_verify_access_readonly(pam: PAM, user: User, mocker: MockerFixtur
     mocker.patch("ahriman.core.auth.pam.PAM.get_user", return_value=None)
     mocker.patch("ahriman.core.auth.pam.PAM.group_members", return_value=[])
 
-    assert not await pam.verify_access(user.username, UserAccess.Full, None)
-    assert not await pam.verify_access(user.username, UserAccess.Reporter, None)
-    assert await pam.verify_access(user.username, UserAccess.Read, None)
+    assert not await pam.verify_access(user.username, UserAccess.FULL, None)
+    assert not await pam.verify_access(user.username, UserAccess.REPORTER, None)
+    assert await pam.verify_access(user.username, UserAccess.READ, None)
 
 
 async def test_verify_access_override(pam: PAM, user: User, mocker: MockerFixture) -> None:

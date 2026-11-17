@@ -51,11 +51,11 @@ class Pkgbuild(Handler):
         client = Application(repository_id, configuration, report=True).reporter
 
         match args.action:
-            case Action.List:
+            case Action.LIST:
                 changes = client.package_changes_get(args.package)
                 PkgbuildPrinter(changes)(verbose=True, separator="")
                 Pkgbuild.check_status(args.exit_code, changes.pkgbuild is not None)
-            case Action.Remove:
+            case Action.REMOVE:
                 changes = client.package_changes_get(args.package)
                 client.package_changes_update(args.package, replace(changes, pkgbuild=None))
 
@@ -77,7 +77,7 @@ class Pkgbuild(Handler):
         parser.add_argument("package", help="package base")
         parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
                             action="store_true")
-        parser.set_defaults(action=Action.List, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.LIST, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     @staticmethod
@@ -94,7 +94,7 @@ class Pkgbuild(Handler):
         parser = root.add_parser("package-pkgbuild-remove", help="remove package pkgbuild",
                                  description="remove the package PKGBUILD stored remotely")
         parser.add_argument("package", help="package base")
-        parser.set_defaults(action=Action.Remove, exit_code=False, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.REMOVE, exit_code=False, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     arguments = [_set_package_pkgbuild_parser, _set_package_pkgbuild_remove_parser]

@@ -13,7 +13,7 @@ async def test_get_permission() -> None:
     """
     for method in ("DELETE", "GET", "POST"):
         request = pytest.helpers.request("", "", method)
-        assert await WorkersView.get_permission(request) == UserAccess.Full
+        assert await WorkersView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:

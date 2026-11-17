@@ -57,7 +57,7 @@ class Repository(Executor, UpdateHandler):
 
     @classmethod
     def load(cls, repository_id: RepositoryId, configuration: Configuration, database: SQLite, *, report: bool,
-             refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.Disabled) -> Self:
+             refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.DISABLED) -> Self:
         """
         load instance from argument list
 
@@ -67,7 +67,7 @@ class Repository(Executor, UpdateHandler):
             database(SQLite): database instance
             report(bool): force enable or disable reporting
             refresh_pacman_database(PacmanSynchronization, optional): pacman database synchronization level
-                (Default value = PacmanSynchronization.Disabled)
+                (Default value = PacmanSynchronization.DISABLED)
 
         Returns:
             Self: fully loaded repository class instance

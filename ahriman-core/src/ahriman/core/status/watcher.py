@@ -197,7 +197,7 @@ class Watcher(LazyLogging):
             self._known[package_base] = (package, replace(status, is_held=enabled))
         self.client.package_hold_update(package_base, enabled=enabled)
 
-        await self.event_bus.broadcast(EventType.PackageHeld, package_base, is_held=enabled)
+        await self.event_bus.broadcast(EventType.PACKAGE_HELD, package_base, is_held=enabled)
 
     async def package_logs_add(self, log_record: LogRecord) -> None:
         """
@@ -208,7 +208,7 @@ class Watcher(LazyLogging):
         """
         self.client.package_logs_add(log_record)
 
-        await self.event_bus.broadcast(EventType.BuildLog, log_record.log_record_id.package_base, **log_record.view())
+        await self.event_bus.broadcast(EventType.BUILD_LOG, log_record.log_record_id.package_base, **log_record.view())
 
     async def package_logs_get(self, package_base: str, version: str | None = None, process_id: str | None = None,
                                limit: int = -1, offset: int = 0) -> list[LogRecord]:
@@ -281,7 +281,7 @@ class Watcher(LazyLogging):
             self._known.pop(package_base, None)
         self.client.package_remove(package_base)
 
-        await self.event_bus.broadcast(EventType.PackageRemoved, package_base)
+        await self.event_bus.broadcast(EventType.PACKAGE_REMOVED, package_base)
 
     async def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
@@ -296,7 +296,7 @@ class Watcher(LazyLogging):
             self._known[package_base] = (package, BuildStatus(status, is_held=current_status.is_held))
         self.client.package_status_update(package_base, status)
 
-        await self.event_bus.broadcast(EventType.PackageStatusChanged, package_base, status=status.value)
+        await self.event_bus.broadcast(EventType.PACKAGE_STATUS_CHANGED, package_base, status=status.value)
 
     async def package_update(self, package: Package, status: BuildStatusEnum) -> None:
         """
@@ -312,7 +312,7 @@ class Watcher(LazyLogging):
         self.client.package_update(package, status)
 
         await self.event_bus.broadcast(
-            EventType.PackageUpdated, package.base, status=status.value, version=package.version,
+            EventType.PACKAGE_UPDATED, package.base, status=status.value, version=package.version,
         )
 
     async def packages(self) -> list[tuple[Package, BuildStatus]]:
@@ -340,7 +340,7 @@ class Watcher(LazyLogging):
         """
         self.status = BuildStatus(status)
 
-        await self.event_bus.broadcast(EventType.ServiceStatusChanged, None, status=status.value)
+        await self.event_bus.broadcast(EventType.SERVICE_STATUS_CHANGED, None, status=status.value)
 
     def __call__(self, package_base: str | None) -> Self:
         """

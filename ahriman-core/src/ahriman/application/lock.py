@@ -209,7 +209,7 @@ class Lock(LazyLogging):
         self.check_user()
         self.check_version()
         self.lock()
-        self.reporter.status_update(BuildStatusEnum.Building)
+        self.reporter.status_update(BuildStatusEnum.BUILDING)
         return self
 
     def __exit__(self, exc_type: type[Exception] | None, exc_val: Exception | None,
@@ -226,6 +226,6 @@ class Lock(LazyLogging):
             Literal[False]: always ``False`` (do not suppress any exception)
         """
         self.clear()
-        status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
+        status = BuildStatusEnum.SUCCESS if exc_val is None else BuildStatusEnum.FAILED
         self.reporter.status_update(status)
         return False

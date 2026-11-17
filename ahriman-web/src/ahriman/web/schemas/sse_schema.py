@@ -28,7 +28,7 @@ class SSESchema(Schema):
 
     event = fields.String(required=True, metadata={
         "description": "Event type",
-        "example": EventType.PackageUpdated,
+        "example": EventType.PACKAGE_UPDATED,
     })
     data = fields.Dict(keys=fields.String(), values=fields.Raw(), metadata={
         "description": "Event data",

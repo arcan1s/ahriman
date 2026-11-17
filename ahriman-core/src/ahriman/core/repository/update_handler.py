@@ -62,7 +62,7 @@ class UpdateHandler(PackageInfo, Cleaner):
             # try to load package from base and if none found try to load by separated packages
             for probe in [package.base] + sorted(package.packages.keys()):
                 try:
-                    if package.remote.source == PackageSource.Repository:
+                    if package.remote.source == PackageSource.REPOSITORY:
                         return Package.from_official(probe, self.pacman, None)
                     return Package.from_aur(probe, None)
                 except UnknownPackageError:
@@ -85,10 +85,10 @@ class UpdateHandler(PackageInfo, Cleaner):
 
                     if PackageVersion(local).is_outdated(remote, self.configuration, calculate_version=vcs):
                         self.reporter.set_pending(local.base)
-                        self.event(local.base, EventType.PackageOutdated, "Remote version is newer than local")
+                        self.event(local.base, EventType.PACKAGE_OUTDATED, "Remote version is newer than local")
                         result.append(remote)
                     else:
-                        self.reporter.package_status_update(local.base, BuildStatusEnum.Success)
+                        self.reporter.package_status_update(local.base, BuildStatusEnum.SUCCESS)
                 except Exception:
                     self.reporter.set_failed(local.base)
                     self.logger.exception("could not load remote package %s", local.base)
@@ -136,7 +136,7 @@ class UpdateHandler(PackageInfo, Cleaner):
 
                 # there are no packages found in filesystem with the same paths
                 self.reporter.set_pending(local.base)
-                self.event(local.base, EventType.PackageOutdated, "Implicit dependencies are broken")
+                self.event(local.base, EventType.PACKAGE_OUTDATED, "Implicit dependencies are broken")
                 result.append(local)
 
                 break
@@ -165,7 +165,7 @@ class UpdateHandler(PackageInfo, Cleaner):
             with self.in_package_context(cache_dir.name, local_versions.get(cache_dir.name)):
                 try:
                     source = RemoteSource(
-                        source=PackageSource.Local,
+                        source=PackageSource.LOCAL,
                         git_url=cache_dir.absolute().as_uri(),
                         web_url="",
                         path=".",
@@ -186,7 +186,7 @@ class UpdateHandler(PackageInfo, Cleaner):
 
                     if PackageVersion(local).is_outdated(remote, self.configuration, calculate_version=vcs):
                         self.reporter.set_pending(local.base)
-                        self.event(local.base, EventType.PackageOutdated, "Locally pulled sources are outdated")
+                        self.event(local.base, EventType.PACKAGE_OUTDATED, "Locally pulled sources are outdated")
                         result.append(remote)
 
                 except Exception:
@@ -211,7 +211,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                     self.reporter.set_unknown(local)
                 else:
                     self.reporter.set_pending(local.base)
-                self.event(local.base, EventType.PackageOutdated, "Manual update is requested")
+                self.event(local.base, EventType.PACKAGE_OUTDATED, "Manual update is requested")
 
         except Exception:
             self.logger.exception("could not load packages from database")

@@ -36,8 +36,8 @@ class PatchView(StatusViewGuard, BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    DELETE_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
+    DELETE_PERMISSION: ClassVar[UserAccess] = UserAccess.FULL
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.REPORTER
     ROUTES = ["/api/v1/packages/{package}/patches/{patch}"]
 
     @apidocs(

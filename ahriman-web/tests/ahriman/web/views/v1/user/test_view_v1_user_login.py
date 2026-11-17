@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
-from ahriman.web.keys import AuthKey
+from ahriman.web.keys import AUTH_KEY
 from ahriman.web.views.v1.user.login import LoginView
 
 
@@ -15,7 +15,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET", "POST"):
         request = pytest.helpers.request("", "", method)
-        assert await LoginView.get_permission(request) == UserAccess.Unauthorized
+        assert await LoginView.get_permission(request) == UserAccess.UNAUTHORIZED
 
 
 def test_routes() -> None:
@@ -46,7 +46,7 @@ async def test_get_redirect_to_oauth(client_with_oauth_auth: TestClient) -> None
     """
     must redirect to OAuth service provider in case if no code is supplied
     """
-    oauth = client_with_oauth_auth.app[AuthKey]
+    oauth = client_with_oauth_auth.app[AUTH_KEY]
     oauth.get_oauth_url.return_value = "http://localhost"
     request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
@@ -61,7 +61,7 @@ async def test_get_redirect_to_oauth_empty_code(client_with_oauth_auth: TestClie
     """
     must redirect to OAuth service provider in case if empty code is supplied
     """
-    oauth = client_with_oauth_auth.app[AuthKey]
+    oauth = client_with_oauth_auth.app[AUTH_KEY]
     oauth.get_oauth_url.return_value = "http://localhost"
     request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
@@ -78,7 +78,7 @@ async def test_get(client_with_oauth_auth: TestClient, mocker: MockerFixture) ->
     """
     session = {"state": "state"}
     mocker.patch("ahriman.web.views.v1.user.login.get_session", return_value=session)
-    oauth = client_with_oauth_auth.app[AuthKey]
+    oauth = client_with_oauth_auth.app[AUTH_KEY]
     oauth.get_oauth_username.return_value = "user"
     oauth.known_username.return_value = True
     oauth.enabled = False  # lol
@@ -101,7 +101,7 @@ async def test_get_unauthorized(client_with_oauth_auth: TestClient, mocker: Mock
     """
     must return unauthorized from OAuth
     """
-    oauth = client_with_oauth_auth.app[AuthKey]
+    oauth = client_with_oauth_auth.app[AUTH_KEY]
     oauth.known_username.return_value = False
     oauth.max_age = 60
     remember_mock = mocker.patch("ahriman.web.views.v1.user.login.remember")

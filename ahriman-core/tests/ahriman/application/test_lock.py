@@ -278,7 +278,7 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     check_user_mock.assert_called_once_with()
     check_version_mock.assert_called_once_with()
     lock_mock.assert_called_once_with()
-    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Success)])
+    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.BUILDING), MockCall(BuildStatusEnum.SUCCESS)])
 
 
 def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
@@ -293,4 +293,4 @@ def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
     with pytest.raises(ValueError):
         with lock:
             raise ValueError()
-    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Failed)])
+    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.BUILDING), MockCall(BuildStatusEnum.FAILED)])

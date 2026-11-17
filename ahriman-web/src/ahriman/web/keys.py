@@ -28,16 +28,16 @@ from ahriman.models.repository_id import RepositoryId
 
 
 __all__ = [
-    "AuthKey",
-    "ConfigurationKey",
-    "SpawnKey",
-    "WatcherKey",
-    "WorkersKey",
+    "AUTH_KEY",
+    "CONFIGURATION_KEY",
+    "SPAWN_KEY",
+    "WATCHER_KEY",
+    "WORKERS_KEY",
 ]
 
 
-AuthKey = AppKey("validator", Auth)
-ConfigurationKey = AppKey("configuration", Configuration)
-SpawnKey = AppKey("spawn", Spawn)
-WatcherKey = AppKey("watcher", dict[RepositoryId, Watcher])
-WorkersKey = AppKey("workers", WorkersCache)
+AUTH_KEY = AppKey("validator", Auth)
+CONFIGURATION_KEY = AppKey("configuration", Configuration)
+SPAWN_KEY = AppKey("spawn", Spawn)
+WATCHER_KEY = AppKey("watcher", dict[RepositoryId, Watcher])
+WORKERS_KEY = AppKey("workers", WorkersCache)

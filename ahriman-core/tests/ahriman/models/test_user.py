@@ -10,19 +10,19 @@ def test_algo() -> None:
     """
     must correctly define algorithm used
     """
-    assert User(username="user", password=None, access=UserAccess.Read).algo is None
-    assert User(username="user", password="", access=UserAccess.Read).algo is None
-    assert User(username="user", password="$$$", access=UserAccess.Read).algo is None
+    assert User(username="user", password=None, access=UserAccess.READ).algo is None
+    assert User(username="user", password="", access=UserAccess.READ).algo is None
+    assert User(username="user", password="$$$", access=UserAccess.READ).algo is None
 
     assert User(
         username="user",
         password="$6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0",
-        access=UserAccess.Read,
+        access=UserAccess.READ,
     ).algo == "$6$"
     assert User(
         username="user",
         password="$2b$12$VCWKazvYxH7B0eAalDGAbu/3y1dSWs79sv/2ujjX1TMaFdVUy80hy",
-        access=UserAccess.Read,
+        access=UserAccess.READ,
     ).algo == "$2b$"
 
 
@@ -53,7 +53,7 @@ def test_check_credentials_sha512() -> None:
     user = User(
         username="user",
         password="$6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0",
-        access=UserAccess.Read,
+        access=UserAccess.READ,
     )
     with pytest.raises(ValueError):
         assert user.check_credentials("password", "salt")
@@ -86,18 +86,18 @@ def test_verify_access_read(user: User) -> None:
     """
     user with read access must be able to only request read
     """
-    user = replace(user, access=UserAccess.Read)
-    assert user.verify_access(UserAccess.Read)
-    assert not user.verify_access(UserAccess.Full)
+    user = replace(user, access=UserAccess.READ)
+    assert user.verify_access(UserAccess.READ)
+    assert not user.verify_access(UserAccess.FULL)
 
 
 def test_verify_access_write(user: User) -> None:
     """
     user with write access must be able to do anything
     """
-    user = replace(user, access=UserAccess.Full)
-    assert user.verify_access(UserAccess.Read)
-    assert user.verify_access(UserAccess.Full)
+    user = replace(user, access=UserAccess.FULL)
+    assert user.verify_access(UserAccess.READ)
+    assert user.verify_access(UserAccess.FULL)
 
 
 def test_repr(user: User) -> None:

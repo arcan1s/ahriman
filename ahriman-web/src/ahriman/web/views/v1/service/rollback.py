@@ -34,7 +34,7 @@ class RollbackView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.FULL
     ROUTES = ["/api/v1/service/rollback"]
 
     @apidocs(

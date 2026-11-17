@@ -15,10 +15,10 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await PackagesView.get_permission(request) == UserAccess.Read
+        assert await PackagesView.get_permission(request) == UserAccess.READ
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await PackagesView.get_permission(request) == UserAccess.Full
+        assert await PackagesView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -33,9 +33,9 @@ async def test_get(client: TestClient, package_ahriman: Package, package_python_
     must return status for all packages
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_python_schedule.view()})
     response_schema = pytest.helpers.schema_response(PackagesView.get)
 
     response = await client.get("/api/v1/packages")
@@ -54,9 +54,9 @@ async def test_get_with_pagination(client: TestClient, package_ahriman: Package,
     must return paginated status for packages
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_python_schedule.view()})
     request_schema = pytest.helpers.schema_request(PackagesView.get, location="querystring")
     response_schema = pytest.helpers.schema_response(PackagesView.get)
 

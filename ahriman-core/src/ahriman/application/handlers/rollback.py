@@ -82,7 +82,7 @@ class Rollback(Handler):
         parser.add_argument("-u", "--username", help="build as user", default=extract_user())
         parser.set_defaults(aur=False, changes=False, check_files=False, dependencies=False, dry_run=False,
                             exit_code=True, increment=False, now=True, local=False, manual=False, refresh=False,
-                            source=PackageSource.Archive, variable=None, vcs=False)
+                            source=PackageSource.ARCHIVE, variable=None, vcs=False)
         return parser
 
     @staticmethod

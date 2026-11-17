@@ -30,22 +30,22 @@ class BuildPlanReason(StrEnum):
     reason why package was selected for a build plan
 
     Attributes:
-        BrokenImplicitDependency(BuildPlanReason): package has a broken implicit dependency
-        LocalSourceUpdate(BuildPlanReason): locally sourced package has an update
-        ManualRequest(BuildPlanReason): package was manually queued
-        PreBuilt(BuildPlanReason): package has already been built
-        Rebuild(BuildPlanReason): package was selected for rebuild
-        RegularUpdate(BuildPlanReason): package has an AUR update
-        RequiredBy(BuildPlanReason): package is required by another selected package
+        BROKEN_IMPLICIT_DEPENDENCY(BuildPlanReason): package has a broken implicit dependency
+        LOCAL_SOURCE_UPDATE(BuildPlanReason): locally sourced package has an update
+        MANUAL_REQUEST(BuildPlanReason): package was manually queued
+        PRE_BUILT(BuildPlanReason): package has already been built
+        REBUILD(BuildPlanReason): package was selected for rebuild
+        REGULAR_UPDATE(BuildPlanReason): package has an AUR update
+        REQUIRED_BY(BuildPlanReason): package is required by another selected package
     """
 
-    BrokenImplicitDependency = "broken implicit dependency"
-    LocalSourceUpdate = "local source update"
-    ManualRequest = "manual request"
-    PreBuilt = "pre-built"
-    Rebuild = "rebuild"
-    RegularUpdate = "regular update"
-    RequiredBy = "required by"
+    BROKEN_IMPLICIT_DEPENDENCY = "broken implicit dependency"
+    LOCAL_SOURCE_UPDATE = "local source update"
+    MANUAL_REQUEST = "manual request"
+    PRE_BUILT = "pre-built"
+    REBUILD = "rebuild"
+    REGULAR_UPDATE = "regular update"
+    REQUIRED_BY = "required by"
 
 
 @dataclass(frozen=True)
@@ -95,14 +95,14 @@ class BuildPlan(Iterable[Package]):
         """
         return [item.package for item in self.items]
 
-    def add(self, package: Package, reason: BuildPlanReason = BuildPlanReason.ManualRequest,
+    def add(self, package: Package, reason: BuildPlanReason = BuildPlanReason.MANUAL_REQUEST,
             requester: str | None = None) -> BuildPlanItem:
         """
         add or update a package while preserving its first reason and requester
 
         Args:
             package(Package): package selected for the plan
-            reason(BuildPlanReason, optional): reason for selecting it (Default value = BuildPlanReason.ManualRequest)
+            reason(BuildPlanReason, optional): reason for selecting it (Default value = BuildPlanReason.MANUAL_REQUEST)
             requester(str | None, optional): package requiring this dependency (Default value = None)
 
         Returns:
@@ -125,14 +125,14 @@ class BuildPlan(Iterable[Package]):
         """
         return self._items[package_base]
 
-    def update(self, packages: Iterable[Package], reason: BuildPlanReason = BuildPlanReason.ManualRequest,
+    def update(self, packages: Iterable[Package], reason: BuildPlanReason = BuildPlanReason.MANUAL_REQUEST,
                requester: str | None = None) -> Self:
         """
         bulk update packages with the same reason
 
         Args:
             packages(Iterable[Package]): list of new packages to be added
-            reason(BuildPlanReason, optional): reason for selecting it (Default value = BuildPlanReason.ManualRequest)
+            reason(BuildPlanReason, optional): reason for selecting it (Default value = BuildPlanReason.MANUAL_REQUEST)
             requester(str | None, optional): package requiring these dependencies (Default value = None)
 
         Returns:

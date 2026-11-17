@@ -85,7 +85,7 @@ class Statistics(Handler):
         parser.add_argument("package", help="fetch only events for the specified package", nargs="?")
         parser.add_argument("--chart", help="create updates chart and save it to the specified path", type=Path)
         parser.add_argument("-e", "--event", help="event type filter",
-                            type=EventType, choices=tuple(EventType), default=EventType.PackageUpdated)
+                            type=EventType, choices=tuple(EventType), default=EventType.PACKAGE_UPDATED)
         parser.add_argument("--from-date", help="only fetch events which are newer than the date")
         parser.add_argument("--limit", help="limit response by specified amount of events", type=int, default=-1)
         parser.add_argument("--offset", help="skip specified amount of events", type=int, default=0)

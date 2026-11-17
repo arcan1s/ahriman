@@ -5,7 +5,7 @@ def test_from_option_invalid() -> None:
     """
     must return disabled value on invalid option
     """
-    assert SmtpSSLSettings.from_option("invalid") == SmtpSSLSettings.Disabled
+    assert SmtpSSLSettings.from_option("invalid") == SmtpSSLSettings.DISABLED
 
 
 def test_from_option_valid() -> None:

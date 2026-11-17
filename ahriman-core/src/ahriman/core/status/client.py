@@ -341,7 +341,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        self.package_status_update(package_base, BuildStatusEnum.Building)
+        self.package_status_update(package_base, BuildStatusEnum.BUILDING)
 
     def set_failed(self, package_base: str) -> None:
         """
@@ -350,7 +350,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        self.package_status_update(package_base, BuildStatusEnum.Failed)
+        self.package_status_update(package_base, BuildStatusEnum.FAILED)
 
     def set_pending(self, package_base: str) -> None:
         """
@@ -359,7 +359,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        self.package_status_update(package_base, BuildStatusEnum.Pending)
+        self.package_status_update(package_base, BuildStatusEnum.PENDING)
 
     def set_success(self, package: Package) -> None:
         """
@@ -368,7 +368,7 @@ class Client:
         Args:
             package(Package): current package properties
         """
-        self.package_update(package, BuildStatusEnum.Success)
+        self.package_update(package, BuildStatusEnum.SUCCESS)
 
     def set_unknown(self, package: Package) -> None:
         """
@@ -380,7 +380,7 @@ class Client:
         """
         if self.package_get(package.base):
             return  # skip update in case if package is already known
-        self.package_update(package, BuildStatusEnum.Unknown)
+        self.package_update(package, BuildStatusEnum.UNKNOWN)
 
     def statistics(self) -> RepositoryStats:
         """

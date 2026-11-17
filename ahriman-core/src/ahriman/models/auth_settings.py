@@ -27,15 +27,15 @@ class AuthSettings(StrEnum):
     web authorization type
 
     Attributes:
-        Disabled(AuthSettings): authorization is disabled
-        Configuration(AuthSettings): configuration based authorization
-        OAuth(AuthSettings): OAuth based provider
+        DISABLED(AuthSettings): authorization is disabled
+        CONFIGURATION(AuthSettings): configuration based authorization
+        OAUTH(AuthSettings): OAuth based provider
         PAM(AuthSettings): PAM based provider
     """
 
-    Disabled = "disabled"
-    Configuration = "configuration"
-    OAuth = "oauth2"
+    DISABLED = "disabled"
+    CONFIGURATION = "configuration"
+    OAUTH = "oauth2"
     PAM = "pam"
 
     @property
@@ -46,7 +46,7 @@ class AuthSettings(StrEnum):
         Returns:
             bool: ``False`` in case if authorization is disabled and ``True`` otherwise
         """
-        return self != AuthSettings.Disabled
+        return self != AuthSettings.DISABLED
 
     @staticmethod
     def from_option(value: str) -> AuthSettings:
@@ -61,10 +61,10 @@ class AuthSettings(StrEnum):
         """
         match value.lower():
             case "configuration" | "mapping":
-                return AuthSettings.Configuration
+                return AuthSettings.CONFIGURATION
             case "oauth" | "oauth2":
-                return AuthSettings.OAuth
+                return AuthSettings.OAUTH
             case "pam":
                 return AuthSettings.PAM
             case _:
-                return AuthSettings.Disabled
+                return AuthSettings.DISABLED

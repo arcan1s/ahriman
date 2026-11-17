@@ -56,15 +56,15 @@ def test_content(rss: RSS, package_ahriman: Package, mocker: MockerFixture) -> N
     """
     client_mock = MagicMock()
     client_mock.event_get.return_value = [
-        Event(EventType.PackageUpdated, package_ahriman.base),
-        Event(EventType.PackageUpdated, "random"),
-        Event(EventType.PackageUpdated, package_ahriman.base),
+        Event(EventType.PACKAGE_UPDATED, package_ahriman.base),
+        Event(EventType.PACKAGE_UPDATED, "random"),
+        Event(EventType.PACKAGE_UPDATED, package_ahriman.base),
     ]
     context_mock = mocker.patch("ahriman.core._Context.get", return_value=client_mock)
 
     assert rss.content([package_ahriman]).success == [package_ahriman]
     context_mock.assert_called_once_with(Client)
-    client_mock.event_get.assert_called_once_with(EventType.PackageUpdated, None, limit=rss.max_entries)
+    client_mock.event_get.assert_called_once_with(EventType.PACKAGE_UPDATED, None, limit=rss.max_entries)
 
 
 def test_generate(rss: RSS, package_ahriman: Package, mocker: MockerFixture) -> None:

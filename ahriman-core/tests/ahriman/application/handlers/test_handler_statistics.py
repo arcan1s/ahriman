@@ -25,7 +25,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.chart = None
-    args.event = EventType.PackageUpdated
+    args.event = EventType.PACKAGE_UPDATED
     args.from_date = None
     args.limit = -1
     args.offset = 0

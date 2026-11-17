@@ -59,7 +59,7 @@ class RemoteSource:
         Returns:
             bool: ``True`` in case if package is well-known remote source (e.g. AUR) and ``False`` otherwise
         """
-        return self.source in (PackageSource.AUR, PackageSource.Repository)
+        return self.source in (PackageSource.AUR, PackageSource.REPOSITORY)
 
     @property
     def pkgbuild_dir(self) -> Path | None:

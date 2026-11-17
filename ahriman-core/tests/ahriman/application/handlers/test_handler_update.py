@@ -66,7 +66,7 @@ def test_perform_action(args: argparse.Namespace, application: Application, pack
     result.add_updated(package_ahriman)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
     dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
                                      return_value=plan)
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=plan)
@@ -110,7 +110,7 @@ def test_perform_action_update_empty_exception(args: argparse.Namespace, applica
     args = _default_args(args)
     args.exit_code = True
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
     mocker.patch("ahriman.application.application.Application.updates", return_value=plan)
     mocker.patch("ahriman.application.application.Application.with_dependencies", return_value=plan)
     mocker.patch("ahriman.application.application.Application.changes")
@@ -131,7 +131,7 @@ def test_perform_action_dry_run(args: argparse.Namespace, application: Applicati
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
-    plan = BuildPlan().update([package_ahriman], BuildPlanReason.RegularUpdate)
+    plan = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
     dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
                                      return_value=plan)
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=plan)

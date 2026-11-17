@@ -45,8 +45,8 @@ class PackageView(StatusViewGuard, BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full  # type: ClassVar[UserAccess]
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Read
+    DELETE_PERMISSION = POST_PERMISSION = UserAccess.FULL  # type: ClassVar[UserAccess]
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.READ
     ROUTES = ["/api/v1/packages/{package}"]
 
     @apidocs(

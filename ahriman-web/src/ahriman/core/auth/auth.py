@@ -36,11 +36,11 @@ class Auth(LazyLogging):
         allow_read_only(bool): allow read only access to APIs
     """
 
-    def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
+    def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.DISABLED) -> None:
         """
         Args:
             configuration(Configuration): configuration instance
-            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Disabled)
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.DISABLED)
         """
         self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
 
@@ -83,10 +83,10 @@ class Auth(LazyLogging):
             Auth: authorization module according to current settings
         """
         match AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled")):
-            case AuthSettings.Configuration:
+            case AuthSettings.CONFIGURATION:
                 from ahriman.core.auth.mapping import Mapping
                 return Mapping(configuration, database)
-            case AuthSettings.OAuth:
+            case AuthSettings.OAUTH:
                 from ahriman.core.auth.oauth import OAuth
                 return OAuth(configuration, database)
             case AuthSettings.PAM:

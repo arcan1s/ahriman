@@ -103,7 +103,7 @@ class RSS(Report, JinjaTemplate):
         """
         ctx = context.get()
         reporter = ctx.get(Client)
-        events = reporter.event_get(EventType.PackageUpdated, None, limit=self.max_entries)
+        events = reporter.event_get(EventType.PACKAGE_UPDATED, None, limit=self.max_entries)
 
         known_packages = {package.base: package for package in packages}
 

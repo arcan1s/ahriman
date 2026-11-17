@@ -38,14 +38,14 @@ class ApplicationProperties(LazyLogging):
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, *, report: bool,
-                 refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.Disabled) -> None:
+                 refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.DISABLED) -> None:
         """
         Args:
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
             refresh_pacman_database(PacmanSynchronization, optional): pacman database synchronization level
-                (Default value = PacmanSynchronization.Disabled)
+                (Default value = PacmanSynchronization.DISABLED)
         """
         self.configuration = configuration
         self.repository_id = repository_id

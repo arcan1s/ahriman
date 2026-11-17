@@ -21,7 +21,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
-    args.action = Action.List
+    args.action = Action.LIST
     args.exit_code = False
     args.info = False
     args.package = "package"

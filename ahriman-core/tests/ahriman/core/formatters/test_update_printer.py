@@ -19,7 +19,7 @@ def test_properties_na(update_printer: UpdatePrinter) -> None:
     assert update_printer.properties() == [
         Property(package.base, "", is_required=True),
         Property("N/A", package.version, is_required=True, indent=2, separator=" -> "),
-        Property("Reason", BuildPlanReason.RegularUpdate.value, indent=2),
+        Property("Reason", BuildPlanReason.REGULAR_UPDATE.value, indent=2),
     ]
 
 
@@ -28,7 +28,7 @@ def test_properties_package_required_by(package_python_schedule: Package) -> Non
     must include requestee package to properties
     """
     plan = BuildPlan()
-    plan.add(package_python_schedule, BuildPlanReason.RequiredBy, requester="ahriman")
+    plan.add(package_python_schedule, BuildPlanReason.REQUIRED_BY, requester="ahriman")
 
     properties = list(UpdatePrinter(plan, {}, bump_pkgrel=False).properties_package(package_python_schedule))
     assert properties[-1].value == "required by ahriman"

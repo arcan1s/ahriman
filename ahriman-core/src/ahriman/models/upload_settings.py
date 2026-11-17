@@ -27,18 +27,18 @@ class UploadSettings(StrEnum):
     remote synchronization targets enumeration
 
     Attributes:
-        Disabled(UploadSettings): no sync will be performed, required for testing purpose
-        Rsync(UploadSettings): sync via rsync
+        DISABLED(UploadSettings): no sync will be performed, required for testing purpose
+        RSYNC(UploadSettings): sync via rsync
         S3(UploadSettings): sync to Amazon S3
-        GitHub(UploadSettings): sync to GitHub releases page
-        RemoteService(UploadSettings): sync to another ahriman instance
+        GITHUB(UploadSettings): sync to GitHub releases page
+        REMOTE_SERVICE(UploadSettings): sync to another ahriman instance
     """
 
-    Disabled = "disabled"  # for testing purpose
-    Rsync = "rsync"
+    DISABLED = "disabled"  # for testing purpose
+    RSYNC = "rsync"
     S3 = "s3"
-    GitHub = "github"
-    RemoteService = "remote-service"
+    GITHUB = "github"
+    REMOTE_SERVICE = "remote-service"
 
     @staticmethod
     def from_option(value: str) -> UploadSettings:
@@ -53,12 +53,12 @@ class UploadSettings(StrEnum):
         """
         match value.lower():
             case "rsync":
-                return UploadSettings.Rsync
+                return UploadSettings.RSYNC
             case "s3":
                 return UploadSettings.S3
             case "github":
-                return UploadSettings.GitHub
+                return UploadSettings.GITHUB
             case "ahriman" | "remote-service":
-                return UploadSettings.RemoteService
+                return UploadSettings.REMOTE_SERVICE
             case _:
-                return UploadSettings.Disabled
+                return UploadSettings.DISABLED

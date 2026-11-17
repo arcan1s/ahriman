@@ -14,7 +14,7 @@ async def test_get_permission() -> None:
     """
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await HoldView.get_permission(request) == UserAccess.Full
+        assert await HoldView.get_permission(request) == UserAccess.FULL
 
 
 def test_routes() -> None:
@@ -29,7 +29,7 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     must update package hold status
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+                      json={"status": BuildStatusEnum.SUCCESS.value, "package": package_ahriman.view()})
     request_schema = pytest.helpers.schema_request(HoldView.post)
 
     payload = {"is_held": True}

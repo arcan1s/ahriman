@@ -56,15 +56,15 @@ class Patch(Handler):
         application.on_start()
 
         match args.action:
-            case Action.Update if args.variable is not None:
+            case Action.UPDATE if args.variable is not None:
                 patch = Patch.patch_create_from_function(args.variable, args.patch)
                 Patch.patch_set_create(application, args.package, patch)
-            case Action.Update:
+            case Action.UPDATE:
                 package_base, patch = Patch.patch_create_from_diff(args.package, repository_id.architecture, args.track)
                 Patch.patch_set_create(application, package_base, patch)
-            case Action.List:
+            case Action.LIST:
                 Patch.patch_set_list(application, args.package, args.variable, args.exit_code)
-            case Action.Remove:
+            case Action.REMOVE:
                 Patch.patch_set_remove(application, args.package, args.variable)
 
     @staticmethod
@@ -89,7 +89,7 @@ class Patch(Handler):
                                              "it must end with ()")
         parser.add_argument("patch", help="path to file which contains function or variable value. If not set, "
                                           "the value will be read from stdin", type=Path, nargs="?")
-        parser.set_defaults(action=Action.Update, architecture="", exit_code=False, lock=None, report=False,
+        parser.set_defaults(action=Action.UPDATE, architecture="", exit_code=False, lock=None, report=False,
                             repository="")
         return parser
 
@@ -111,7 +111,7 @@ class Patch(Handler):
                             action="store_true")
         parser.add_argument("-v", "--variable", help="if set, show only patches for specified PKGBUILD variables",
                             action="append")
-        parser.set_defaults(action=Action.List, architecture="", lock=None, report=False, repository="", unsafe=True)
+        parser.set_defaults(action=Action.LIST, architecture="", lock=None, report=False, repository="", unsafe=True)
         return parser
 
     @staticmethod
@@ -132,7 +132,7 @@ class Patch(Handler):
                                  "to remove only specified PKGBUILD variables. In case if not set, "
                                  "it will remove all patches related to the package",
                             action="append")
-        parser.set_defaults(action=Action.Remove, architecture="", exit_code=False, lock=None, report=False,
+        parser.set_defaults(action=Action.REMOVE, architecture="", exit_code=False, lock=None, report=False,
                             repository="")
         return parser
 
@@ -157,7 +157,7 @@ class Patch(Handler):
         parser.add_argument("package", help="path to directory with changed files for patch addition/update", type=Path)
         parser.add_argument("-t", "--track", help="files which has to be tracked", action="append",
                             default=["*.diff", "*.patch"])
-        parser.set_defaults(action=Action.Update, architecture="", exit_code=False, lock=None, report=False,
+        parser.set_defaults(action=Action.UPDATE, architecture="", exit_code=False, lock=None, report=False,
                             repository="", variable=None)
         return parser
 

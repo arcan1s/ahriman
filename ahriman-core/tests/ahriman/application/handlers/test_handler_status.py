@@ -37,8 +37,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     packages = [
-        (package_ahriman, BuildStatus(BuildStatusEnum.Success)),
-        (package_python_schedule, BuildStatus(BuildStatusEnum.Failed)),
+        (package_ahriman, BuildStatus(BuildStatusEnum.SUCCESS)),
+        (package_python_schedule, BuildStatus(BuildStatusEnum.FAILED)),
     ]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.core.status.Client.status_get")
@@ -83,7 +83,7 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
     args.info = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_get",
-                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
+                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.SUCCESS))])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     _, repository_id = configuration.check_loaded()
@@ -103,7 +103,7 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     args.package = [package_ahriman.base]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     packages_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_get",
-                                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
+                                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.SUCCESS))])
 
     _, repository_id = configuration.check_loaded()
     Status.run(args, repository_id, configuration, report=False)
@@ -116,10 +116,10 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, r
     must filter packages by status
     """
     args = _default_args(args)
-    args.status = BuildStatusEnum.Failed
+    args.status = BuildStatusEnum.FAILED
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_get",
-                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
-                               (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
+                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.SUCCESS)),
+                               (package_python_schedule, BuildStatus(BuildStatusEnum.FAILED))])
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 

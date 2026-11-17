@@ -49,14 +49,14 @@ class StatusUpdate(Handler):
         client = Application(repository_id, configuration, report=True).reporter
 
         match args.action:
-            case Action.Update if args.package:
+            case Action.UPDATE if args.package:
                 # update packages statuses
                 for package in args.package:
                     client.package_status_update(package, args.status)
-            case Action.Update:
+            case Action.UPDATE:
                 # update service status
                 client.status_update(args.status)
-            case Action.Remove:
+            case Action.REMOVE:
                 for package in args.package:
                     client.package_remove(package)
 
@@ -76,7 +76,7 @@ class StatusUpdate(Handler):
                                  epilog="Please note that this subcommand does not remove the package itself, it just "
                                         "clears the status page.")
         parser.add_argument("package", help="remove specified packages from status page", nargs="+")
-        parser.set_defaults(action=Action.Remove, lock=None, quiet=True, report=False, unsafe=True)
+        parser.set_defaults(action=Action.REMOVE, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     @staticmethod
@@ -96,8 +96,8 @@ class StatusUpdate(Handler):
                                             "If no packages supplied, service status will be updated",
                             nargs="*")
         parser.add_argument("-s", "--status", help="new package build status",
-                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum), default=BuildStatusEnum.Success)
-        parser.set_defaults(action=Action.Update, lock=None, quiet=True, report=False, unsafe=True)
+                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum), default=BuildStatusEnum.SUCCESS)
+        parser.set_defaults(action=Action.UPDATE, lock=None, quiet=True, report=False, unsafe=True)
         return parser
 
     @staticmethod
@@ -114,8 +114,8 @@ class StatusUpdate(Handler):
         parser = root.add_parser("repo-status-update", help="update repository status",
                                  description="update repository status on the status page")
         parser.add_argument("-s", "--status", help="new status",
-                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum), default=BuildStatusEnum.Success)
-        parser.set_defaults(action=Action.Update, lock=None, package=[], quiet=True, report=False, unsafe=True)
+                            type=BuildStatusEnum, choices=tuple(BuildStatusEnum), default=BuildStatusEnum.SUCCESS)
+        parser.set_defaults(action=Action.UPDATE, lock=None, package=[], quiet=True, report=False, unsafe=True)
         return parser
 
     arguments = [

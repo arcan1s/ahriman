@@ -21,7 +21,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
-    args.action = Action.List
+    args.action = Action.LIST
     args.exit_code = False
     args.package = "package"
     return args
@@ -68,7 +68,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     must remove package pkgbuild
     """
     args = _default_args(args)
-    args.action = Action.Remove
+    args.action = Action.REMOVE
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     changes = Changes("sha", "change", "pkgbuild content")
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get", return_value=changes)

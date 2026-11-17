@@ -5,7 +5,7 @@ from aiohttp.web import Application
 from pytest_mock import MockerFixture
 
 from ahriman.web.cors import setup_cors
-from ahriman.web.keys import ConfigurationKey
+from ahriman.web.keys import CONFIGURATION_KEY
 
 
 def test_setup_cors(application: Application) -> None:
@@ -28,7 +28,7 @@ def test_setup_cors_custom_origins(application: Application, mocker: MockerFixtu
     """
     must setup CORS with custom origins
     """
-    configuration = application[ConfigurationKey]
+    configuration = application[CONFIGURATION_KEY]
     configuration.set_option("web", "cors_allow_origins", "https://example.com https://httpbin.com")
 
     setup_mock = mocker.patch("ahriman.web.cors.aiohttp_cors.setup", return_value=mocker.MagicMock())
@@ -44,7 +44,7 @@ def test_setup_cors_custom_methods(application: Application, mocker: MockerFixtu
     """
     must setup CORS with custom methods
     """
-    configuration = application[ConfigurationKey]
+    configuration = application[CONFIGURATION_KEY]
     configuration.set_option("web", "cors_allow_methods", "GET POST")
 
     setup_mock = mocker.patch("ahriman.web.cors.aiohttp_cors.setup", return_value=mocker.MagicMock())

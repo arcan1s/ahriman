@@ -137,7 +137,7 @@ def test_fetch_new_without_remote(sources: Sources, mocker: MockerFixture) -> No
     head_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.head", return_value="sha")
 
     local = Path("local")
-    assert sources.fetch(local, RemoteSource(source=PackageSource.Archive)) == "sha"
+    assert sources.fetch(local, RemoteSource(source=PackageSource.ARCHIVE)) == "sha"
     check_output_mock.assert_has_calls([
         MockCall(*sources.git(), "checkout", "--force", sources.DEFAULT_BRANCH,
                  cwd=local, logger=pytest.helpers.anyvar(int)),

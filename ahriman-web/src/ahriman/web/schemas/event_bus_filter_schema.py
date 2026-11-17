@@ -29,7 +29,7 @@ class EventBusFilterSchema(RepositoryIdSchema):
 
     event = fields.List(fields.String(), metadata={
         "description": "Event type filter",
-        "example": [EventType.PackageUpdated],
+        "example": [EventType.PACKAGE_UPDATED],
     })
     object_id = fields.String(metadata={
         "description": "Object identifier filter",

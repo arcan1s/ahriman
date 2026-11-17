@@ -30,24 +30,24 @@ class MethodType(StrEnum):
     method type enumeration
 
     Attributes:
-        Class(MethodType): (class attribute) class method
-        Delete(MethodType): (class attribute) destructor-like methods
-        Init(MethodType): (class attribute) initialization method
-        Magic(MethodType): (class attribute) other magical methods
-        New(MethodType): (class attribute) constructor method
-        Normal(MethodType): (class attribute) usual method
-        Property(MethodType): (class attribute) property method
-        Static(MethodType): (class attribute) static method
+        CLASS(MethodType): (class attribute) class method
+        DELETE(MethodType): (class attribute) destructor-like methods
+        INIT(MethodType): (class attribute) initialization method
+        MAGIC(MethodType): (class attribute) other magical methods
+        NEW(MethodType): (class attribute) constructor method
+        NORMAL(MethodType): (class attribute) usual method
+        PROPERTY(MethodType): (class attribute) property method
+        STATIC(MethodType): (class attribute) static method
     """
 
-    Class = "classmethod"
-    Delete = "del"
-    Init = "init"
-    Magic = "magic"
-    New = "new"
-    Normal = "regular"
-    Property = "property"
-    Static = "staticmethod"
+    CLASS = "classmethod"
+    DELETE = "del"
+    INIT = "init"
+    MAGIC = "magic"
+    NEW = "new"
+    NORMAL = "regular"
+    PROPERTY = "property"
+    STATIC = "staticmethod"
 
 
 class DefinitionOrder(BaseRawFileChecker):
@@ -59,14 +59,14 @@ class DefinitionOrder(BaseRawFileChecker):
     """
 
     DECORATED_METHODS_ORDER = {
-        "cached_property": MethodType.Property,
-        "classmethod": MethodType.Class,
-        "property": MethodType.Property,
-        "staticmethod": MethodType.Static,
+        "cached_property": MethodType.PROPERTY,
+        "classmethod": MethodType.CLASS,
+        "property": MethodType.PROPERTY,
+        "staticmethod": MethodType.STATIC,
     }
 
     msgs = {
-        "W6001": (
+        "E5101": (
             "Invalid method order %s, expected %s",
             "methods-out-of-order",
             "Methods are defined out of recommended order.",
@@ -126,11 +126,11 @@ class DefinitionOrder(BaseRawFileChecker):
         """
         # init methods
         if function.name in ("__init__", "__post_init__"):
-            return MethodType.Init
+            return MethodType.INIT
         if function.name in ("__new__",):
-            return MethodType.New
+            return MethodType.NEW
         if function.name in ("__del__",):
-            return MethodType.Delete
+            return MethodType.DELETE
 
         # decorated methods
         decorators = []
@@ -142,10 +142,10 @@ class DefinitionOrder(BaseRawFileChecker):
 
         # magic methods
         if function.name.startswith("__") and function.name.endswith("__"):
-            return MethodType.Magic
+            return MethodType.MAGIC
 
         # normal method
-        return MethodType.Normal
+        return MethodType.NORMAL
 
     def check_class(self, clazz: nodes.ClassDef) -> None:
         """

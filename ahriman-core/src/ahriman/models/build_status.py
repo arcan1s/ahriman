@@ -29,18 +29,18 @@ class BuildStatusEnum(StrEnum):
     build status enumeration
 
     Attributes:
-        Unknown(BuildStatusEnum): build status is unknown
-        Pending(BuildStatusEnum): package is out-of-dated and will be built soon
-        Building(BuildStatusEnum): package is building right now
-        Failed(BuildStatusEnum): package build failed
-        Success(BuildStatusEnum): package has been built without errors
+        UNKNOWN(BuildStatusEnum): build status is unknown
+        PENDING(BuildStatusEnum): package is out-of-dated and will be built soon
+        BUILDING(BuildStatusEnum): package is building right now
+        FAILED(BuildStatusEnum): package build failed
+        SUCCESS(BuildStatusEnum): package has been built without errors
     """
 
-    Unknown = "unknown"
-    Pending = "pending"
-    Building = "building"
-    Failed = "failed"
-    Success = "success"
+    UNKNOWN = "unknown"
+    PENDING = "pending"
+    BUILDING = "building"
+    FAILED = "failed"
+    SUCCESS = "success"
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,7 @@ class BuildStatus:
         is_held(bool | None): whether package held or not
     """
 
-    status: BuildStatusEnum = BuildStatusEnum.Unknown
+    status: BuildStatusEnum = BuildStatusEnum.UNKNOWN
     timestamp: int = field(default_factory=lambda: int(utcnow().timestamp()))
     is_held: bool | None = field(default=None, kw_only=True)
 

@@ -62,10 +62,10 @@ class Package(LazyLogging):
 
         The specific class load method must be defined based on the source provided. The following methods (mostly) must
         be used: :func:`from_archive()`, :func:`from_aur()`, :func:`from_build()`, :func:`from_official()` for sources
-        :attr:`ahriman.models.package_source.PackageSource.Archive`,
+        :attr:`ahriman.models.package_source.PackageSource.ARCHIVE`,
         :attr:`ahriman.models.package_source.PackageSource.AUR`,
-        :attr:`ahriman.models.package_source.PackageSource.Local` and
-        :attr:`ahriman.models.package_source.PackageSource.Repository` respectively:
+        :attr:`ahriman.models.package_source.PackageSource.LOCAL` and
+        :attr:`ahriman.models.package_source.PackageSource.REPOSITORY` respectively:
 
             >>> ahriman_package = Package.from_aur("ahriman")
             >>> pacman_package = Package.from_official("pacman", pacman)
@@ -192,7 +192,7 @@ class Package(LazyLogging):
         return cls(
             base=package.base or package.name,
             version=package.version,
-            remote=RemoteSource(source=PackageSource.Archive),
+            remote=RemoteSource(source=PackageSource.ARCHIVE),
             packages={package.name: description},
             packager=package.packager,
         )
@@ -255,7 +255,7 @@ class Package(LazyLogging):
         version = full_version(pkgbuild.get("epoch"), pkgbuild["pkgver"], pkgbuild["pkgrel"])
 
         remote = RemoteSource(
-            source=PackageSource.Local,
+            source=PackageSource.LOCAL,
             git_url=path.absolute().as_uri(),
             web_url=None,
             path=".",
@@ -315,7 +315,7 @@ class Package(LazyLogging):
         package = impl.info(name, pacman=pacman, include_provides=include_provides)
 
         remote = RemoteSource(
-            source=PackageSource.Repository,
+            source=PackageSource.REPOSITORY,
             git_url=Official.remote_git_url(package.package_base, package.repository),
             web_url=Official.remote_web_url(package.package_base),
             path=".",

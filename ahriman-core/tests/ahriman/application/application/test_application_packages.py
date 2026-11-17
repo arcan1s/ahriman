@@ -167,7 +167,7 @@ def test_add_add_archive(application_packages: ApplicationPackages, package_ahri
     """
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_archive")
 
-    application_packages.add([package_ahriman.base], PackageSource.Archive, "packager")
+    application_packages.add([package_ahriman.base], PackageSource.ARCHIVE, "packager")
     add_mock.assert_called_once_with(package_ahriman.base, "packager")
 
 
@@ -189,7 +189,7 @@ def test_add_add_directory(application_packages: ApplicationPackages, package_ah
     """
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_directory")
 
-    application_packages.add([package_ahriman.base], PackageSource.Directory, "packager")
+    application_packages.add([package_ahriman.base], PackageSource.DIRECTORY, "packager")
     add_mock.assert_called_once_with(package_ahriman.base, "packager")
 
 
@@ -200,7 +200,7 @@ def test_add_add_local(application_packages: ApplicationPackages, package_ahrima
     """
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_local")
 
-    application_packages.add([package_ahriman.base], PackageSource.Local, "packager")
+    application_packages.add([package_ahriman.base], PackageSource.LOCAL, "packager")
     add_mock.assert_called_once_with(package_ahriman.base, "packager")
 
 
@@ -212,7 +212,7 @@ def test_add_add_remote(application_packages: ApplicationPackages, package_descr
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_remote")
     url = f"https://host/{package_description_ahriman.filename}"
 
-    application_packages.add([url], PackageSource.Remote, "packager")
+    application_packages.add([url], PackageSource.REMOTE, "packager")
     add_mock.assert_called_once_with(url, "packager")
 
 

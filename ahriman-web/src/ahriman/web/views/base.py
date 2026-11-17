@@ -32,7 +32,7 @@ from ahriman.core.status.watcher import Watcher
 from ahriman.core.utils import filter_json
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
-from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey, WorkersKey
+from ahriman.web.keys import AUTH_KEY, CONFIGURATION_KEY, SPAWN_KEY, WATCHER_KEY, WORKERS_KEY
 
 
 T = TypeVar("T", str, list[str])
@@ -47,7 +47,7 @@ class BaseView(View, CorsViewMixin):
         ROUTES(list[str]): (class attribute) list of supported routes
     """
 
-    OPTIONS_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
+    OPTIONS_PERMISSION: ClassVar[UserAccess] = UserAccess.UNAUTHORIZED
     ROUTES: ClassVar[list[str]] = []
 
     @property
@@ -58,7 +58,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             Configuration: configuration instance
         """
-        return self.request.app[ConfigurationKey]
+        return self.request.app[CONFIGURATION_KEY]
 
     @property
     def services(self) -> dict[RepositoryId, Watcher]:
@@ -68,7 +68,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             dict[RepositoryId, Watcher]: map of loaded watchers per known repository
         """
-        return self.request.app[WatcherKey]
+        return self.request.app[WATCHER_KEY]
 
     @property
     def sign(self) -> GPG:
@@ -88,7 +88,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             Spawn: external process spawner instance
         """
-        return self.request.app[SpawnKey]
+        return self.request.app[SPAWN_KEY]
 
     @property
     def validator(self) -> Auth:
@@ -98,7 +98,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             Auth: authorization service instance
         """
-        return self.request.app[AuthKey]
+        return self.request.app[AUTH_KEY]
 
     @property
     def workers(self) -> WorkersCache:
@@ -108,7 +108,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             WorkersCache: workers service
         """
-        return self.request.app[WorkersKey]
+        return self.request.app[WORKERS_KEY]
 
     @classmethod
     async def get_permission(cls, request: Request) -> UserAccess:
@@ -122,7 +122,7 @@ class BaseView(View, CorsViewMixin):
             UserAccess: extracted permission
         """
         method = "GET" if (other := request.method.upper()) == "HEAD" else other
-        permission: UserAccess = getattr(cls, f"{method}_PERMISSION", UserAccess.Full)
+        permission: UserAccess = getattr(cls, f"{method}_PERMISSION", UserAccess.FULL)
         return permission
 
     @classmethod

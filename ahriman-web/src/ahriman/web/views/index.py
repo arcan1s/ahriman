@@ -53,7 +53,7 @@ class IndexView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.UNAUTHORIZED
     ROUTES = ["/", "/index.html"]
 
     async def get(self) -> Response:
