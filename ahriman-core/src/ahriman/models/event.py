@@ -61,7 +61,7 @@ class Event:
     """
 
     def __init__(self, event: str | EventType, object_id: str, message: str | None = None, created: int | None = None,
-                 **kwargs: Any):
+                 **kwargs: Any) -> None:
         """
         Args:
             event(str | EventType): event type

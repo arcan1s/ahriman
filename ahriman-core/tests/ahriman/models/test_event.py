@@ -44,10 +44,12 @@ def test_eq() -> None:
     must compare two events
     """
     event1 = Event("1", "1", "1", 1, key="value")
-    assert event1 == event1
 
-    event2 = Event("2", "2", "2", 2, key="value")
-    assert event1 != event2
+    event2 = Event("1", "1", "1", 1, key="value")
+    assert event1 == event2
+
+    event3 = Event("2", "2", "2", 2, key="value")
+    assert event1 != event3
 
 
 def test_eq_other() -> None:

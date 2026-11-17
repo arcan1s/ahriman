@@ -13,9 +13,9 @@ def test_info() -> None:
     """
     must generate info object for swagger
     """
-    info = _info()
-    assert info["title"] == "ahriman"
-    assert info["version"] == __version__
+    text = _info()
+    assert text["title"] == "ahriman"
+    assert text["version"] == __version__
 
 
 def test_security() -> None:

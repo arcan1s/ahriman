@@ -17,7 +17,7 @@ def test_routes() -> None:
     """
     must return correct routes
     """
-    assert BaseView.ROUTES == []
+    assert not BaseView.ROUTES
 
 
 def test_configuration(base: BaseView) -> None:

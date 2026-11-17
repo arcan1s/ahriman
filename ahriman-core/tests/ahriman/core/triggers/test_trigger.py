@@ -44,7 +44,7 @@ def test_configuration_schema_no_section(configuration: Configuration) -> None:
     """
     section = "abracadabra"
     configuration.set_option("report", "target", section)
-    assert ReportTrigger.configuration_schema(configuration) == {}
+    assert not ReportTrigger.configuration_schema(configuration)
 
 
 def test_configuration_schema_no_schema(configuration: Configuration) -> None:
@@ -55,7 +55,7 @@ def test_configuration_schema_no_schema(configuration: Configuration) -> None:
     configuration.set_option("report", "target", section)
     configuration.set_option(section, "key", "value")
 
-    assert ReportTrigger.configuration_schema(configuration) == {}
+    assert not ReportTrigger.configuration_schema(configuration)
 
 
 def test_configuration_schema_empty() -> None:
@@ -69,14 +69,14 @@ def test_configuration_schema_variables() -> None:
     """
     must return empty schema
     """
-    assert Trigger.CONFIGURATION_SCHEMA == {}
+    assert not Trigger.CONFIGURATION_SCHEMA
 
 
 def test_configuration_sections(configuration: Configuration) -> None:
     """
     must return empty section list
     """
-    assert Trigger.configuration_sections(configuration) == []
+    assert not Trigger.configuration_sections(configuration)
 
 
 def test_on_result(trigger: Trigger) -> None:

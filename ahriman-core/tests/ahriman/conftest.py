@@ -107,10 +107,10 @@ def passwd() -> MagicMock:
     Returns:
         MagicMock: passwd structure test instance
     """
-    passwd = MagicMock()
-    passwd.pw_dir = "home"
-    passwd.pw_name = "ahriman"
-    return passwd
+    mock = MagicMock()
+    mock.pw_dir = "home"
+    mock.pw_name = "ahriman"
+    return mock
 
 
 @pytest.fixture

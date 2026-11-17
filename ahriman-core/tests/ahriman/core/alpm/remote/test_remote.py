@@ -76,7 +76,7 @@ def test_multisearch_empty(pacman: Pacman, mocker: MockerFixture) -> None:
     terms = ["it", "is"]
     search_mock = mocker.patch("ahriman.core.alpm.remote.Remote.package_search")
 
-    assert Remote.multisearch(*terms, pacman=pacman) == []
+    assert not Remote.multisearch(*terms, pacman=pacman)
     search_mock.assert_not_called()
 
 

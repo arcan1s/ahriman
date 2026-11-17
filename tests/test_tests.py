@@ -27,8 +27,7 @@ def _test_path(source_root: Path, source_file: Path) -> Path:
         case ("ahriman", "web", "views", *_, source_name):
             if source_name.endswith("_guard.py"):
                 return relative_path.parent / f"test_{source_name}"
-            else:
-                return relative_path.parent / f"test_view_{source_name}"
+            return relative_path.parent / f"test_view_{source_name}"
         case (*_, source_name) if source_name.startswith("__"):
             return relative_path.parent / f"test_{source_name.replace("__", "")}"
         case _:

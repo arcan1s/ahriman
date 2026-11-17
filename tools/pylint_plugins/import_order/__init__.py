@@ -206,13 +206,12 @@ class ImportOrder(BaseRawFileChecker):
         Args:
             node(nodes.Module): module node to check
         """
-        root_module, *_ = node.qname().split(".")
         contexts: dict[tuple[nodes.NodeNG, str], list[nodes.Import | nodes.ImportFrom]] = {}
         for statement in self.imports(node.values()):
             contexts.setdefault(self.import_context(statement), []).append(statement)
 
         for imports in contexts.values():
-            self.check_imports(imports, root_module)
+            self.check_imports(imports, self.linter.config.root_module)
 
 
 def register(linter: PyLinter) -> None:

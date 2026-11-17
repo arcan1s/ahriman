@@ -8,6 +8,7 @@ load-plugins = [
     "pylint.extensions.typing",
     "pylint_plugins.definition_order",
     "pylint_plugins.import_order",
+    "pylint_plugins.type_annotations",
 ]
 
 [tool.pylint.classes]

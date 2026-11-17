@@ -1,7 +1,7 @@
 import pytest
 
-from ahriman.core.alpm.pacman_database import PacmanDatabase
 from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.pacman_database import PacmanDatabase
 from ahriman.core.configuration import Configuration
 
 

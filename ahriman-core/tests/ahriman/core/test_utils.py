@@ -11,7 +11,6 @@ from unittest.mock import MagicMock, call as MockCall
 from ahriman.core.exceptions import BuildError, CalledProcessError, OptionError, UnsafeRunError
 from ahriman.core.utils import *
 from ahriman.models.package import Package
-from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 

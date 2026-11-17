@@ -78,7 +78,7 @@ async def test_shutdown_queue_full(event_bus: EventBus, package_ahriman: Package
     must handle shutdown when queue is full
     """
     event_bus.max_size = 1
-    _, queue = await event_bus.subscribe()
+    await event_bus.subscribe()
 
     await event_bus.broadcast(EventType.PACKAGE_UPDATED, package_ahriman.base)
     await event_bus.shutdown()

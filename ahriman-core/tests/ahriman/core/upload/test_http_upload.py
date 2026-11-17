@@ -33,4 +33,4 @@ def test_get_hashes_empty() -> None:
     """
     must read empty body
     """
-    assert HttpUpload.get_hashes("") == {}
+    assert not HttpUpload.get_hashes("")

@@ -55,7 +55,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     join_mock.assert_called_once_with()
 
 
-def test_extract_arguments(args: argparse.Namespace, configuration: Configuration):
+def test_extract_arguments(args: argparse.Namespace, configuration: Configuration) -> None:
     """
     must extract correct args
     """
@@ -87,7 +87,7 @@ def test_extract_arguments(args: argparse.Namespace, configuration: Configuratio
     assert list(Web.extract_arguments(probe, configuration)) == expected
 
 
-def test_extract_arguments_full(parser: argparse.ArgumentParser, configuration: Configuration):
+def test_extract_arguments_full(parser: argparse.ArgumentParser, configuration: Configuration) -> None:
     """
     must extract all available args except for blacklisted
     """

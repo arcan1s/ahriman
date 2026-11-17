@@ -1,8 +1,8 @@
 import logging
 import pytest
 
-from unittest.mock import AsyncMock, MagicMock
 from typing import Any
+from unittest.mock import AsyncMock, MagicMock
 
 from ahriman.web.middlewares.request_id_handler import request_id_handler
 

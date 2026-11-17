@@ -8,8 +8,8 @@ from ahriman.application.application import Application
 from ahriman.application.handlers.update import Update
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
-from ahriman.models.package import Package
 from ahriman.models.build_plan import BuildPlan, BuildPlanReason
+from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 

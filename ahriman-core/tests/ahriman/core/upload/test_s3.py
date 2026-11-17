@@ -8,7 +8,7 @@ from ahriman.core.upload.s3 import S3
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-_chunk_size = 8 * 1024 * 1024
+_CHUNK_SIZE = 8 * 1024 * 1024
 
 
 def test_object_path(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -34,7 +34,7 @@ def test_calculate_etag_big(resource_path_root: Path) -> None:
     must calculate checksum for path which is more than one chunk
     """
     path = resource_path_root / "models" / "big_file_checksum"
-    assert S3.calculate_etag(path, _chunk_size) == "3b15154eaeed22ae19ae4667d4b98d28-2"
+    assert S3.calculate_etag(path, _CHUNK_SIZE) == "3b15154eaeed22ae19ae4667d4b98d28-2"
 
 
 def test_calculate_etag_empty(resource_path_root: Path) -> None:
@@ -42,7 +42,7 @@ def test_calculate_etag_empty(resource_path_root: Path) -> None:
     must calculate checksum for empty file correctly
     """
     path = resource_path_root / "models" / "empty_file_checksum"
-    assert S3.calculate_etag(path, _chunk_size) == "d41d8cd98f00b204e9800998ecf8427e"
+    assert S3.calculate_etag(path, _CHUNK_SIZE) == "d41d8cd98f00b204e9800998ecf8427e"
 
 
 def test_calculate_etag_small(resource_path_root: Path) -> None:
@@ -50,7 +50,7 @@ def test_calculate_etag_small(resource_path_root: Path) -> None:
     must calculate checksum for path which is single chunk
     """
     path = resource_path_root / "models" / "package_ahriman_pkgbuild"
-    assert S3.calculate_etag(path, _chunk_size) == "7136fc388980dc043f9f869d57c5ce0c"
+    assert S3.calculate_etag(path, _CHUNK_SIZE) == "7136fc388980dc043f9f869d57c5ce0c"
 
 
 def test_files_remove(s3_remote_objects: list[Any]) -> None:
@@ -78,7 +78,6 @@ def test_files_upload(s3: S3, s3_remote_objects: list[Any], mocker: MockerFixtur
         Path(item.key[:-1] + item.key[-1].replace("a", "d")): item.e_tag.replace("b", "d").replace("\"", "")
         for item in s3_remote_objects
     }
-    print(local_files)
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
 
     mocker.patch("mimetypes.guess_type", side_effect=mimetype)

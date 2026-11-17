@@ -147,7 +147,7 @@ def test_symlinks_fix_foreign_repository(archive_tree: ArchiveTree, mocker: Mock
     ])
     remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
 
-    assert list(archive_tree.symlinks_fix()) == []
+    assert not list(archive_tree.symlinks_fix())
     remove_mock.assert_not_called()
 
 

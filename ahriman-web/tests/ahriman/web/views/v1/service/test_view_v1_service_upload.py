@@ -42,7 +42,7 @@ def test_routes_dynamic_not_found(configuration: Configuration) -> None:
     must disable upload route if option is not set
     """
     configuration.set_option("web", "enable_archive_upload", "no")
-    assert UploadView.routes(configuration) == []
+    assert not UploadView.routes(configuration)
 
 
 async def test_save_file(mocker: MockerFixture) -> None:

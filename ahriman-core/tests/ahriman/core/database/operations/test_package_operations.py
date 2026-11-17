@@ -144,7 +144,7 @@ def test_package_remove(database: SQLite, package_ahriman: Package, mocker: Mock
                                                  database._repository_id)
 
 
-def test_package_update(database: SQLite, package_ahriman: Package, mocker: MockerFixture):
+def test_package_update(database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must update package status
     """

@@ -98,7 +98,7 @@ def test_headers() -> None:
     """
     must return empty additional headers
     """
-    assert SyncHttpClient().headers() == {}
+    assert not SyncHttpClient().headers()
 
 
 def test_make_request(mocker: MockerFixture) -> None:

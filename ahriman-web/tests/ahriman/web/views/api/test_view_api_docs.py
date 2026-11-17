@@ -36,7 +36,7 @@ def test_routes_dynamic_not_found(configuration: Configuration, mocker: MockerFi
     must disable docs route if no apispec package found
     """
     mocker.patch("ahriman.web.views.api.docs.aiohttp_apispec", None)
-    assert DocsView.routes(configuration) == []
+    assert not DocsView.routes(configuration)
 
 
 async def test_get(client: TestClient) -> None:

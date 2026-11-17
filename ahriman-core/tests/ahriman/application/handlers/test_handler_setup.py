@@ -244,7 +244,7 @@ def test_configuration_create_directory(configuration: Configuration, mocker: Mo
     """
     must create writable directory for includes
     """
-    configuration.set_option("settings", "include", f"/path1 /path2 /path3")
+    configuration.set_option("settings", "include", "/path1 /path2 /path3")
     mkdir_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.ensure_exists",
                               side_effect=[OSError, "/path2", "/path3"])
     access_mock = mocker.patch("os.access", side_effect=[False, True])

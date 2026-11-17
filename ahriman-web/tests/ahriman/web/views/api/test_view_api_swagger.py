@@ -106,7 +106,7 @@ def test_routes_dynamic_not_found(configuration: Configuration, mocker: MockerFi
     must disable openapi route if no apispec package found
     """
     mocker.patch("ahriman.web.views.api.swagger.aiohttp_apispec", None)
-    assert SwaggerView.routes(configuration) == []
+    assert not SwaggerView.routes(configuration)
 
 
 async def test_get(client: TestClient, mocker: MockerFixture) -> None:

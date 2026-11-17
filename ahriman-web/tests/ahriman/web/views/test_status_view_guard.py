@@ -16,4 +16,4 @@ def test_routes_empty(configuration: Configuration) -> None:
     """
     StatusViewGuard.ROUTES = ["route1", "route2"]
     configuration.set_option("web", "service_only", "yes")
-    assert StatusViewGuard.routes(configuration) == []
+    assert not StatusViewGuard.routes(configuration)

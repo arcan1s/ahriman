@@ -1,6 +1,5 @@
-import smtplib
-
 import pytest
+import smtplib
 
 from pytest_mock import MockerFixture
 

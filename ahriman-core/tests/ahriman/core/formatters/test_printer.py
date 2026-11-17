@@ -69,7 +69,7 @@ def test_properties() -> None:
     """
     must return empty properties list
     """
-    assert Printer().properties() == []
+    assert not Printer().properties()
 
 
 def test_title() -> None:

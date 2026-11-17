@@ -27,7 +27,7 @@ def package_creator(configuration: Configuration, mirrorlist_generator: Mirrorli
 
     Args:
         configuration(Configuration): configuration fixture
-        mirrorlist_generator(MirrorlistGenerator):
+        mirrorlist_generator(MirrorlistGenerator): mirrorlist pkgbuild generator fixture
 
     Returns:
         PackageCreator: package creator test instance

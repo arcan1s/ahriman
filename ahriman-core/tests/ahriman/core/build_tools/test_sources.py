@@ -61,7 +61,7 @@ def test_extend_architectures_any(mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.is_file", return_value=True)
     mocker.patch("ahriman.models.pkgbuild.Pkgbuild.supported_architectures", return_value={"any"})
-    assert Sources.extend_architectures(Path("local"), "i686") == []
+    assert not Sources.extend_architectures(Path("local"), "i686")
 
 
 def test_fetch_empty(remote_source: RemoteSource, mocker: MockerFixture) -> None:
@@ -347,7 +347,7 @@ def test_add_skip(sources: Sources, mocker: MockerFixture) -> None:
     check_output_mock.assert_not_called()
 
 
-def test_add_force(sources: Sources, tmp_path: Path, mocker: MockerFixture) -> None:
+def test_add_force(sources: Sources, mocker: MockerFixture) -> None:
     """
     must add files to git with --force flag
     """

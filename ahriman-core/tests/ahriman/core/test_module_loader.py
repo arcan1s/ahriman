@@ -1,6 +1,6 @@
-import ahriman.web.views
-
 from pathlib import Path
+
+import ahriman.web.views
 
 from ahriman.core.module_loader import _modules, implementations, optional_module
 from ahriman.web.views.base import BaseView

@@ -75,7 +75,7 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
         mock.packages_full = [package_base]
         return mock
 
-    def get_package(name: str | Path, *args: Any, **kwargs: Any) -> Package:
+    def get_package(name: str | Path, *_args: Any, **_kwargs: Any) -> Package:
         name = name if isinstance(name, str) else name.name
         return packages[name]
 

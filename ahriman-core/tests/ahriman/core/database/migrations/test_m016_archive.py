@@ -1,5 +1,3 @@
-import pytest
-
 from dataclasses import replace
 from pathlib import Path
 from pytest_mock import MockerFixture
@@ -38,7 +36,7 @@ def test_move_packages(repository_paths: RepositoryPaths, package_ahriman: Packa
     must move packages to the archive directory
     """
 
-    def is_file(self: Path, *args: Any, **kwargs: Any) -> bool:
+    def is_file(self: Path, **_: Any) -> bool:
         return "file" in self.name
 
     mocker.patch("pathlib.Path.iterdir", return_value=[

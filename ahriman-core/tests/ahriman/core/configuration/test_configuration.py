@@ -1,6 +1,6 @@
 import configparser
-import pytest
 import os
+import pytest
 
 from io import StringIO
 from pathlib import Path

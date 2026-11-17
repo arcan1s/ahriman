@@ -149,6 +149,31 @@ commands = [
         "{[project]name}",
     ],
     [
+        "pylint",
+        { replace = "ref", of = ["flags", "pylint"], extend = true },
+        "--disable",
+        """broad-exception-raised,\
+consider-using-f-string,\
+consider-using-from-import,\
+import-error,\
+methods-out-of-order,\
+no-member,\
+protected-access,\
+redefined-outer-name,\
+too-many-lines,\
+too-many-locals,\
+too-many-return-statements,\
+unnecessary-dunder-call,\
+unused-wildcard-import,\
+wildcard-import""",
+        "--recursive",
+        "y",
+        "ahriman-core/tests/{[project]name}",
+        "ahriman-triggers/tests/{[project]name}",
+        "ahriman-web/tests/{[project]name}",
+        "tests",
+    ],
+    [
         "bandit",
         { replace = "ref", of = ["flags", "bandit"], extend = true },
         "--recursive",
@@ -165,6 +190,7 @@ commands = [
         "ahriman-core/tests/{[project]name}",
         "ahriman-triggers/tests/{[project]name}",
         "ahriman-web/tests/{[project]name}",
+        "tests",
     ],
     [
         "mypy",

@@ -54,10 +54,12 @@ def test_eq(package_ahriman: Package) -> None:
     must compare two plans
     """
     plan1 = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
-    assert plan1 == plan1
 
-    plan2 = BuildPlan().update([package_ahriman], BuildPlanReason.MANUAL_REQUEST)
-    assert plan1 != plan2
+    plan2 = BuildPlan().update([package_ahriman], BuildPlanReason.REGULAR_UPDATE)
+    assert plan1 == plan2
+
+    plan3 = BuildPlan().update([package_ahriman], BuildPlanReason.MANUAL_REQUEST)
+    assert plan1 != plan3
 
 
 def test_eq_other() -> None:
