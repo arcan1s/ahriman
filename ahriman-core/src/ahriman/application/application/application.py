@@ -173,8 +173,7 @@ class Application(ApplicationPackages, ApplicationRepository):
                     continue
 
             # update existing package
-            item = plan.item(package.base)
-            plan.add(packages.pop(package.base), item.reason, item.requester)
+            plan.add(packages.pop(package.base))
             # append dependencies
             plan.update(packages.values(), BuildPlanReason.RequiredBy, package.base)
 

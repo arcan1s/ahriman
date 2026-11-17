@@ -144,7 +144,7 @@ def test_with_dependencies_split(application: Application, package_ahriman: Pack
 
     plan = BuildPlan().update([
         package("ahriman", "ahriman", ["ahriman-core", "ahriman-web"])
-    ], BuildPlanReason.QueuedRequest)
+    ], BuildPlanReason.ManualRequest)
     result = application.with_dependencies(plan, process_dependencies=True)
     assert [[item.base for item in level] for level in Tree.resolve(result)] == [
         ["python-tree-sitter-bash"], ["ahriman"],
@@ -152,7 +152,7 @@ def test_with_dependencies_split(application: Application, package_ahriman: Pack
 
     plan_item = result.item("ahriman")
     assert plan_item.package.packages.keys() == {"ahriman", "ahriman-core", "ahriman-web"}
-    assert plan_item.reason == BuildPlanReason.QueuedRequest
+    assert plan_item.reason == BuildPlanReason.ManualRequest
     assert plan_item.requester is None
 
 

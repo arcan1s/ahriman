@@ -202,12 +202,12 @@ class ApplicationRepository(ApplicationProperties):
         # always add already built packages, because they will be always added
         plan.update(self.repository.load_archives(self.repository.packages_built()), BuildPlanReason.PreBuilt)
 
+        if manual:
+            plan.update(self.repository.updates_manual(), BuildPlanReason.ManualRequest)
         if aur:
             plan.update(self.repository.updates_aur(filter_packages, vcs=vcs), BuildPlanReason.RegularUpdate)
         if local:
             plan.update(self.repository.updates_local(vcs=vcs), BuildPlanReason.LocalSourceUpdate)
-        if manual:
-            plan.update(self.repository.updates_manual(), BuildPlanReason.QueuedRequest)
         if check_files:
             plan.update(self.repository.updates_dependencies(filter_packages), BuildPlanReason.BrokenImplicitDependency)
 
