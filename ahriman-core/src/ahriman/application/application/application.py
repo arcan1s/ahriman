@@ -170,6 +170,8 @@ class Application(ApplicationPackages, ApplicationRepository):
                     packages = new_packages(package)
                 except Exception:
                     self.logger.exception("could not process dependencies of %s, skip the package", package.base)
+                    plan.remove(package.base)
+                    self.reporter.set_failed(package.base)
                     continue
 
             # update existing package

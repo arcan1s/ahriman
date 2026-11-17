@@ -125,6 +125,15 @@ class BuildPlan(Iterable[Package]):
         """
         return self._items[package_base]
 
+    def remove(self, package_base: str) -> None:
+        """
+        remove a package from the plan
+
+        Args:
+            package_base(str): package base to remove
+        """
+        del self._items[package_base]
+
     def update(self, packages: Iterable[Package], reason: BuildPlanReason = BuildPlanReason.MANUAL_REQUEST,
                requester: str | None = None) -> Self:
         """

@@ -68,7 +68,7 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
     """
     must append list of missing dependencies
     """
-    def create_package_mock(package_base) -> MagicMock:
+    def package(package_base: str) -> MagicMock:
         mock = MagicMock()
         mock.base = package_base
         mock.depends_build = []
@@ -88,8 +88,8 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
     packages = {
         package_ahriman.base: package_ahriman,
         package_python_schedule.base: package_python_schedule,
-        "python": create_package_mock("python"),
-        "python-installer": create_package_mock("python-installer"),
+        "python": package("python"),
+        "python-installer": package("python-installer"),
     }
 
     mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=lambda p: p.name == "python")
@@ -124,12 +124,12 @@ def test_with_dependencies_split(application: Application, package_ahriman: Pack
     """
     must preserve resolved subpackages during dependency resolution
     """
-    def package(base: str, name: str, dependencies: list[str]) -> Package:
+    def package(package_base: str, package_name: str, dependencies: list[str]) -> Package:
         return Package(
-            base=base,
+            base=package_base,
             version="1-1",
             remote=package_ahriman.remote,
-            packages={name: PackageDescription(depends=dependencies)},
+            packages={package_name: PackageDescription(depends=dependencies)},
         )
 
     packages = {
@@ -161,7 +161,7 @@ def test_with_dependencies_exception(application: Application, package_ahriman: 
     """
     must skip packages if exception occurs
     """
-    def create_package_mock(package_base) -> MagicMock:
+    def package(package_base: str) -> MagicMock:
         mock = MagicMock()
         mock.base = package_base
         mock.depends_build = []
@@ -171,26 +171,28 @@ def test_with_dependencies_exception(application: Application, package_ahriman: 
     package_python_schedule.packages = {
         package_python_schedule.base: package_python_schedule.packages[package_python_schedule.base]
     }
-    package_ahriman.packages[package_ahriman.base].depends = ["devtools", "python", package_python_schedule.base]
+    package_ahriman.packages[package_ahriman.base].depends = ["devtools", package_python_schedule.base]
     package_ahriman.packages[package_ahriman.base].make_depends = ["python-build", "python-installer"]
+    package_python_installer = package("python-installer")
 
     packages = {
         package_ahriman.base: package_ahriman,
         package_python_schedule.base: package_python_schedule,
-        "python": create_package_mock("python"),
-        "python-installer": create_package_mock("python-installer"),
+        "python": package("python"),
+        "python-installer": package_python_installer,
     }
 
     mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=lambda p: p.name == "python")
     mocker.patch("ahriman.models.package.Package.from_aur", side_effect=lambda *args: packages[args[0]])
     mocker.patch("ahriman.models.package.Package.from_build", side_effect=Exception)
     mocker.patch("ahriman.application.application.Application._known_packages",
-                 return_value={"devtools", "python-build", "python-pytest"})
+                 return_value={"devtools", "python-build"})
+    failed_mock = mocker.patch("ahriman.core.status.Client.set_failed")
 
-    plan = BuildPlan()
-    plan.add(package_ahriman, BuildPlanReason.REGULAR_UPDATE)
-    assert application.with_dependencies(plan, process_dependencies=True) is plan
-    assert plan.packages == [package_ahriman]
+    plan = BuildPlan().update([package_ahriman, package_python_installer], BuildPlanReason.REGULAR_UPDATE)
+    application.with_dependencies(plan, process_dependencies=True)
+    assert plan.packages == [package_python_installer]
+    failed_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_with_dependencies_skip(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:

@@ -27,6 +27,20 @@ def test_add_preserves_first_reason(package_ahriman: Package) -> None:
     assert plan.item(package_ahriman.base) == BuildPlanItem(updated, BuildPlanReason.REGULAR_UPDATE, "requester1")
 
 
+def test_remove(package_ahriman: Package, package_python_schedule: Package) -> None:
+    """
+    must remove a package while preserving the remaining plan items
+    """
+    plan = BuildPlan().update([package_ahriman, package_python_schedule], BuildPlanReason.REGULAR_UPDATE)
+
+    plan.remove(package_ahriman.base)
+    assert package_ahriman not in plan
+    assert package_python_schedule in plan
+
+    plan.remove(package_python_schedule.base)
+    assert not plan
+
+
 def test_update(package_ahriman: Package) -> None:
     """
     must update instance with new packages
