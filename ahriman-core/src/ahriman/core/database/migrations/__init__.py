@@ -58,7 +58,7 @@ class Migrations(LazyLogging):
             configuration(Configuration): configuration instance
 
         Returns:
-            MigrationResult: current schema version
+            MigrationResult: schema versions before and after migration
         """
         return Migrations(connection, configuration).run()
 
@@ -144,8 +144,8 @@ class Migrations(LazyLogging):
         """
         perform migrations
 
-        Return:
-            MigrationResult: current schema version
+        Returns:
+            MigrationResult: schema versions before and after migration
         """
         migrations = self.migrations()
 

@@ -164,7 +164,7 @@ class Client:
             package_base(str): package base to retrieve
 
         Returns:
-            list[Dependencies]: package implicit dependencies if available
+            Dependencies: package implicit dependencies if available
 
         Raises:
             NotImplementedError: not implemented method

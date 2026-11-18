@@ -158,7 +158,7 @@ class Statistics(Handler):
         Args:
             event_type(str): event type
             events(list[Event]): list of events
-            chart_path(Path): path to save plot if any
+            chart_path(Path | None): path to save plot if any
         """
         # event statistics
         Statistics.event_stats(event_type, events)
@@ -175,7 +175,7 @@ class Statistics(Handler):
         Args:
             event_type(str): event type
             events(list[Event]): list of events
-            chart_path(Path): path to save plot if any
+            chart_path(Path | None): path to save plot if any
         """
         key: Callable[[Event], str] = lambda event: event.object_id
         by_object_id = {

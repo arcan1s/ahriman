@@ -45,7 +45,7 @@ class Application(ApplicationPackages, ApplicationRepository):
             >>> application.add(["ahriman"], PackageSource.AUR)
             >>>
             >>> # check for updates
-            >>> updates = application.updates([], aur=True, local=True, manual=True, vcs=True)
+            >>> updates = application.updates([], aur=True, local=True, manual=True, vcs=True, check_files=False)
             >>> # updates for specified packages
             >>> application.update(updates)
 

@@ -77,7 +77,7 @@ class UnsafeCommands(Handler):
         check if command is unsafe
 
         Args:
-            command(str): command to check
+            command(list[str]): command and arguments to check
             unsafe_commands(list[str]): list of unsafe commands
             parser(argparse.ArgumentParser): generated argument parser
         """

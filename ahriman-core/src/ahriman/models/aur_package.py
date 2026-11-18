@@ -69,11 +69,13 @@ class AURPackage:
             >>>
             >>> from ahriman.core.alpm.pacman import Pacman
             >>> from ahriman.core.configuration import Configuration
+            >>> from ahriman.models.pacman_synchronization import PacmanSynchronization
             >>> from ahriman.models.repository_id import RepositoryId
             >>>
             >>> configuration = Configuration()
-            >>> pacman = Pacman(RepositoryId("x86_64", "aur"), configuration)
-            >>> metadata = pacman.package_get("pacman")
+            >>> pacman = Pacman(RepositoryId("x86_64", "aur"), configuration,
+            >>>                 refresh_database=PacmanSynchronization.DISABLED)
+            >>> metadata = pacman.package("pacman")
             >>> package = AURPackage.from_pacman(next(metadata))  # load package from pyalpm wrapper
     """
 

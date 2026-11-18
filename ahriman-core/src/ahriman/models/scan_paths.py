@@ -41,7 +41,7 @@ class ScanPaths:
         compiled regular expressions
 
         Returns:
-            list[re.Pattern]: a list of compiled regular expressions
+            list[re.Pattern[str]]: a list of compiled regular expressions
         """
         return [re.compile(path) for path in self.paths]
 

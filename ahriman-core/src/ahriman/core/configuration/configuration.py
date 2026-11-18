@@ -134,7 +134,7 @@ class Configuration(configparser.RawConfigParser):
         repository identifier
 
         Returns:
-            RepositoryId: repository unique identifier
+            RepositoryId | None: repository unique identifier
         """
         return self._repository_id
 

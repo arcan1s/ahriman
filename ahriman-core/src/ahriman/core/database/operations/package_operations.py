@@ -225,7 +225,7 @@ class PackageOperations(Operations):
 
         Args:
             package_base(str): package base name
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
             enabled(bool): new hold status
         """
         repository_id = repository_id or self._repository_id
@@ -248,7 +248,7 @@ class PackageOperations(Operations):
 
         Args:
             package_base(str): package base name
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
@@ -264,7 +264,7 @@ class PackageOperations(Operations):
 
         Args:
             package(Package): package properties
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
@@ -280,9 +280,9 @@ class PackageOperations(Operations):
         get package list and their build statuses from database
 
         Args:
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
 
-        Return:
+        Returns:
             list[tuple[Package, BuildStatus]]: list of package properties and their statuses
         """
         repository_id = repository_id or self._repository_id
@@ -303,7 +303,7 @@ class PackageOperations(Operations):
         Args:
             package_base(str): package base name
             status(BuildStatus): new build status
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 

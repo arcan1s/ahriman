@@ -109,7 +109,7 @@ class PkgbuildPatch:
 
         Args:
             key(str | None): variable key
-            source(str): source value string to parse
+            source(str | list[str]): source string to parse or list to use as is
 
         Returns:
             Self: parsed patch object

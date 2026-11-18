@@ -269,7 +269,7 @@ class WebClient(Client, SyncAhrimanClient):
             package_base(str): package base to retrieve
 
         Returns:
-            list[Dependencies]: package implicit dependencies if available
+            Dependencies: package implicit dependencies if available
         """
         with contextlib.suppress(Exception):
             response = self.make_request("GET", self._dependencies_url(package_base),

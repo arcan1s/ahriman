@@ -41,7 +41,7 @@ class UpdatesIterator(Iterator[list[str] | None]):
         Typical usage of this class is something like:
 
             >>> application = ...
-            >>> iterator = UpdatesIterator(application, None)
+            >>> iterator = UpdatesIterator(application, 3600)
             >>>
             >>> for updates in iterator:
             >>>     print(updates)

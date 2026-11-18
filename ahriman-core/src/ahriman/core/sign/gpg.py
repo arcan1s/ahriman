@@ -103,7 +103,7 @@ class GPG(SyncHttpClient):
             filepath(Path): path to the file which will be signed
 
         Returns:
-            str: path to signature file
+            Path: path to signature file
         """
         return filepath.parent / f"{filepath.name}.sig"
 

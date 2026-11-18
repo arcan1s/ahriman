@@ -15,7 +15,7 @@ def pacman_database(configuration: Configuration, pacman: Pacman) -> PacmanDatab
         pacman(Pacman): pacman test instance
 
     Returns:
-        DatabaseSync: database sync test instance
+        PacmanDatabase: pacman database test instance
     """
     database = next(iter(pacman.handle.get_syncdbs()))
     return PacmanDatabase(database, configuration)

@@ -36,10 +36,10 @@ class DependenciesOperations(Operations):
 
         Args:
             package_base(str | None): package base to search
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
 
         Returns:
-            Dependencies: dependencies for the package base if available
+            dict[str, Dependencies]: dependencies keyed by package base, optionally filtered by package base
         """
         repository_id = repository_id or self._repository_id
 
@@ -69,7 +69,7 @@ class DependenciesOperations(Operations):
         Args:
             package_base(str): package base
             dependencies(Dependencies): package dependencies
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
@@ -97,7 +97,7 @@ class DependenciesOperations(Operations):
 
         Args:
             package_base(str | None): optional filter by package base
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 

@@ -82,10 +82,10 @@ class RSS(Report, JinjaTemplate):
         sort content before rendering
 
         Args:
-            content(list[dict[str, str]]): content of the template
+            content(list[dict[str, Any]]): content of the template
 
         Returns:
-            list[dict[str, str]]: sorted content according to comparator defined
+            list[dict[str, Any]]: sorted content according to comparator defined
         """
         comparator: Callable[[dict[str, str]], Comparable] = \
             lambda item: parsedate_to_datetime(item["build_date"])

@@ -101,8 +101,8 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
 
     Args:
         *args(str): command line arguments
-        exception(Exception | Callable[[int, list[str], str, str]] | None, optional): exception which has to be raised
-            instead of default subprocess exception. If callable us is supplied, the
+        exception(Exception | Callable[[int, list[str], str, str], Exception] | None, optional): exception to raise
+            instead of the default subprocess exception. If a callable is supplied, the
             :exc:`subprocess.CalledProcessError` arguments will be passed (Default value = None)
         cwd(Path | None, optional): current working directory (Default value = None)
         input_data(str | None, optional): data which will be written to command stdin (Default value = None)

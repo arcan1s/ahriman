@@ -57,7 +57,7 @@ class RemoteService(Upload, HttpUpload):
         get or create session
 
         Returns:
-            request.Session: created session object
+            requests.Session: created session object
         """
         return self.client.session
 

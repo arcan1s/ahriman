@@ -86,7 +86,7 @@ class RepositoryProperties(EventLogger, LazyLogging):
             package_base(str): package base to lookup
 
         Returns:
-            User | None: user found in database if any and empty object otherwise
+            User: user found in database if any and empty user object otherwise
         """
         username = packagers.for_base(package_base)
         if username is None:  # none to search

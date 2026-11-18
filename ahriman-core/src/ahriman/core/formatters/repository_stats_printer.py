@@ -35,6 +35,7 @@ class RepositoryStatsPrinter(StringPrinter):
     def __init__(self, repository_id: RepositoryId, statistics: RepositoryStats) -> None:
         """
         Args:
+            repository_id(RepositoryId): repository unique identifier
             statistics(RepositoryStats): repository statistics
         """
         StringPrinter.__init__(self, str(repository_id))

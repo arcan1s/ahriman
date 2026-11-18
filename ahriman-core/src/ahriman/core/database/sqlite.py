@@ -116,7 +116,7 @@ class SQLite(
 
         Args:
             package_base(str): package base to remove
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
 
         Examples:
             This method completely removes the package from all tables and must be used, e.g. on package removal::

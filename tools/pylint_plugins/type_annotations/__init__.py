@@ -29,7 +29,7 @@ class MethodType(StrEnum):
 
     Attributes:
         CLASS_METHOD(MethodType): (class attribute) class method
-        METHOD(MethodType): (class attribute) class method
+        METHOD(MethodType): (class attribute) instance method
     """
     CLASS_METHOD = "classmethod"
     METHOD = "method"

@@ -66,7 +66,7 @@ class Operations(LazyLogging):
         dictionary factory based on official documentation
 
         Args:
-            cursor(Cursor): cursor descriptor
+            cursor(sqlite3.Cursor): cursor descriptor
             row(tuple[Any, ...]): fetched row
 
         Returns:
@@ -82,7 +82,7 @@ class Operations(LazyLogging):
         perform operation in connection
 
         Args:
-            query(Callable[[Connection], T]): function to be called with connection
+            query(Callable[[sqlite3.Connection], T]): function to be called with connection
             commit(bool, optional): if ``True`` commit() will be called on success (Default value = False)
 
         Returns:

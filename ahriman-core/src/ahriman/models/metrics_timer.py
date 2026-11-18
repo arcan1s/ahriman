@@ -38,9 +38,9 @@ class MetricsTimer:
 
             >>> with MetricsTimer() as timer:
             >>>     do_something()
-            >>>     print("Time elapsed for first function: %f", timer.elapsed)
+            >>>     print(f"Time elapsed for first function: {timer.elapsed:f}")
             >>>     do_something_different()
-            >>>     print("Time elapsed for all functions: %f", timer.elapsed)
+            >>>     print(f"Time elapsed for all functions: {timer.elapsed:f}")
     """
 
     def __init__(self) -> None:

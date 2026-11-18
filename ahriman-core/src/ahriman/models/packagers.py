@@ -27,7 +27,7 @@ class Packagers:
 
     Attributes:
         default(str | None): default packager username if any to be used if no override for the specified base was found
-        overrides: dict[str, str | None]: packager username override for specific package base
+        overrides(dict[str, str | None]): packager username override for specific package base
     """
 
     default: str | None = None

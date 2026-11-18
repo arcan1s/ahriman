@@ -151,7 +151,7 @@ class Watcher(LazyLogging):
             package_base(str): package base to retrieve
 
         Returns:
-            list[Dependencies]: package implicit dependencies if available
+            Dependencies: package implicit dependencies if available
         """
         return self.client.package_dependencies_get(package_base)
 

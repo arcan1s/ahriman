@@ -35,7 +35,7 @@ class BuildOperations(Operations):
 
         Args:
             package_base(str | None): optional filter by package base
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
@@ -57,9 +57,9 @@ class BuildOperations(Operations):
         retrieve packages from build queue
 
         Args:
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
 
-        Return:
+        Returns:
             list[Package]: list of packages to be built
         """
         repository_id = repository_id or self._repository_id
@@ -81,7 +81,7 @@ class BuildOperations(Operations):
 
         Args:
             package(Package): package to be inserted
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 

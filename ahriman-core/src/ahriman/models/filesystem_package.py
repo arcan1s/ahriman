@@ -34,7 +34,7 @@ class FilesystemPackage:
     Attributes:
         package_name(str): package name
         depends(set[str]): list of package dependencies
-        directories(set[Path]): list of directories this package contains
+        directories(list[Path]): list of directories this package contains
         files(list[Path]): list of files this package contains
         opt_depends(set[str]): list of package optional dependencies
     """
@@ -80,7 +80,8 @@ class FilesystemPackage:
             include_optional(bool): include optional dependencies to check
 
         Returns:
-            bool: whether this package depends on any other package in the list of packages
+            bool: ``True`` if this package has no dependencies among the supplied packages, ignoring packages
+            that have a required dependency on this package
         """
         return not any(
             package

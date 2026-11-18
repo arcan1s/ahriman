@@ -88,7 +88,7 @@ def _auth_handler(allow_read_only: bool) -> Middleware:
     authorization and authentication middleware
 
     Args:
-        allow_read_only: allow
+        allow_read_only(bool): allow read-only requests without authentication
 
     Returns:
         Middleware: built middleware

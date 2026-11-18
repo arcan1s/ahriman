@@ -81,7 +81,7 @@ class SyncHttpClient(LazyLogging):
         get or create session
 
         Returns:
-            request.Session: created session object
+            requests.Session: created session object
         """
         session = requests.Session()
 

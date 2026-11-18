@@ -90,6 +90,9 @@ class UpdatePrinter(StringPrinter):
         """
         generate version property
 
+        Args:
+            package(Package): package whose current and updated versions are shown
+
         Returns:
             tuple[str, str]: extract current and updated versions for the package
         """

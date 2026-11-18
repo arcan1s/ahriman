@@ -56,7 +56,7 @@ class RepositoryStats:
         construct statistics from list of repository packages
 
         Args:
-            packages(list[Packages]): list of repository packages
+            packages(list[Package]): list of repository packages
 
         Returns:
             Self: constructed statistics object

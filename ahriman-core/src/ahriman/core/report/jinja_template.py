@@ -107,10 +107,10 @@ class JinjaTemplate:
         sort content before rendering
 
         Args:
-            content(list[dict[str, str]]): content of the template
+            content(list[dict[str, Any]]): content of the template
 
         Returns:
-            list[dict[str, str]]: sorted content according to comparator defined
+            list[dict[str, Any]]: sorted content according to comparator defined
         """
         comparator: Callable[[dict[str, str]], Comparable] = lambda item: item["filename"]
         return sorted(content, key=comparator)
@@ -122,6 +122,9 @@ class JinjaTemplate:
         Args:
             result(Result): build result
             template_name(Path | str): name of the template or path to it (legacy configuration)
+
+        Returns:
+            str: rendered report
         """
         templates = self.templates[:]
         if isinstance(template_name, Path):

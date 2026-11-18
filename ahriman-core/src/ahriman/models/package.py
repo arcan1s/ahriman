@@ -44,8 +44,8 @@ class Package(LazyLogging):
     Attributes:
         base(str): package base name
         packager(str | None): package packager if available
-        packages(dict[str, PackageDescription): map of package names to their properties.
-            Filled only on load from archive
+        packages(dict[str, PackageDescription]): map of package names to their properties.
+            Available properties depend on the source used to load the package
         remote(RemoteSource): package remote source if applicable
         version(str): package full version
 
@@ -56,7 +56,7 @@ class Package(LazyLogging):
 
         it will contain every data available in the JSON body. Otherwise, if generate package from local archive::
 
-            >>> package = Package.from_archive(local_path, pacman)
+            >>> package = Package.from_archive(local_path)
 
         it will probably miss file descriptions (in case if there are multiple packages which belong to the base).
 

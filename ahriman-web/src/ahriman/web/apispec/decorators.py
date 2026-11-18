@@ -39,8 +39,8 @@ def _response_schema(response: Schema | type[Schema] | None, response_code: type
         response(Schema | type[Schema] | None): response schema type, set ``None`` for empty responses
         response_code(type[HTTPException] | None, optional): code for the success response. If none set it will be
             defined automatically (Default value = None)
-        error_400_enabled(bool, optional): include response for 404 codes (Default value = False)
-        error_403_enabled(bool, optional): include response for 403 codes (Default value = False)
+        error_400_enabled(bool, optional): include response for 400 codes (Default value = False)
+        error_403_enabled(bool, optional): include response for 403 codes (Default value = True)
         error_404_description(str | None, optional): description for 404 codes if available (Default value = None)
 
     Returns:
@@ -98,7 +98,7 @@ def apidocs(*,
         permission(UserAccess): permission to access endpoint
         response_code(type[HTTPException] | None, optional): code for the success response. If none set it will be
             defined automatically (Default value = None)
-        error_400_enabled(bool, optional): include response for 404 codes (Default value = False)
+        error_400_enabled(bool, optional): include response for 400 codes (Default value = False)
         error_404_description(str | None, optional): description for 404 codes if available (Default value = None)
         schema(Schema | type[Schema] | None): response schema type, set ``None`` for empty responses
             (Default value = None)

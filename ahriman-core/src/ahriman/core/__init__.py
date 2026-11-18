@@ -88,7 +88,7 @@ class _Context:
         iterate over keys in local storage
 
         Returns:
-            str: context key iterator
+            Iterator[str]: context key iterator
         """
         return iter(self._content)
 

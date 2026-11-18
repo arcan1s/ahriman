@@ -40,9 +40,9 @@ class LogsOperations(Operations):
             process_id(str | None, optional): process identifier to filter (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
 
-        Return:
+        Returns:
             list[LogRecord]: sorted package log records
         """
         repository_id = repository_id or self._repository_id
@@ -79,7 +79,7 @@ class LogsOperations(Operations):
 
         Args:
             log_record(LogRecord): log record object
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
@@ -106,7 +106,7 @@ class LogsOperations(Operations):
         Args:
             package_base(str): package base to remove logs
             version(str | None): package version. If set it will remove only logs belonging to another version
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
@@ -133,7 +133,7 @@ class LogsOperations(Operations):
 
         Args:
             keep_last_records(int): number of last records to keep
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 

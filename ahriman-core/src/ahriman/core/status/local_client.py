@@ -114,7 +114,7 @@ class LocalClient(Client):
             package_base(str): package base to retrieve
 
         Returns:
-            list[Dependencies]: package implicit dependencies if available
+            Dependencies: package implicit dependencies if available
         """
         return self.database.dependencies_get(package_base, self.repository_id).get(package_base, Dependencies())
 

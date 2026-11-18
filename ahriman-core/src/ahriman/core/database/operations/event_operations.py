@@ -42,7 +42,7 @@ class EventOperations(Operations):
             to_date(int | float | None, optional): maximal creation date, exclusive (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
 
         Returns:
             list[Event]: list of audit log events
@@ -84,7 +84,7 @@ class EventOperations(Operations):
 
         Args:
             event(Event): event to insert
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 

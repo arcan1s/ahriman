@@ -254,7 +254,7 @@ class PasswordError(ValueError):
     def __init__(self, details: Any) -> None:
         """
         Args:
-            details(Any); error details
+            details(Any): error details
         """
         ValueError.__init__(self, f"Password error: {details}")
 

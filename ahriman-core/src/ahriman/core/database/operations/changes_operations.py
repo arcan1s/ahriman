@@ -35,7 +35,7 @@ class ChangesOperations(Operations):
 
         Args:
             package_base(str): package base to search
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
 
         Returns:
             Changes: changes for the package base if available
@@ -69,7 +69,7 @@ class ChangesOperations(Operations):
         Args:
             package_base(str): package base to insert
             changes(Changes): package changes (as in patch format)
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
@@ -101,7 +101,7 @@ class ChangesOperations(Operations):
 
         Args:
             package_base(str | None): optional filter by package base
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 

@@ -83,7 +83,7 @@ def schema_request(handler: Callable[..., Awaitable[Any]], *, location: str = "j
     extract request schema from docs
 
     Args:
-        handler(Callable[[], Awaitable[Any]]): request handler
+        handler(Callable[..., Awaitable[Any]]): request handler
         location(str, optional): location of the request (Default value = "json")
 
     Returns:
@@ -99,7 +99,7 @@ def schema_response(handler: Callable[..., Awaitable[Any]], *, code: int = 200) 
     extract response schema from docs
 
     Args:
-        handler(Callable[[], Awaitable[Any]]): request handler
+        handler(Callable[..., Awaitable[Any]]): request handler
         code(int, optional): return code of the request (Default value = 200)
 
     Returns:

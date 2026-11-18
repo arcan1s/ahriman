@@ -182,7 +182,7 @@ class BuildPlan(Iterable[Package]):
         iterate over selected packages in stable package-base order
 
         Returns:
-            Package: selected package
+            Iterator[Package]: iterator over selected packages
         """
         return iter(self.packages)
 

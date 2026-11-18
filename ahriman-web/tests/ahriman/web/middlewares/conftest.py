@@ -16,7 +16,7 @@ def authorization_policy(configuration: Configuration, database: SQLite) -> _Aut
         database(SQLite): database fixture
 
     Returns:
-        AuthorizationPolicy: authorization policy fixture
+        _AuthorizationPolicy: authorization policy fixture
     """
     configuration.set_option("auth", "target", "configuration")
     validator = Auth.load(configuration, database)
