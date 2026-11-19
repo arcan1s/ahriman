@@ -18,8 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # pylint: disable=too-many-public-methods
-from __future__ import annotations
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum

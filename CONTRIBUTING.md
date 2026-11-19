@@ -147,9 +147,6 @@ Again, the most checks can be performed by `tox` command, though some additional
 * Import order must be the following:
 
     ```python
-    # optional imports from future module
-    from __future__ import annotations
-
     # Module import for those which are installed into environment (no matter standard library or not)...
     import os
     # ...one per line...
