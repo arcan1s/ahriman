@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import itertools
 
 from collections.abc import Callable
 
@@ -56,9 +57,9 @@ class Status(Handler):
             service_status = client.status_get()
             StatusPrinter(service_status.status)(verbose=args.info)
         if args.package:
-            packages: list[tuple[Package, BuildStatus]] = sum(
-                (client.package_get(base) for base in args.package),
-                start=[])
+            packages: list[tuple[Package, BuildStatus]] = list(
+                itertools.chain.from_iterable(client.package_get(base) for base in args.package)
+            )
         else:
             packages = client.package_get(None)
 

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import itertools
+
 from collections.abc import Callable
 from pathlib import Path
 
@@ -117,7 +119,7 @@ class KeyringGenerator(PkgbuildGenerator):
             source_path(Path): destination of the file content
         """
         with source_path.open("w", encoding="utf8") as source_file:
-            for key in sorted(set(self.trusted + self.packagers + self.revoked)):
+            for key in sorted(set(itertools.chain(self.trusted, self.packagers, self.revoked))):
                 public_key = self.sign.key_export(key)
                 source_file.write(public_key)
                 source_file.write("\n")

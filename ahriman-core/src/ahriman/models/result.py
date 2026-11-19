@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import itertools
+
 from collections.abc import Callable, Iterable
 from typing import Any, ClassVar, Self
 
@@ -100,7 +102,7 @@ class Result:
         Returns:
             list[Package]: list of packages with success result
         """
-        return list(self._added.values()) + list(self._updated.values())
+        return list(itertools.chain(self._added.values(), self._updated.values()))
 
     def add_added(self, package: Package) -> None:
         """

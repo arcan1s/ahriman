@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import itertools
 import re
 import sys
 
@@ -99,7 +100,7 @@ class Versions(Handler):
             keys.extend(portion)
             portion = {
                 key
-                for key in sum((list(dependencies_by_key(key)) for key in portion), start=[])
+                for key in itertools.chain.from_iterable(dependencies_by_key(key) for key in portion)
                 if key not in keys
             }
 

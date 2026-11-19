@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import itertools
 import uuid
 
 from collections.abc import Callable, Iterable
@@ -117,7 +118,7 @@ class Spawn(Thread, LazyLogging):
                 continue  # skip null values
             flag = f"--{argument}"
             if isinstance(value, list):
-                arguments.extend(list(sum(((flag, v) for v in value), ())))
+                arguments.extend(itertools.chain.from_iterable((flag, v) for v in value))
             elif value:
                 arguments.extend([flag, value])
             else:

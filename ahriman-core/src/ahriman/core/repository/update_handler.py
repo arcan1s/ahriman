@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import itertools
+
 from collections.abc import Iterable
 
 from ahriman.core.build_tools.package_version import PackageVersion
@@ -126,7 +128,7 @@ class UpdateHandler(PackageInfo, Cleaner):
             if not dependencies.paths:
                 continue  # skip check if no package dependencies found
 
-            required_packages = {dep for dep_packages in dependencies.paths.values() for dep in dep_packages}
+            required_packages = set(itertools.chain.from_iterable(dependencies.paths.values()))
             filesystem = extract_files(required_packages)
 
             for path, packages in dependencies.paths.items():

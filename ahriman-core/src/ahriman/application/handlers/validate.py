@@ -19,6 +19,7 @@
 #
 import argparse
 import copy
+import itertools
 
 from typing import Any
 
@@ -97,7 +98,7 @@ class Validate(Handler):
 
         # create trigger loader instance
         loader = TriggerLoader()
-        triggers = loader.selected_triggers(configuration) + loader.known_triggers(configuration)
+        triggers = itertools.chain(loader.selected_triggers(configuration), loader.known_triggers(configuration))
 
         for trigger in set(triggers):
             try:
