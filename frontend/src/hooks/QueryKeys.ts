@@ -27,7 +27,8 @@ export const QueryKeys = {
 
     dependencies: (packageBase: string, repository: RepositoryId) => ["dependencies", repository.key, packageBase] as const,
 
-    events: (repository: RepositoryId, objectId?: string) => ["events", repository.key, objectId] as const,
+    events: (repository: RepositoryId, objectId?: string, limit?: number) =>
+        ["events", repository.key, objectId, limit] as const,
 
     info: ["info"] as const,
 

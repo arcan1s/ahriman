@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { Box } from "@mui/material";
+import { Box, MenuItem, TextField } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useQuery } from "@tanstack/react-query";
 import EventDurationLineChart from "components/charts/EventDurationLineChart";
@@ -26,7 +26,7 @@ import { useClient } from "hooks/useClient";
 import type { Event } from "models/Event";
 import type { RepositoryId } from "models/RepositoryId";
 import type React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { DETAIL_TABLE_PROPS } from "utils";
 
 interface EventsTabProps {
@@ -49,11 +49,12 @@ const columns: GridColDef<EventRow>[] = [
 
 export default function EventsTab({ packageBase, repository }: EventsTabProps): React.JSX.Element {
     const client = useClient();
+    const [limit, setLimit] = useState(30);
 
     const { data: events = [] } = useQuery<Event[]>({
         enabled: !!packageBase,
-        queryFn: () => client.fetch.fetchPackageEvents(repository, packageBase, 30),
-        queryKey: QueryKeys.events(repository, packageBase),
+        queryFn: () => client.fetch.fetchPackageEvents(repository, packageBase, limit),
+        queryKey: QueryKeys.events(repository, packageBase, limit),
         refetchOnMount: "always",
     });
 
@@ -65,6 +66,15 @@ export default function EventsTab({ packageBase, repository }: EventsTabProps): 
     })), [events]);
 
     return <Box sx={{ mt: 1 }}>
+        <TextField
+            label="Show events"
+            onChange={event => setLimit(Number(event.target.value))}
+            select
+            size="small"
+            value={limit}
+        >
+            {[30, 100, 500].map(value => <MenuItem key={value} value={value}>Last {value} events</MenuItem>)}
+        </TextField>
         <EventDurationLineChart events={events} />
         <DataGrid columns={columns} rows={rows} {...DETAIL_TABLE_PROPS} />
     </Box>;
