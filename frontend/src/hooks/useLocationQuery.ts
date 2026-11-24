@@ -32,13 +32,18 @@ export function useLocationQuery(): string {
     return useSyncExternalStore(subscribe, getSnapshot);
 }
 
-export function packageHref(repositoryKey: string, packageBase: string | null): string {
+export function packageHref(values: Record<string, string | null | undefined>): string {
     const query = new URLSearchParams(window.location.search);
-    query.set("repository_id", repositoryKey);
-    if (packageBase) {
-        query.set("package", packageBase);
-    } else {
-        query.delete("package");
+    for (const [key, value] of Object.entries(values)) {
+        if (value) {
+            query.set(key, value);
+        } else {
+            query.delete(key);
+        }
+    }
+    if (values.package === null) {
+        query.delete("tab");
+        query.delete("process_id");
     }
     return `${window.location.pathname}?${query}`;
 }

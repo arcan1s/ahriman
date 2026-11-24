@@ -50,7 +50,7 @@ export function useTableState(): UseTableStateResult {
     const selectedPackage = currentRepository && packageBase ? packageBase : null;
     const setSelectedPackage = (base: string | null): void => {
         if (currentRepository) {
-            navigate(packageHref(currentRepository.key, base));
+            navigate(packageHref({ repository_id: currentRepository.key, package: base }));
         }
     };
     const [searchText, setSearchText] = useState("");

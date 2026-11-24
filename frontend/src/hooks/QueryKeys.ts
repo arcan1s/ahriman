@@ -33,8 +33,8 @@ export const QueryKeys = {
 
     logs: (packageBase: string, repository: RepositoryId) => ["logs", repository.key, packageBase] as const,
 
-    logsVersion: (packageBase: string, repository: RepositoryId, version: string, processId: string) =>
-        ["logs", repository.key, packageBase, version, processId] as const,
+    logsRun: (packageBase: string, repository: RepositoryId, processId: string) =>
+        ["logs", repository.key, packageBase, processId] as const,
 
     package: (packageBase: string, repository: RepositoryId) => ["packages", repository.key, packageBase] as const,
 

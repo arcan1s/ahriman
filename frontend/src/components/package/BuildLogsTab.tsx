@@ -19,12 +19,13 @@
  */
 import ListIcon from "@mui/icons-material/List";
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
-import { keepPreviousData, skipToken, useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import CodeBlock from "components/common/CodeBlock";
 import { QueryKeys } from "hooks/QueryKeys";
 import { useAutoScroll } from "hooks/useAutoScroll";
 import { useBuildLogStream } from "hooks/useBuildLogStream";
 import { useClient } from "hooks/useClient";
+import { navigate, packageHref, useLocationQuery } from "hooks/useLocationQuery";
 import type { LogRecord } from "models/LogRecord";
 import type { RepositoryId } from "models/RepositoryId";
 import React, { useEffect, useMemo, useState } from "react";
@@ -54,7 +55,8 @@ export default function BuildLogsTab({
 }: BuildLogsTabProps): React.JSX.Element {
     const client = useClient();
     useBuildLogStream(packageBase, repository);
-    const [selectedVersionKey, setSelectedVersionKey] = useState<string | null>(null);
+    const query = new URLSearchParams(useLocationQuery());
+    const selectedProcessId = query.get("process_id");
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
     const { data: allLogs } = useQuery<LogRecord[]>({
@@ -70,53 +72,47 @@ export default function BuildLogsTab({
             return [];
         }
 
-        const grouped: Record<string, LogRecord & { minCreated: number }> = {};
+        const grouped = new Map<string, LogRecord & { minCreated: number }>();
         for (const record of allLogs) {
-            const key = `${record.version}-${record.process_id}`;
-            const existing = grouped[key];
+            const key = record.process_id;
+            const existing = grouped.get(key);
             if (!existing) {
-                grouped[key] = { ...record, minCreated: record.created };
+                grouped.set(key, { ...record, minCreated: record.created });
             } else {
                 existing.minCreated = Math.min(existing.minCreated, record.created);
             }
         }
 
-        return Object.values(grouped)
+        return Array.from(grouped.values())
             .sort((left, right) => right.minCreated - left.minCreated)
             .map(record => ({
                 created: record.minCreated,
                 logs: convertLogs(
                     allLogs,
-                    right => record.version === right.version && record.process_id === right.process_id,
+                    right => record.process_id === right.process_id,
                 ),
                 processId: record.process_id,
                 version: record.version,
             }));
     }, [allLogs]);
 
-    // Compute active index from selected version key, defaulting to newest (index 0)
-    const activeIndex = useMemo(() => {
-        if (selectedVersionKey) {
-            const index = versions.findIndex(record => `${record.version}-${record.processId}` === selectedVersionKey);
-            if (index >= 0) {
-                return index;
-            }
-        }
-        return 0;
-    }, [versions, selectedVersionKey]);
+    const activeVersion = versions.find(run => run.processId === selectedProcessId);
+    const newestProcessId = versions[0]?.processId;
 
-    const activeVersion = versions[activeIndex];
-    const activeVersionKey = activeVersion ? `${activeVersion.version}-${activeVersion.processId}` : null;
+    useEffect(() => {
+        if (selectedProcessId === null && newestProcessId) {
+            navigate(packageHref({ process_id: newestProcessId }));
+        }
+    }, [selectedProcessId, newestProcessId]);
 
     // Refresh active version logs
     const { data: versionLogs } = useQuery<LogRecord[]>({
-        placeholderData: keepPreviousData,
         queryFn: activeVersion
             ? () => client.fetch.fetchPackageLogs(
-                packageBase, repository, activeVersion.version, activeVersion.processId,
+                packageBase, repository, activeVersion.processId,
             )
             : skipToken,
-        queryKey: QueryKeys.logsVersion(packageBase, repository, activeVersion?.version ?? "", activeVersion?.processId ?? ""),
+        queryKey: QueryKeys.logsRun(packageBase, repository, activeVersion?.processId ?? ""),
         refetchOnMount: "always",
     });
 
@@ -133,7 +129,7 @@ export default function BuildLogsTab({
     // Reset scroll tracking when active version changes
     useEffect(() => {
         resetScroll();
-    }, [activeVersionKey, resetScroll]);
+    }, [selectedProcessId, resetScroll]);
 
     // Scroll to bottom on new logs
     useEffect(() => {
@@ -153,17 +149,18 @@ export default function BuildLogsTab({
                 onClose={() => setAnchorEl(null)}
                 open={Boolean(anchorEl)}
             >
-                {versions.map((logs, index) =>
+                {versions.map(logs =>
                     <MenuItem
-                        key={`${logs.version}-${logs.processId}`}
+                        key={logs.processId}
                         onClick={() => {
-                            setSelectedVersionKey(`${logs.version}-${logs.processId}`);
+                            navigate(packageHref({ process_id: logs.processId }));
                             setAnchorEl(null);
-                            resetScroll();
                         }}
-                        selected={index === activeIndex}
+                        selected={logs === activeVersion}
                     >
-                        <Typography variant="body2">{new Date(logs.created * 1000).toISOStringShort()}</Typography>
+                        <Typography variant="body2">
+                            {logs.version} · {new Date(logs.created * 1000).toISOStringShort()}
+                        </Typography>
                     </MenuItem>,
                 )}
                 {versions.length === 0 &&
@@ -175,6 +172,9 @@ export default function BuildLogsTab({
         <Box sx={{ flex: 1 }}>
             <CodeBlock
                 content={displayedLogs}
+                downloadFilename={activeVersion
+                    ? `${packageBase}-${activeVersion.version}-${activeVersion.processId}.log`
+                    : undefined}
                 height={400}
                 onScroll={handleScroll}
                 preRef={preRef}

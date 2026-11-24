@@ -82,9 +82,9 @@ export function useBuildLogStream(packageBase: string, repository: RepositoryId)
                 existing => appendLogRecord(existing, record),
             );
 
-            // Append to the version-specific cache
+            // Append to the run-specific cache
             queryClient.setQueryData<LogRecord[]>(
-                ["logs", repository.key, packageBase, record.version, record.process_id],
+                ["logs", repository.key, packageBase, record.process_id],
                 existing => appendLogRecord(existing, record),
             );
         });

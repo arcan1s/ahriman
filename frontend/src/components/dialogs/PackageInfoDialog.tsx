@@ -33,12 +33,13 @@ import { type TabKey, tabs } from "components/package/TabKey";
 import { QueryKeys } from "hooks/QueryKeys";
 import { useAuth } from "hooks/useAuth";
 import { useClient } from "hooks/useClient";
+import { navigate, packageHref, useLocationQuery } from "hooks/useLocationQuery";
 import { useNotification } from "hooks/useNotification";
 import { useRepository } from "hooks/useRepository";
 import type { Dependencies } from "models/Dependencies";
 import type { PackageStatus } from "models/PackageStatus";
 import type { Patch } from "models/Patch";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StatusHeaderStyles } from "theme/StatusColors";
 
 interface PackageInfoDialogProps {
@@ -59,11 +60,17 @@ export default function PackageInfoDialog({
     const queryClient = useQueryClient();
 
     const localPackageBase = packageBase;
-    const [activeTab, setActiveTab] = useState<TabKey>("logs");
+    const requestedTab = new URLSearchParams(useLocationQuery()).get("tab");
+    const activeTab = tabs.find(tab => tab.key === requestedTab)?.key ?? "logs";
     const [refreshDatabase, setRefreshDatabase] = useState(true);
 
+    useEffect(() => {
+        if (open && requestedTab === null) {
+            navigate(packageHref({ tab: "logs" }));
+        }
+    }, [open, requestedTab]);
+
     const handleClose = (): void => {
-        setActiveTab("logs");
         setRefreshDatabase(true);
         onClose();
     };
@@ -167,7 +174,7 @@ export default function PackageInfoDialog({
             {localPackageBase && currentRepository &&
                 <>
                     <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 2 }}>
-                        <Tabs onChange={(_, tab: TabKey) => setActiveTab(tab)} value={activeTab}>
+                        <Tabs onChange={(_, tab: TabKey) => navigate(packageHref({ tab }))} value={activeTab}>
                             {tabs.map(({ key, label }) => <Tab key={key} label={label} value={key} />)}
                         </Tabs>
                     </Box>

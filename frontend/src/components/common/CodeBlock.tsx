@@ -19,15 +19,17 @@
  */
 import "components/common/syntaxLanguages";
 
-import { Box, useTheme } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
+import { Box, IconButton, Tooltip, useTheme } from "@mui/material";
 import CopyButton from "components/common/CopyButton";
 import { useThemeMode } from "hooks/useThemeMode";
-import React, { type RefObject } from "react";
+import React, { type RefObject, useEffect, useRef } from "react";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { githubGist, vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 interface CodeBlockProps {
     content: string;
+    downloadFilename?: string;
     height?: number | string;
     language?: string;
     onScroll?: () => void;
@@ -36,6 +38,7 @@ interface CodeBlockProps {
 
 export default function CodeBlock({
     content,
+    downloadFilename,
     height,
     language = "text",
     onScroll,
@@ -43,6 +46,17 @@ export default function CodeBlock({
 }: CodeBlockProps): React.JSX.Element {
     const { mode } = useThemeMode();
     const theme = useTheme();
+    const downloadRef = useRef<HTMLAnchorElement>(null);
+
+    useEffect(() => {
+        if (!downloadRef.current) {
+            return;
+        }
+
+        const url = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
+        downloadRef.current.href = url;
+        return () => URL.revokeObjectURL(url);
+    }, [content, downloadFilename]);
 
     return <Box sx={{ position: "relative" }}>
         <Box
@@ -63,8 +77,19 @@ export default function CodeBlock({
                 {content}
             </SyntaxHighlighter>
         </Box>
-        {content && <Box sx={{ position: "absolute", right: 8, top: 8 }}>
+        {content && <Box sx={{ display: "flex", position: "absolute", right: 8, top: 8 }}>
             <CopyButton text={content} />
+            {downloadFilename && <Tooltip title="Download">
+                <IconButton
+                    aria-label="Download"
+                    component="a"
+                    download={downloadFilename}
+                    ref={downloadRef}
+                    size="small"
+                >
+                    <DownloadIcon fontSize="small" />
+                </IconButton>
+            </Tooltip>}
         </Box>}
     </Box>;
 }

@@ -83,12 +83,14 @@ export default function PackageTable(): React.JSX.Element {
                 minWidth: 150,
                 renderCell: params =>
                     <Link
-                        href={packageHref(currentRepository?.key ?? "", params.row.base)}
+                        href={packageHref({ repository_id: currentRepository?.key, package: params.row.base })}
                         onClick={event => {
                             const modified = event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
                             if (event.button === 0 && !modified) {
                                 event.preventDefault();
-                                navigate(packageHref(currentRepository?.key ?? "", params.row.base));
+                                navigate(packageHref({
+                                    repository_id: currentRepository?.key, package: params.row.base,
+                                }));
                             }
                         }}
                         tabIndex={params.tabIndex}

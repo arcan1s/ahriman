@@ -75,14 +75,10 @@ export class FetchClient {
     async fetchPackageLogs(
         packageBase: string,
         repository: RepositoryId,
-        version?: string,
         processId?: string,
         head?: boolean,
     ): Promise<LogRecord[]> {
         const query: Record<string, string | boolean> = { ...repository.toQuery() };
-        if (version) {
-            query.version = version;
-        }
         if (processId) {
             query.process_id = processId;
         }

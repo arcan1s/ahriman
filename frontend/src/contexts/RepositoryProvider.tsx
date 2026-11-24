@@ -34,7 +34,7 @@ export function RepositoryProvider({ children }: { children: ReactNode }): React
     }, [repositories, repositoryKey]);
 
     const setCurrentRepository = useCallback((repository: RepositoryId) => {
-        navigate(packageHref(repository.key, null));
+        navigate(packageHref({ repository_id: repository.key, package: null }));
     }, []);
 
     const value = useMemo(() => ({
