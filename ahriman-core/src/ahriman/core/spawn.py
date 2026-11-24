@@ -22,7 +22,8 @@ import itertools
 import uuid
 
 from collections.abc import Callable, Iterable
-from multiprocessing import Process, Queue
+from multiprocessing import Process, get_context
+from multiprocessing.queues import Queue
 from threading import Lock, Thread
 
 from ahriman.core.log import LazyLogging
@@ -56,8 +57,7 @@ class Spawn(Thread, LazyLogging):
 
         self._lock = Lock()
         self.active: dict[str, Process] = {}
-        # stupid pylint does not know that it is possible
-        self.queue: Queue[ProcessStatus | None] = Queue()  # pylint: disable=unsubscriptable-object
+        self.queue: Queue[ProcessStatus | None] = get_context("spawn").Queue()
 
     @staticmethod
     def boolean_action_argument(name: str, value: bool) -> str:
@@ -75,7 +75,7 @@ class Spawn(Thread, LazyLogging):
 
     @staticmethod
     def process(callback: Callable[[argparse.Namespace, RepositoryId], bool], args: argparse.Namespace,
-                repository_id: RepositoryId, process_id: str, queue: Queue[ProcessStatus | None]) -> None:  # pylint: disable=unsubscriptable-object
+                repository_id: RepositoryId, process_id: str, queue: Queue[ProcessStatus | None]) -> None:
         """
         helper to run external process
 
