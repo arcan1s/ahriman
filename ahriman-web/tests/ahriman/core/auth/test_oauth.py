@@ -31,10 +31,11 @@ def test_get_provider() -> None:
     assert OAuth.get_provider("GithubClient") == aioauth_client.GithubClient
 
 
-def test_get_provider_not_a_type() -> None:
+def test_get_provider_not_a_type(mocker: MockerFixture) -> None:
     """
     must raise an exception if attribute is not a type
     """
+    mocker.patch.object(aioauth_client, "RANDOM", "not a type", create=True)
     with pytest.raises(OptionError):
         OAuth.get_provider("RANDOM")
 
