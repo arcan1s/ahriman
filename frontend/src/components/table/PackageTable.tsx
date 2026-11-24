@@ -103,13 +103,21 @@ export default function PackageTable(): React.JSX.Element {
             createListColumn("packages", "packages", { flex: 1, minWidth: 120 }),
             createListColumn("groups", "groups", { width: 150 }),
             createListColumn("licenses", "licenses", { width: 150 }),
-            { field: "packager", headerName: "packager", width: 150 },
+            {
+                field: "packager",
+                headerName: "packager",
+                type: "singleSelect",
+                valueOptions: [...new Set(table.rows.map(row => row.packager).filter(Boolean))].sort(),
+                width: 150,
+            },
             { align: "right", field: "timestamp", headerName: "last update", headerAlign: "right", width: 180 },
             {
                 align: "center",
                 field: "status",
                 headerAlign: "center",
                 headerName: "status",
+                type: "singleSelect",
+                valueOptions: [...new Set(table.rows.map(row => row.status))].sort(),
                 renderCell: params =>
                     <StatusCell isHeld={params.row.isHeld} status={params.row.status} />,
                 width: 120,
@@ -138,7 +146,7 @@ export default function PackageTable(): React.JSX.Element {
                 ],
             } satisfies GridColDef<PackageRow>] : [],
         ],
-        [currentRepository, handleRemove, handleUpdate, isAuthorized],
+        [currentRepository, handleRemove, handleUpdate, isAuthorized, table.rows],
     );
 
     return <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
