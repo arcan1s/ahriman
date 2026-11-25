@@ -11,7 +11,7 @@ async def test_get_permission() -> None:
     """
     must return correct permission for the request
     """
-    for method in ("GET", "POST"):
+    for method in ("GET", "POST", "DELETE"):
         request = pytest.helpers.request("", "", method)
         assert await EventsView.get_permission(request) == UserAccess.FULL
 
@@ -21,6 +21,41 @@ def test_routes() -> None:
     must return correct routes
     """
     assert EventsView.ROUTES == ["/api/v1/events"]
+
+
+async def test_delete(client: TestClient) -> None:
+    """
+    must rotate events keeping last record for each object
+    """
+    events = [
+        Event("event1", "object1", created=1),
+        Event("event2", "object1", created=2),
+        Event("event3", "object2", created=3),
+        Event("event4", "object2", created=4),
+    ]
+    for event in events:
+        await client.post("/api/v1/events", json=event.view())
+
+    request_schema = pytest.helpers.schema_request(EventsView.delete, location="querystring")
+    payload = {"keep_last_records": 1}
+    assert not request_schema.validate(payload)
+
+    response = await client.delete("/api/v1/events", params=payload)
+    assert response.status == 204
+
+    response = await client.get("/api/v1/events")
+    assert [Event.from_json(event) for event in await response.json()] == [events[1], events[3]]
+
+
+async def test_delete_bad_request(client: TestClient) -> None:
+    """
+    must return bad request for invalid query parameters
+    """
+    response_schema = pytest.helpers.schema_response(EventsView.delete, code=400)
+
+    response = await client.delete("/api/v1/events", params={"keep_last_records": "invalid"})
+    assert response.status == 400
+    assert not response_schema.validate(await response.json())
 
 
 async def test_get(client: TestClient) -> None:

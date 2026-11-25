@@ -116,6 +116,14 @@ ahriman.web.schemas.event\_search\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.events\_rotate\_schema module
+-------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.events_rotate_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.file\_schema module
 ---------------------------------------
 

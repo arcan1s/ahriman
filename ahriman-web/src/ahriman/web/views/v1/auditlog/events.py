@@ -23,7 +23,7 @@ from typing import ClassVar
 from ahriman.models.event import Event
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
-from ahriman.web.schemas import EventSchema, EventSearchSchema
+from ahriman.web.schemas import EventSchema, EventSearchSchema, EventsRotateSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -32,12 +32,39 @@ class EventsView(BaseView):
     audit log view
 
     Attributes:
+        DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = POST_PERMISSION = UserAccess.FULL  # type: ClassVar[UserAccess]
+    DELETE_PERMISSION = GET_PERMISSION = POST_PERMISSION = UserAccess.FULL  # type: ClassVar[UserAccess]
     ROUTES = ["/api/v1/events"]
+
+    @apidocs(
+        tags=["Audit log"],
+        summary="Rotate audit events",
+        description="Remove older events from the selected repository",
+        permission=DELETE_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Repository is unknown",
+        query_schema=EventsRotateSchema,
+    )
+    async def delete(self) -> None:
+        """
+        rotate events in storage
+
+        Raises:
+            HTTPBadRequest: if bad data is supplied
+            HTTPNoContent: on success response
+        """
+        try:
+            keep_last_records = int(self.request.query.get("keep_last_records", 0))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
+
+        await self.service().events_rotate(keep_last_records)
+
+        raise HTTPNoContent
 
     @apidocs(
         tags=["Audit log"],
@@ -53,7 +80,10 @@ class EventsView(BaseView):
         get events list
 
         Returns:
-            Response: 200 with workers list on success
+            Response: 200 with events list on success
+
+        Raises:
+            HTTPBadRequest: if bad data is supplied
         """
         limit, offset = self.page()
         event = self.request.query.get("event") or None

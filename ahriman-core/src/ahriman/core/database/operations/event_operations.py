@@ -106,3 +106,33 @@ class EventOperations(Operations):
                 })
 
         return self.with_connection(run, commit=True)
+
+    def events_rotate(self, keep_last_records: int, repository_id: RepositoryId | None = None) -> None:
+        """
+        rotate events in storage, keeping only the last N records for each object
+
+        Args:
+            keep_last_records(int): number of last records to keep
+            repository_id(RepositoryId | None, optional): repository unique identifier override (Default value = None)
+        """
+        repository_id = repository_id or self._repository_id
+
+        def run(connection: Connection) -> None:
+            connection.execute(
+                """
+                delete from auditlog
+                where rowid in (
+                  select rowid from (
+                    select rowid, row_number() over (
+                      partition by object_id order by created desc, rowid desc
+                    ) as rn
+                    from auditlog
+                    where repository = :repository
+                  )
+                  where rn > :keep_last_records
+                )
+                """,
+                {"keep_last_records": keep_last_records, "repository": repository_id.id},
+            )
+
+        self.with_connection(run, commit=True)

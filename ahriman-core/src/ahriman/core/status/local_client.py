@@ -75,6 +75,15 @@ class LocalClient(Client):
         """
         return self.database.event_get(event, object_id, from_date, to_date, limit, offset, self.repository_id)
 
+    def events_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older events from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+        self.database.events_rotate(keep_last_records, self.repository_id)
+
     def logs_rotate(self, keep_last_records: int) -> None:
         """
         remove older logs from storage

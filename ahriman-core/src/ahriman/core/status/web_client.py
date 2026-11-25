@@ -218,6 +218,18 @@ class WebClient(Client, SyncAhrimanClient):
 
         return []
 
+    def events_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older events from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+        query = self.repository_id.query() + [("keep_last_records", str(keep_last_records))]
+
+        with contextlib.suppress(Exception):
+            self.make_request("DELETE", self._events_url(), params=query)
+
     def logs_rotate(self, keep_last_records: int) -> None:
         """
         remove older logs from storage

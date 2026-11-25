@@ -90,6 +90,15 @@ class Watcher(LazyLogging):
         """
         return self.client.event_get(event, object_id, from_date, to_date, limit, offset)
 
+    async def events_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older events from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+        self.client.events_rotate(keep_last_records)
+
     async def load(self) -> None:
         """
         load packages from local database

@@ -118,6 +118,18 @@ class Client:
         """
         raise NotImplementedError
 
+    def events_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older events from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
+
     def logs_rotate(self, keep_last_records: int) -> None:
         """
         remove older logs from storage

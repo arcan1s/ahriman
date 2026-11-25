@@ -209,6 +209,14 @@ Describes settings for packages archives management extensions.
 
 * ``keep_built_packages`` - keep this amount of additional built package versions alongside the version currently published in the repository, integer, required. ``0`` will effectively disable archives removal.
 
+``events-rotation`` group
+-------------------------
+
+This section describes settings for the ``ahriman.core.housekeeping.EventsRotationTrigger`` plugin.
+
+* ``keep_last_events`` - amount of audit events to keep for each object, integer, required. Older events are removed at the end of each process; ``0`` removes all events.
+
+
 ``keyring`` group
 -----------------
 

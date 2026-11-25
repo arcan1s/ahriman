@@ -12,6 +12,14 @@ ahriman.core.housekeeping.archive\_rotation\_trigger module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.housekeeping.events\_rotation\_trigger module
+----------------------------------------------------------
+
+.. automodule:: ahriman.core.housekeeping.events_rotation_trigger
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.housekeeping.logs\_rotation\_trigger module
 --------------------------------------------------------
 

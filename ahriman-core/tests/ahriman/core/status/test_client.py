@@ -120,6 +120,14 @@ def test_event_get(client: Client) -> None:
         client.event_get(None, None)
 
 
+def test_events_rotate(client: Client) -> None:
+    """
+    must raise not implemented on events rotation call
+    """
+    with pytest.raises(NotImplementedError):
+        client.events_rotate(1)
+
+
 def test_logs_rotate(client: Client) -> None:
     """
     must do not raise exception on logs rotation call

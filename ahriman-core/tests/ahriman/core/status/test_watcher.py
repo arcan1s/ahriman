@@ -64,6 +64,15 @@ async def test_load_known(watcher: Watcher, package_ahriman: Package, mocker: Mo
     assert status.status == BuildStatusEnum.SUCCESS
 
 
+async def test_events_rotate(watcher: Watcher, mocker: MockerFixture) -> None:
+    """
+    must rotate events
+    """
+    cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.events_rotate")
+    await watcher.events_rotate(42)
+    cache_mock.assert_called_once_with(42)
+
+
 async def test_logs_rotate(watcher: Watcher, mocker: MockerFixture) -> None:
     """
     must rotate logs

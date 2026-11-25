@@ -307,6 +307,37 @@ def test_event_get_failed_http_error_suppress(web_client: WebClient, mocker: Moc
     logging_mock.assert_not_called()
 
 
+def test_events_rotate(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must rotate events
+    """
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+
+    web_client.events_rotate(42)
+    requests_mock.assert_called_once_with("DELETE", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query() + [("keep_last_records", "42")])
+
+
+def test_events_rotate_failed(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during events rotation
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception)
+    web_client.events_rotate(42)
+
+
+def test_events_rotate_failed_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during events rotation and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception)
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.events_rotate(42)
+    logging_mock.assert_not_called()
+
+
 def test_logs_rotate(web_client: WebClient, mocker: MockerFixture) -> None:
     """
     must rotate logs

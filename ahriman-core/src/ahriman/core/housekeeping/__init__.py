@@ -18,4 +18,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.housekeeping.archive_rotation_trigger import ArchiveRotationTrigger
+from ahriman.core.housekeeping.events_rotation_trigger import EventsRotationTrigger
 from ahriman.core.housekeeping.logs_rotation_trigger import LogsRotationTrigger

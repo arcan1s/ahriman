@@ -38,3 +38,35 @@ def test_event_insert_get_pagination(database: SQLite) -> None:
     database.event_insert(Event("1", "1"))
     database.event_insert(Event("2", "2"))
     assert all(event.event == "1" for event in database.event_get(limit=1, offset=1))
+
+
+def test_events_rotate(database: SQLite) -> None:
+    """
+    must keep last events for each object in repository
+    """
+    repository_id = RepositoryId("i686", database._repository_id.name)
+    events = [
+        Event("event 1", "object 1", created=1),
+        Event("event 2", "object 1", created=2),
+        Event("event 3", "object 2", created=3),
+        Event("event 4", "object 2", created=4),
+    ]
+    for event in events[:2]:
+        database.event_insert(event)
+    for event in events[2:]:
+        database.event_insert(event, repository_id)
+
+    database.events_rotate(1)
+    assert database.event_get() == [events[1]]
+    assert database.event_get(repository_id=repository_id) == events[2:]
+
+
+def test_events_rotate_remove_all(database: SQLite) -> None:
+    """
+    must remove all events when keeping zero records
+    """
+    database.event_insert(Event("event 1", "object 1"))
+    database.event_insert(Event("event 2", "object 2"))
+
+    database.events_rotate(0)
+    assert database.event_get() == []

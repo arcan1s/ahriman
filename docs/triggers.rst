@@ -51,6 +51,11 @@ This trigger removes old package versions from the archive directory. It impleme
 
 Simple trigger to rotate build logs. It implements ``on_result`` and removes old log records after each build process, keeping only the last N records as configured by ``keep_last_logs`` option.
 
+``ahriman.core.housekeeping.EventsRotationTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Trigger to rotate audit events. It implements ``on_result`` and keeps the last N events for each object, as configured by ``keep_last_events``.
+
 ``ahriman.core.report.ReportTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
